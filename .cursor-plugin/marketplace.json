@@ -12,6 +12,7 @@
     {
       "name": "tsb-erp-page",
       "source": ".",
+      "logo": "assets/logo.png",
       "description": "Tsb ERP 业务页 Agent Skills、18 个 subagent 编排与快捷命令。改 src/views/{ts,th}* 页面时自动加载规范。"
     }
   ]

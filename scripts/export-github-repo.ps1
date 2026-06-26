@@ -6,6 +6,7 @@ param(
 
 $include = @(
     ".cursor-plugin",
+    "assets",
     "agents",
     "commands",
     "rules",
