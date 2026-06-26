@@ -1,0 +1,44 @@
+---
+description: Tsb ERP（ts*/th*）改业务页时必须先读 Skills 再写代码
+alwaysApply: false
+globs: "src/views/{ts,th}*/**/*"
+---
+
+# Tsb ERP — Agent 指引（TradeErp ts* / HallErp th*）
+
+改 **`src/views/${views前缀}*/**`**（ts* 或 th*）下业务页时，**必须先 Read Skills**，再写代码。
+
+## 强制顺序
+
+1. **探测项目** — `skills/tsb-page/profiles.md`（判定 ts/th，套用画像）
+2. **总入口** — `tsb-page` Skill（不确定用哪个 Skill 时先读）
+3. **锚点** — `tsb-page/anchors.md`（标准页路径 ts/th 双列、主单/详情映射、四条红线）
+4. **工作流** — `tsb-page-workflow` Skill（**任何改代码前必读**：蓝图、必问单选题、最简代码）
+5. **子 Skill** — 按任务只读一个：
+   - 列表 → `tsb-page-list`
+   - 详情 → `tsb-page-detail`
+   - 弹窗/抽屉 → `tsb-page-dialog`
+   - 新模块 → `tsb-page-module`
+   - 编码规范 → `tsb-page-standards`
+   - 权限 → `tsb-page-auth`
+   - 操作日志 → `tsb-page-operation-log`
+   - 字段设置 → `tsb-page-field-setting`
+   - Tab 可编辑 → `tsb-page-tab-editability`
+   - 路由/Tab 影响 → `tsb-page-registry`
+
+## 四条红线
+
+- **禁脚本**（绝对红线）—— 处理 ERP 代码禁止写任何批处理脚本；批量/跨模块任务按菜单拆 subagent 并行，AI 逐文件读改
+- **范围不清必 AskQuestion**（主单 / 详情 / 两者；删功能未指明页面）
+- **参考他模块必查 locales**（禁止错模块提示文案）
+- **选定前不写代码**（范围未定前不删改；定了之后逐文件改）
+
+标准页：ts→`tsMaterialOrdering` · th→`thCustomerInfo`（按 profiles 探测结果）
+
+## 多 subagent 编排
+
+要派 subagent 分头干活 → 读 `skills/tsb-page/orchestration.md`（18 个 agent：侦察/实现/审查/验证 + 模块专家模板）
+
+批量/跨模块任务 → 按大菜单拆 module-agent 实例并行，AI 逐文件改，禁止脚本
+
+改完可用 `/tsb-page-review` 或审查组 subagent（`tsb-spec-reviewer` + `tsb-i18n-checker` + `tsb-code-reviewer`）做专项审查。
