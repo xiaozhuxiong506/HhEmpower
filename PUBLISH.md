@@ -33,10 +33,14 @@ git push -u origin main
 
 ## 3. 挂到 Team Marketplace
 
+**重要**：Team Marketplace 读的是 `.cursor-plugin/marketplace.json`（插件清单），不是单独的 `plugin.json`。  
+若 Dashboard 显示 **0 plugins**，说明仓库里缺少 `marketplace.json`，补上后 push 再点 **Refresh**。
+
 1. [cursor.com/dashboard](https://cursor.com/dashboard) → **Settings** → **Plugins**
 2. **Team Marketplaces** → **Add Marketplace** → **Import from Repo**
-3. 选 GitHub 私有仓 → **Add to Marketplace** → 选 `tsb-erp-page`
+3. 选 GitHub 私有仓 → 应解析出 `tsb-erp-page` → **Add to Marketplace**
 4. 设 Team Access → Save
+5. 若仍显示 0 plugins：点 **Refresh**；不行则删掉该 Marketplace 重新 Import
 
 ## 4. 以后更新
 

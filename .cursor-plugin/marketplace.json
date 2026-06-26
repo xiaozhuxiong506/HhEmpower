@@ -1,0 +1,18 @@
+{
+  "name": "tsb-erp-marketplace",
+  "displayName": "Tsb ERP",
+  "owner": {
+    "name": "Tsb ERP Team"
+  },
+  "metadata": {
+    "description": "Tsb ERP 业务页开发 Agent 插件（TradeErp ts* / HallErp th*）",
+    "version": "2.0.0"
+  },
+  "plugins": [
+    {
+      "name": "tsb-erp-page",
+      "source": ".",
+      "description": "Tsb ERP 业务页 Agent Skills、18 个 subagent 编排与快捷命令。改 src/views/{ts,th}* 页面时自动加载规范。"
+    }
+  ]
+}
