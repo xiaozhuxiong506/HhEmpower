@@ -11,7 +11,7 @@ const DEFAULT_ZENTAO_URL = "http://hallzd.internal.tsb.com/zentao/my.html";
 const DEFAULT_MAX_TASKS = 2000;
 const DEFAULT_LOGIN_WAIT_MS = 120000;
 
-const WORK_ITEM_KIND_CONFIG = Object.freeze({
+const WORK_ITEM_CONFIG = Object.freeze({
   task: Object.freeze({
     kind: "task",
     listPath: "/zentao/my-work-task-assignedTo.html",
@@ -22,9 +22,9 @@ const WORK_ITEM_KIND_CONFIG = Object.freeze({
       "/zentao/task-browse.html"
     ],
     listHrefFragment: "my-work-task-assignedTo",
-    detailType: "task",
-    hrefPatternSource: "task-(view|edit)|/task/view|taskID=|task-view",
-    idPatternSource: "task-(?:view|edit)-(\\d+)|taskID=(\\d+)|/task/view/(\\d+)"
+    viewPath: id => `/zentao/task-view-${id}.html`,
+    hrefPattern: /task-(view|edit)|\/task\/view|taskID=|task-view/i,
+    idPattern: /task-(?:view|edit)-(\d+)|taskID=(\d+)|\/task\/view\/(\d+)/i
   }),
   bug: Object.freeze({
     kind: "bug",
@@ -35,14 +35,14 @@ const WORK_ITEM_KIND_CONFIG = Object.freeze({
       "/zentao/bug-browse.html"
     ],
     listHrefFragment: "my-work-bug-assignedTo",
-    detailType: "bug",
-    hrefPatternSource: "bug-(view|edit)|/bug/view|bugID=|bug-view",
-    idPatternSource: "bug-(?:view|edit)-(\\d+)|bugID=(\\d+)|/bug/view/(\\d+)"
+    viewPath: id => `/zentao/bug-view-${id}.html`,
+    hrefPattern: /bug-(view|edit)|\/bug\/view|bugID=|bug-view/i,
+    idPattern: /bug-(?:view|edit)-(\d+)|bugID=(\d+)|\/bug\/view\/(\d+)/i
   })
 });
 
-function getWorkItemKindConfig(kind) {
-  const config = WORK_ITEM_KIND_CONFIG[kind];
+function getWorkItemConfig(kind) {
+  const config = WORK_ITEM_CONFIG[kind];
   if (!config) throw new Error(`Unsupported Zentao work item kind: ${kind}`);
   return config;
 }
@@ -187,7 +187,7 @@ async function openAssignedTaskListLegacy(page, startUrl) {
 }
 
 export async function openAssignedWorkItemList(page, startUrl, kind) {
-  const config = getWorkItemKindConfig(kind);
+  const config = getWorkItemConfig(kind);
   await waitForPageReady(page);
   const contentFrame = await findZentaoContentFrame(page);
   const assignedText = kind === "bug"
@@ -224,13 +224,13 @@ async function openAssignedTaskList(page, startUrl) {
 }
 
 async function countWorkItemLinks(page, kind) {
-  const config = getWorkItemKindConfig(kind);
+  const config = getWorkItemConfig(kind);
   return page.evaluate(patternSource => {
     const pattern = new RegExp(patternSource, "i");
     return Array.from(document.querySelectorAll("a[href]")).filter(anchor =>
       pattern.test(anchor.href || "")
     ).length;
-  }, config.hrefPatternSource);
+  }, config.hrefPattern.source);
 }
 
 async function countTaskLinks(page) {
@@ -277,22 +277,23 @@ async function setPageSize(page, pageSize = DEFAULT_MAX_TASKS) {
 }
 
 export async function extractWorkItemLinks(page, kind, maxItems = DEFAULT_MAX_TASKS) {
-  const config = getWorkItemKindConfig(kind);
-  const links = await page.evaluate(({ itemKind, limit, hrefPatternSource, idPatternSource, detailType }) => {
+  const config = getWorkItemConfig(kind);
+  const links = await page.evaluate(({ itemKind, limit, hrefPatternSource, idPatternSource }) => {
     const seen = new Set();
     const result = [];
     const hrefPattern = new RegExp(hrefPatternSource, "i");
     const idPattern = new RegExp(idPatternSource, "i");
     const normalize = value => String(value || "").replace(/\s+/g, " ").trim();
     const pushLink = (item) => {
+      if (result.length >= limit) return true;
       const id = normalize(item.id);
       const title = normalize(item.title);
       const url = normalize(item.url);
-      if (!title || !url) return false;
+      if (!title || (!url && !item.useViewPath)) return false;
       const key = id ? `${itemKind}:${id}` : `${itemKind}:${url.replace(/#.*$/, "")}`;
       if (seen.has(key)) return false;
       seen.add(key);
-      result.push({ id, kind: itemKind, title, url });
+      result.push({ id, kind: itemKind, title, url, useViewPath: Boolean(item.useViewPath) });
       return result.length >= limit;
     };
 
@@ -322,11 +323,10 @@ export async function extractWorkItemLinks(page, kind, maxItems = DEFAULT_MAX_TA
       if (pushLink({
         id,
         title,
-        url: new URL(`/zentao/${detailType}-view-${id}.html`, location.href).href
-      })) return result;
+        url: "",
+        useViewPath: true
+      })) break;
     }
-
-    if (result.length) return result;
 
     const anchors = Array.from(document.querySelectorAll("a[href]"));
     for (const anchor of anchors) {
@@ -346,15 +346,17 @@ export async function extractWorkItemLinks(page, kind, maxItems = DEFAULT_MAX_TA
   }, {
     itemKind: kind,
     limit: maxItems,
-    hrefPatternSource: config.hrefPatternSource,
-    idPatternSource: config.idPatternSource,
-    detailType: config.detailType
+    hrefPatternSource: config.hrefPattern.source,
+    idPatternSource: config.idPattern.source
   });
 
-  return links.map(item => ({
-    ...item,
-    url: toAbsoluteUrl(page.url(), item.url)
-  }));
+  return links.map(item => {
+    const { useViewPath, ...link } = item;
+    return {
+      ...link,
+      url: toAbsoluteUrl(page.url(), useViewPath ? config.viewPath(item.id) : item.url)
+    };
+  });
 }
 
 export async function extractTaskLinks(page, maxTasks = DEFAULT_MAX_TASKS) {
@@ -385,7 +387,7 @@ export async function extractPaginatedWorkItemLinks(
   kind,
   maxItems = DEFAULT_MAX_TASKS
 ) {
-  getWorkItemKindConfig(kind);
+  getWorkItemConfig(kind);
   const links = [];
   const seen = new Set();
   const pagesVisited = [];
@@ -438,20 +440,57 @@ function extractLabelValueFromText(text, labels) {
   return "";
 }
 
-function normalizeRemarkCandidate(value) {
-  const text = normalizeTaskText(String(value || "").replace(/^备注[:：]?\s*/, ""));
-  if (/^(添加|添加备注|暂无备注|无备注|暂无描述)$/i.test(text)) return "";
-  return text;
-}
+const DETAIL_CONTROL_LABELS = new Set([
+  "返回",
+  "编辑",
+  "添加",
+  "添加备注",
+  "保存",
+  "关闭",
+  "取消",
+  "删除",
+  "提交",
+  "确认",
+  "确定",
+  "更多",
+  "重现步骤",
+  "复现步骤",
+  "步骤",
+  "描述",
+  "Bug描述",
+  "问题描述",
+  "任务描述",
+  "需求描述",
+  "备注",
+  "备注信息",
+  "说明",
+  "内容",
+  "Bug内容",
+  "任务内容"
+]);
 
 function normalizeDetailCandidate(value) {
   const text = normalizeTaskText(value);
   if (/^(暂无描述|无描述|添加备注)$/i.test(text)) return "";
+  const tokens = text.split(/[\s/|,，、]+/).filter(Boolean);
+  if (tokens.length && tokens.every(token => DETAIL_CONTROL_LABELS.has(token))) return "";
   return text;
 }
 
+function normalizeRemarkCandidate(value) {
+  return normalizeDetailCandidate(String(value || "").replace(/^备注[:：]?\s*/, ""));
+}
+
+function firstNormalizedDetailCandidate(candidates) {
+  for (const candidate of candidates) {
+    const normalized = normalizeDetailCandidate(candidate);
+    if (normalized) return normalized;
+  }
+  return "";
+}
+
 export async function extractWorkItemDetail(context, workItemLink) {
-  const config = getWorkItemKindConfig(workItemLink?.kind);
+  const config = getWorkItemConfig(workItemLink?.kind);
   const page = await context.newPage();
   try {
     await page.goto(workItemLink.url, { waitUntil: "domcontentloaded" });
@@ -459,7 +498,10 @@ export async function extractWorkItemDetail(context, workItemLink) {
     const detailFrame = await findZentaoContentFrame(page);
 
     const detail = await detailFrame.evaluate(() => {
-      const ignoredText = /^(添加|添加备注|暂无备注|无备注|暂无描述|无描述)$/i;
+      const ignoredText = /^(返回|编辑|添加|添加备注|保存|关闭|取消|删除|提交|确认|确定|更多|暂无备注|无备注|暂无描述|无描述)$/i;
+      const detailRoot = document.querySelector(
+        "#mainContent,.main-content,.detail-view,.detail-container,main,.article"
+      ) || document.body;
       const visibleText = (element) => {
         if (!element) return "";
         const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
@@ -468,7 +510,7 @@ export async function extractWorkItemDetail(context, workItemLink) {
         while (node) {
           const parent = node.parentElement;
           const ignoredControl = parent?.closest(
-            "button,input,textarea,select,[role='button'],.add-remark,.add-comment"
+            "button,input,textarea,select,[role='button'],.btn,.toolbar,.actions,.add-remark,.add-comment"
           );
           const text = String(node.textContent || "").replace(/\s+/g, " ").trim();
           if (!ignoredControl && text && !ignoredText.test(text)) parts.push(text);
@@ -478,13 +520,13 @@ export async function extractWorkItemDetail(context, workItemLink) {
       };
       const firstText = (selectors) => {
         for (const selector of selectors) {
-          const element = document.querySelector(selector);
+          const element = detailRoot.querySelector(selector);
           const text = visibleText(element);
           if (text) return text;
         }
         return "";
       };
-      const bodyText = document.body?.innerText || "";
+      const detailText = detailRoot.innerText || "";
       const articleText = firstText([".article", ".detail-content", ".desc"]);
       const descriptionText = firstText([
         ".description",
@@ -508,11 +550,11 @@ export async function extractWorkItemDetail(context, workItemLink) {
         ".remarks"
       ]);
       const tablePairs = {};
-      for (const row of Array.from(document.querySelectorAll("tr"))) {
+      for (const row of Array.from(detailRoot.querySelectorAll("tr"))) {
         const cells = Array.from(row.children).map(cell => visibleText(cell)).filter(Boolean);
         if (cells.length >= 2 && cells[0].length <= 20) tablePairs[cells[0].replace(/[:：]$/, "")] = cells.slice(1).join(" ");
       }
-      for (const item of Array.from(document.querySelectorAll("dt"))) {
+      for (const item of Array.from(detailRoot.querySelectorAll("dt"))) {
         const key = visibleText(item).replace(/[:：]$/, "");
         const value = visibleText(item.nextElementSibling);
         if (key && value) tablePairs[key] = value;
@@ -531,13 +573,13 @@ export async function extractWorkItemDetail(context, workItemLink) {
         descriptionText,
         contentText,
         commentText,
-        bodyText,
+        detailText,
         tablePairs
       };
     });
 
     const pairs = detail.tablePairs || {};
-    const bodyText = detail.bodyText || "";
+    const detailText = detail.detailText || "";
     const descriptionLabels = config.kind === "bug"
       ? ["Bug描述", "问题描述", "描述"]
       : ["任务描述", "需求描述", "描述"];
@@ -547,22 +589,22 @@ export async function extractWorkItemDetail(context, workItemLink) {
     const titleLabels = config.kind === "bug"
       ? ["Bug标题", "标题"]
       : ["任务名称", "任务标题", "标题"];
-    const description = normalizeDetailCandidate(
-      descriptionLabels.map(label => pairs[label]).find(Boolean) ||
-      detail.descriptionText ||
-      detail.articleText ||
-      extractLabelValueFromText(bodyText, descriptionLabels)
-    );
+    const description = firstNormalizedDetailCandidate([
+      ...descriptionLabels.map(label => pairs[label]),
+      detail.descriptionText,
+      detail.articleText,
+      extractLabelValueFromText(detailText, descriptionLabels)
+    ]);
     const remarks =
       normalizeRemarkCandidate(pairs["备注"]) ||
       normalizeRemarkCandidate(pairs["备注信息"]) ||
       normalizeRemarkCandidate(pairs["说明"]) ||
       normalizeRemarkCandidate(detail.commentText);
-    const content = normalizeDetailCandidate(
-      contentLabels.map(label => pairs[label]).find(Boolean) ||
-      detail.contentText ||
-      extractLabelValueFromText(bodyText, contentLabels)
-    );
+    const content = firstNormalizedDetailCandidate([
+      ...contentLabels.map(label => pairs[label]),
+      detail.contentText,
+      extractLabelValueFromText(detailText, contentLabels)
+    ]);
 
     const detailTitle = normalizeTaskText(
       titleLabels.map(label => pairs[label]).find(Boolean) || detail.title
@@ -667,7 +709,8 @@ export async function collectAssignedZentaoWorkItems(options = {}) {
   const keepBrowserOpen = options.keepBrowserOpen !== false;
   const includeRawText = Boolean(options.includeRawText);
 
-  const context = await launchPersistentChrome(options);
+  const contextFactory = options.contextFactory || launchPersistentChrome;
+  const context = await contextFactory(options);
   const page = context.pages()[0] || await context.newPage();
 
   const state = {
