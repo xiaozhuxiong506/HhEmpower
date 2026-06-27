@@ -165,30 +165,41 @@ export function groupWorkItemsByModule(workItems) {
     if (!groupsByModule.has(module)) {
       const group = {
         module,
-        workItemCount: 0,
-        taskCount: 0,
-        bugCount: 0,
         workItems: []
       };
-      Object.defineProperty(group, "tasks", {
-        enumerable: true,
-        get() {
-          return this.workItems;
+      Object.defineProperties(group, {
+        workItemCount: {
+          enumerable: true,
+          get() {
+            return this.workItems.length;
+          }
         },
-        set(tasks) {
-          this.workItems = tasks;
+        taskCount: {
+          enumerable: true,
+          get() {
+            return this.workItems.filter(item => item.kind !== "bug").length;
+          }
+        },
+        bugCount: {
+          enumerable: true,
+          get() {
+            return this.workItems.filter(item => item.kind === "bug").length;
+          }
+        },
+        tasks: {
+          enumerable: true,
+          get() {
+            return this.workItems;
+          },
+          set(tasks) {
+            this.workItems = tasks;
+          }
         }
       });
       groupsByModule.set(module, group);
     }
     const group = groupsByModule.get(module);
     group.workItems.push(workItem);
-    group.workItemCount = group.workItems.length;
-    if (workItem.kind === "bug") {
-      group.bugCount += 1;
-    } else {
-      group.taskCount += 1;
-    }
   }
 
   return Array.from(groupsByModule.values()).sort((a, b) => {

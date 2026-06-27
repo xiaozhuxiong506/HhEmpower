@@ -136,15 +136,29 @@ test("keeps tasks synchronized with workItems through mutation and reassignment"
 
   group.tasks.push({ kind: "bug", title: "采购订单审批报错" });
   assert.equal(group.workItems.length, 2);
+  assert.equal(group.workItemCount, 2);
+  assert.equal(group.taskCount, 1);
+  assert.equal(group.bugCount, 1);
 
   const tasksReplacement = [{ kind: "task", title: "采购订单修改" }];
   group.tasks = tasksReplacement;
   assert.strictEqual(group.workItems, tasksReplacement);
   assert.strictEqual(group.tasks, tasksReplacement);
+  assert.equal(group.workItemCount, 1);
+  assert.equal(group.taskCount, 1);
+  assert.equal(group.bugCount, 0);
 
   const workItemsReplacement = [{ kind: "bug", title: "采购订单保存报错" }];
   group.workItems = workItemsReplacement;
   assert.strictEqual(group.tasks, workItemsReplacement);
+  assert.equal(group.workItemCount, 1);
+  assert.equal(group.taskCount, 0);
+  assert.equal(group.bugCount, 1);
+
+  const serializedGroup = JSON.parse(JSON.stringify(group));
+  assert.equal(serializedGroup.workItemCount, 1);
+  assert.equal(serializedGroup.taskCount, 0);
+  assert.equal(serializedGroup.bugCount, 1);
 });
 
 test("counts mixed same-module work items and sorts groups by work item count", () => {
