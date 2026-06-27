@@ -1,8 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  analyzeZentaoWorkItems,
   classifyTaskModule,
   groupTasksByModule,
+  normalizeWorkItem,
   normalizeTaskText,
   toAgentExecutionPlan
 } from "../src/zentaoAnalyzer.mjs";
@@ -86,4 +88,30 @@ test("groups tasks by module and emits multi-agent execution prompts", () => {
   assert.match(plan[0].prompt, /采购订单复制产品失败/);
   assert.match(plan[0].prompt, /供应商选择弹窗分页错误/);
   assert.match(plan[1].prompt, /销售订单导出缺少客户字段/);
+});
+
+test("analyzes mixed Zentao tasks and bugs as work items", () => {
+  const analysis = analyzeZentaoWorkItems([
+    { id: "1", kind: "task", title: "采购订单增加审批详情" },
+    { id: "2", kind: "bug", title: "销售出货生成应收单报错" }
+  ]);
+
+  assert.equal(analysis.workItemCount, 2);
+  assert.equal(analysis.taskCount, 1);
+  assert.equal(analysis.bugCount, 1);
+  assert.deepEqual(
+    analysis.groups.flatMap(group => group.workItems.map(item => item.kind)),
+    ["task", "bug"]
+  );
+  assert.match(
+    analysis.agentPlan.find(plan => plan.module === "销售模块").prompt,
+    /类型：Bug/
+  );
+  assert.match(analysis.agentPlan[0].prompt, /completed/);
+  assert.match(analysis.agentPlan[0].prompt, /verified/);
+  assert.match(analysis.agentPlan[0].prompt, /completionSummary/);
+});
+
+test("normalizes unknown work item kinds to task", () => {
+  assert.equal(normalizeWorkItem({ kind: "story", title: "新增报表" }).kind, "task");
 });

@@ -136,35 +136,46 @@ export function classifyTaskModule(task) {
   return businessBest.score > 0 ? businessBest.module : fallbackBest.module;
 }
 
-export function normalizeTask(task) {
-  return {
-    id: normalizeTaskText(task?.id),
-    url: normalizeTaskText(task?.url),
-    title: normalizeTaskText(task?.title),
-    content: normalizeTaskText(task?.content),
-    remarks: normalizeTaskText(task?.remarks),
-    description: normalizeTaskText(task?.description),
-    module: task?.module || classifyTaskModule(task)
+export function normalizeWorkItem(item) {
+  const workItem = {
+    id: normalizeTaskText(item?.id),
+    url: normalizeTaskText(item?.url),
+    title: normalizeTaskText(item?.title),
+    content: normalizeTaskText(item?.content),
+    remarks: normalizeTaskText(item?.remarks),
+    description: normalizeTaskText(item?.description),
+    kind: item?.kind === "bug" ? "bug" : "task"
   };
+  workItem.module = normalizeTaskText(item?.module) || classifyTaskModule(workItem);
+  return workItem;
 }
 
-export function groupTasksByModule(tasks) {
+export function normalizeTask(task) {
+  const { kind: _kind, ...normalizedTask } = normalizeWorkItem(task);
+  return normalizedTask;
+}
+
+export function groupWorkItemsByModule(workItems) {
   const groupsByModule = new Map();
 
-  for (const item of tasks || []) {
-    const task = normalizeTask(item);
-    if (!task.title) continue;
-    const module = task.module || "公共基础模块";
+  for (const item of workItems || []) {
+    const workItem = normalizeWorkItem(item);
+    if (!workItem.title) continue;
+    const module = workItem.module || "公共基础模块";
     if (!groupsByModule.has(module)) {
+      const groupedWorkItems = [];
       groupsByModule.set(module, {
         module,
+        workItemCount: 0,
         taskCount: 0,
-        tasks: []
+        workItems: groupedWorkItems,
+        tasks: groupedWorkItems
       });
     }
     const group = groupsByModule.get(module);
-    group.tasks.push(task);
-    group.taskCount = group.tasks.length;
+    group.workItems.push(workItem);
+    group.workItemCount = group.workItems.length;
+    group.taskCount = group.workItemCount;
   }
 
   return Array.from(groupsByModule.values()).sort((a, b) => {
@@ -173,14 +184,20 @@ export function groupTasksByModule(tasks) {
   });
 }
 
-function formatTaskForPrompt(task, index) {
+export function groupTasksByModule(tasks) {
+  return groupWorkItemsByModule(tasks);
+}
+
+function formatWorkItemForPrompt(workItem, index) {
+  const typeLabel = workItem.kind === "bug" ? "Bug" : "任务";
   const lines = [
-    `${index + 1}. ${task.title}`,
-    task.id ? `   - 禅道ID：${task.id}` : "",
-    task.url ? `   - 链接：${task.url}` : "",
-    task.content ? `   - 内容：${task.content}` : "",
-    task.remarks ? `   - 备注：${task.remarks}` : "",
-    task.description ? `   - 任务描述：${task.description}` : ""
+    `${index + 1}. ${workItem.title}`,
+    `   - 类型：${typeLabel}`,
+    workItem.id ? `   - 禅道ID：${workItem.id}` : "",
+    workItem.url ? `   - 链接：${workItem.url}` : "",
+    workItem.content ? `   - 内容：${workItem.content}` : "",
+    workItem.remarks ? `   - 备注：${workItem.remarks}` : "",
+    workItem.description ? `   - ${typeLabel}描述：${workItem.description}` : ""
   ].filter(Boolean);
   return lines.join("\n");
 }
@@ -188,27 +205,42 @@ function formatTaskForPrompt(task, index) {
 export function toAgentExecutionPlan(groups) {
   return (groups || []).map(group => {
     const moduleName = group.module || "公共基础模块";
-    const tasks = group.tasks || [];
+    const workItems = group.workItems || group.tasks || [];
     return {
       module: moduleName,
       agentName: `tsb-module-agent-${moduleName}`,
-      taskCount: tasks.length,
+      workItemCount: workItems.length,
+      taskCount: workItems.length,
       prompt: [
         `你是 ${moduleName} 的执行 agent。`,
-        "请按下面禅道任务逐项定位代码、修改、验证，并在完成后给出任务级总结。",
+        "请按下面禅道任务或 Bug 逐项定位代码、修改、验证，并在完成后给出工作项级总结。",
+        '每个工作项必须返回结构化完成结果：{"completed": boolean, "verified": boolean, "completionSummary": string}。',
         "",
-        ...tasks.map(formatTaskForPrompt)
+        ...workItems.map(formatWorkItemForPrompt)
       ].join("\n")
     };
   });
 }
 
-export function analyzeZentaoTasks(tasks) {
-  const normalizedTasks = (tasks || []).map(normalizeTask).filter(task => task.title);
-  const groups = groupTasksByModule(normalizedTasks);
+export function analyzeZentaoWorkItems(workItems) {
+  const normalizedWorkItems = (workItems || [])
+    .map(normalizeWorkItem)
+    .filter(workItem => workItem.title);
+  const groups = groupWorkItemsByModule(normalizedWorkItems);
   return {
-    taskCount: normalizedTasks.length,
+    workItemCount: normalizedWorkItems.length,
+    taskCount: normalizedWorkItems.filter(item => item.kind === "task").length,
+    bugCount: normalizedWorkItems.filter(item => item.kind === "bug").length,
     groups,
     agentPlan: toAgentExecutionPlan(groups)
+  };
+}
+
+export function analyzeZentaoTasks(tasks) {
+  const analysis = analyzeZentaoWorkItems(tasks);
+  return {
+    taskCount: analysis.workItemCount,
+    groups: analysis.groups,
+    agentPlan: analysis.agentPlan
   };
 }
