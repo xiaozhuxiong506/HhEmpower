@@ -5,6 +5,7 @@ import {
   analyzeZentaoWorkItems,
   classifyTaskModule,
   groupTasksByModule,
+  groupWorkItemsByModule,
   normalizeWorkItem,
   normalizeTaskText,
   toAgentExecutionPlan
@@ -117,12 +118,63 @@ test("normalizes unknown work item kinds to task", () => {
   assert.equal(normalizeWorkItem({ kind: "story", title: "新增报表" }).kind, "task");
 });
 
+test("preserves explicit module values without normalization", () => {
+  assert.equal(
+    normalizeWorkItem({ module: "  自定义模块  ", title: "新增报表" }).module,
+    "  自定义模块  "
+  );
+  assert.equal(normalizeWorkItem({ module: 42, title: "新增报表" }).module, 42);
+});
+
+test("keeps tasks synchronized with workItems through mutation and reassignment", () => {
+  const [group] = groupWorkItemsByModule([
+    { kind: "task", title: "采购订单增加审批详情" }
+  ]);
+
+  assert.ok(Object.keys(group).includes("tasks"));
+  assert.strictEqual(group.tasks, group.workItems);
+
+  group.tasks.push({ kind: "bug", title: "采购订单审批报错" });
+  assert.equal(group.workItems.length, 2);
+
+  const tasksReplacement = [{ kind: "task", title: "采购订单修改" }];
+  group.tasks = tasksReplacement;
+  assert.strictEqual(group.workItems, tasksReplacement);
+  assert.strictEqual(group.tasks, tasksReplacement);
+
+  const workItemsReplacement = [{ kind: "bug", title: "采购订单保存报错" }];
+  group.workItems = workItemsReplacement;
+  assert.strictEqual(group.tasks, workItemsReplacement);
+});
+
+test("counts mixed same-module work items and sorts groups by work item count", () => {
+  const analysis = analyzeZentaoWorkItems([
+    { kind: "task", title: "销售订单增加审批详情" },
+    { kind: "bug", title: "销售出货生成应收单报错" },
+    { kind: "task", title: "采购订单增加审批详情" }
+  ]);
+
+  assert.deepEqual(analysis.groups.map(group => group.module), ["销售模块", "采购模块"]);
+
+  const salesGroup = analysis.groups[0];
+  assert.equal(salesGroup.workItemCount, 2);
+  assert.equal(salesGroup.taskCount, 1);
+  assert.equal(salesGroup.bugCount, 1);
+
+  const salesPlan = analysis.agentPlan[0];
+  assert.equal(salesPlan.workItemCount, 2);
+  assert.equal(salesPlan.taskCount, 1);
+  assert.equal(salesPlan.bugCount, 1);
+});
+
 test("analyzeZentaoTasks treats inputs carrying bug kinds as tasks", () => {
   const analysis = analyzeZentaoTasks([
     { kind: "bug", title: "销售出货生成应收单报错" }
   ]);
 
   assert.equal(analysis.taskCount, 1);
+  assert.equal(analysis.groups[0].taskCount, 1);
+  assert.equal(analysis.agentPlan[0].taskCount, 1);
   assert.equal(analysis.groups[0].workItems[0].kind, "task");
   assert.match(analysis.agentPlan[0].prompt, /类型：任务/);
 });

@@ -146,7 +146,7 @@ export function normalizeWorkItem(item) {
     description: normalizeTaskText(item?.description),
     kind: item?.kind === "bug" ? "bug" : "task"
   };
-  workItem.module = normalizeTaskText(item?.module) || classifyTaskModule(workItem);
+  workItem.module = item?.module || classifyTaskModule(item);
   return workItem;
 }
 
@@ -163,23 +163,36 @@ export function groupWorkItemsByModule(workItems) {
     if (!workItem.title) continue;
     const module = workItem.module || "公共基础模块";
     if (!groupsByModule.has(module)) {
-      const groupedWorkItems = [];
-      groupsByModule.set(module, {
+      const group = {
         module,
         workItemCount: 0,
         taskCount: 0,
-        workItems: groupedWorkItems,
-        tasks: groupedWorkItems
+        bugCount: 0,
+        workItems: []
+      };
+      Object.defineProperty(group, "tasks", {
+        enumerable: true,
+        get() {
+          return this.workItems;
+        },
+        set(tasks) {
+          this.workItems = tasks;
+        }
       });
+      groupsByModule.set(module, group);
     }
     const group = groupsByModule.get(module);
     group.workItems.push(workItem);
     group.workItemCount = group.workItems.length;
-    group.taskCount = group.workItemCount;
+    if (workItem.kind === "bug") {
+      group.bugCount += 1;
+    } else {
+      group.taskCount += 1;
+    }
   }
 
   return Array.from(groupsByModule.values()).sort((a, b) => {
-    if (b.taskCount !== a.taskCount) return b.taskCount - a.taskCount;
+    if (b.workItemCount !== a.workItemCount) return b.workItemCount - a.workItemCount;
     return a.module.localeCompare(b.module, "zh-Hans-CN");
   });
 }
@@ -206,11 +219,14 @@ export function toAgentExecutionPlan(groups) {
   return (groups || []).map(group => {
     const moduleName = group.module || "公共基础模块";
     const workItems = group.workItems || group.tasks || [];
+    const taskCount = workItems.filter(item => item.kind !== "bug").length;
+    const bugCount = workItems.filter(item => item.kind === "bug").length;
     return {
       module: moduleName,
       agentName: `tsb-module-agent-${moduleName}`,
       workItemCount: workItems.length,
-      taskCount: workItems.length,
+      taskCount,
+      bugCount,
       prompt: [
         `你是 ${moduleName} 的执行 agent。`,
         "请按下面禅道任务或 Bug 逐项定位代码、修改、验证，并在完成后给出工作项级总结。",
