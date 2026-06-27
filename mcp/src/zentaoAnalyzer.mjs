@@ -237,7 +237,8 @@ export function analyzeZentaoWorkItems(workItems) {
 }
 
 export function analyzeZentaoTasks(tasks) {
-  const analysis = analyzeZentaoWorkItems(tasks);
+  const taskWorkItems = (tasks || []).map(task => ({ ...task, kind: "task" }));
+  const analysis = analyzeZentaoWorkItems(taskWorkItems);
   return {
     taskCount: analysis.workItemCount,
     groups: analysis.groups,

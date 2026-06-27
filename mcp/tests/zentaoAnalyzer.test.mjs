@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  analyzeZentaoTasks,
   analyzeZentaoWorkItems,
   classifyTaskModule,
   groupTasksByModule,
@@ -114,4 +115,14 @@ test("analyzes mixed Zentao tasks and bugs as work items", () => {
 
 test("normalizes unknown work item kinds to task", () => {
   assert.equal(normalizeWorkItem({ kind: "story", title: "新增报表" }).kind, "task");
+});
+
+test("analyzeZentaoTasks treats inputs carrying bug kinds as tasks", () => {
+  const analysis = analyzeZentaoTasks([
+    { kind: "bug", title: "销售出货生成应收单报错" }
+  ]);
+
+  assert.equal(analysis.taskCount, 1);
+  assert.equal(analysis.groups[0].workItems[0].kind, "task");
+  assert.match(analysis.agentPlan[0].prompt, /类型：任务/);
 });
