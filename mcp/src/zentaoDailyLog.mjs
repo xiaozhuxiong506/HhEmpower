@@ -6,7 +6,7 @@ const ACTION_PREFIXES = /^(?:完成|新增|重构|修复|优化|实现|开发|�
 
 function normalizeText(value) {
   if (value === null || value === undefined) return "";
-  return String(value).replace(/\s+/gu, " ").trim();
+  return String(value).normalize("NFKC").replace(/\s+/gu, " ").trim();
 }
 
 function normalizeCompletedItems(items) {
@@ -21,9 +21,24 @@ function normalizeCompletedItems(items) {
         module: normalizeText(item.module) || DEFAULT_MODULE,
         title,
         completionSummary: providedSummary || title,
-        kind: item.kind === "bug" ? "bug" : "task"
+        kind: item.kind === "bug" ? "bug" : "task",
+        topic: topicSignature(title || providedSummary)
       };
-    });
+    })
+    .filter(item => item.completionSummary)
+    .sort((left, right) => compareText(itemKey(left), itemKey(right)));
+}
+
+function resolveNow(value) {
+  const now = value === undefined
+    ? new Date()
+    : value instanceof Date
+      ? value
+      : new Date(value);
+  if (!Number.isFinite(now.getTime())) {
+    throw new TypeError("options.now must be a valid date");
+  }
+  return now;
 }
 
 function beijingDate(now) {
@@ -70,106 +85,137 @@ function isSameTopic(left, right) {
   return similarity >= Math.min(6, Math.ceil(shorterLength * 0.6));
 }
 
-function uniqueInOrder(values) {
-  return values.filter((value, index) => values.indexOf(value) === index);
+function compareText(left, right) {
+  if (left < right) return -1;
+  if (left > right) return 1;
+  return 0;
 }
 
-function groupFromItem(item) {
-  return {
-    modules: [item.module],
-    summaries: [item.completionSummary],
-    topicSignatures: [topicSignature(item.title || item.completionSummary)],
-    kinds: [item.kind],
-    sourceItemCount: 1
-  };
+function itemKey(item) {
+  return JSON.stringify([
+    item.module,
+    item.topic,
+    item.title,
+    item.completionSummary,
+    item.kind
+  ]);
 }
 
-function mergeGroups(left, right) {
-  return {
-    modules: uniqueInOrder([...left.modules, ...right.modules]),
-    summaries: [...left.summaries, ...right.summaries],
-    topicSignatures: uniqueInOrder([...left.topicSignatures, ...right.topicSignatures]),
-    kinds: uniqueInOrder([...left.kinds, ...right.kinds]),
-    sourceItemCount: left.sourceItemCount + right.sourceItemCount
-  };
+function uniqueSorted(values) {
+  return Array.from(new Set(values)).sort(compareText);
 }
 
-function groupsShareTopic(left, right) {
-  return left.topicSignatures.some(leftTopic =>
-    right.topicSignatures.some(rightTopic => isSameTopic(leftTopic, rightTopic))
+function outcomeKey(outcome) {
+  return JSON.stringify([outcome.module, outcome.summary]);
+}
+
+function uniqueOutcomes(outcomes) {
+  const byKey = new Map();
+  for (const outcome of outcomes) {
+    const key = outcomeKey(outcome);
+    if (!byKey.has(key)) byKey.set(key, outcome);
+  }
+  return Array.from(byKey.values()).sort((left, right) =>
+    compareText(outcomeKey(left), outcomeKey(right))
   );
 }
 
-function consolidateRelatedItems(items) {
-  const groups = [];
-
-  for (const item of items) {
-    const itemGroup = groupFromItem(item);
-    const matchingIndex = groups.findIndex(group =>
-      group.modules.length === 1 &&
-      group.modules[0] === item.module &&
-      groupsShareTopic(group, itemGroup)
-    );
-
-    if (matchingIndex === -1) groups.push(itemGroup);
-    else groups[matchingIndex] = mergeGroups(groups[matchingIndex], itemGroup);
-  }
-
-  return groups;
+function orderedKinds(kinds) {
+  return ["task", "bug"].filter(kind => kinds.includes(kind));
 }
 
-function modulesOverlap(left, right) {
-  return left.modules.some(module => right.modules.includes(module));
+function groupFromItems(items) {
+  return {
+    modules: uniqueSorted(items.map(item => item.module)),
+    outcomes: uniqueOutcomes(items.map(item => ({
+      module: item.module,
+      summary: item.completionSummary
+    }))),
+    topics: uniqueSorted(items.map(item => item.topic)),
+    kinds: orderedKinds(items.map(item => item.kind)),
+    sourceItemCount: items.length
+  };
 }
 
-function bestTopicSimilarity(left, right) {
-  let best = 0;
-  for (const leftTopic of left.topicSignatures) {
-    for (const rightTopic of right.topicSignatures) {
-      best = Math.max(best, topicSimilarity(leftTopic, rightTopic));
+function groupKey(group) {
+  return JSON.stringify([
+    group.modules,
+    group.topics,
+    group.outcomes.map(outcome => [outcome.module, outcome.summary]),
+    group.kinds,
+    group.sourceItemCount
+  ]);
+}
+
+function mergeGroupList(groups) {
+  return {
+    modules: uniqueSorted(groups.flatMap(group => group.modules)),
+    outcomes: uniqueOutcomes(groups.flatMap(group => group.outcomes)),
+    topics: uniqueSorted(groups.flatMap(group => group.topics)),
+    kinds: orderedKinds(groups.flatMap(group => group.kinds)),
+    sourceItemCount: groups.reduce((total, group) => total + group.sourceItemCount, 0)
+  };
+}
+
+function connectedTopicGroups(items) {
+  const parents = items.map((_, index) => index);
+  const find = index => {
+    let root = index;
+    while (parents[root] !== root) root = parents[root];
+    while (parents[index] !== index) {
+      const parent = parents[index];
+      parents[index] = root;
+      index = parent;
     }
+    return root;
+  };
+  const union = (left, right) => {
+    const leftRoot = find(left);
+    const rightRoot = find(right);
+    if (leftRoot === rightRoot) return;
+    parents[Math.max(leftRoot, rightRoot)] = Math.min(leftRoot, rightRoot);
+  };
+  const indexesByModule = new Map();
+  for (let index = 0; index < items.length; index += 1) {
+    const indexes = indexesByModule.get(items[index].module) || [];
+    indexes.push(index);
+    indexesByModule.set(items[index].module, indexes);
   }
-  return best;
-}
 
-function compareMergeCandidates(candidate, best) {
-  if (candidate.moduleRank !== best.moduleRank) return candidate.moduleRank - best.moduleRank;
-  if (candidate.topicScore !== best.topicScore) return candidate.topicScore - best.topicScore;
-  if (candidate.sourceCount !== best.sourceCount) return best.sourceCount - candidate.sourceCount;
-  if (candidate.left !== best.left) return best.left - candidate.left;
-  return best.right - candidate.right;
-}
-
-function mergeToEntryLimit(initialGroups, limit) {
-  const groups = [...initialGroups];
-
-  while (groups.length > limit) {
-    let best = null;
-    for (let left = 0; left < groups.length - 1; left += 1) {
-      for (let right = left + 1; right < groups.length; right += 1) {
-        const sameModules =
-          groups[left].modules.length === groups[right].modules.length &&
-          groups[left].modules.every(module => groups[right].modules.includes(module));
-        const candidate = {
-          left,
-          right,
-          moduleRank: sameModules ? 2 : modulesOverlap(groups[left], groups[right]) ? 1 : 0,
-          topicScore: bestTopicSimilarity(groups[left], groups[right]),
-          sourceCount: groups[left].sourceItemCount + groups[right].sourceItemCount
-        };
-        if (best === null || compareMergeCandidates(candidate, best) > 0) best = candidate;
+  for (const indexes of indexesByModule.values()) {
+    for (let left = 0; left < indexes.length - 1; left += 1) {
+      for (let right = left + 1; right < indexes.length; right += 1) {
+        if (isSameTopic(items[indexes[left]].topic, items[indexes[right]].topic)) {
+          union(indexes[left], indexes[right]);
+        }
       }
     }
-
-    groups[best.left] = mergeGroups(groups[best.left], groups[best.right]);
-    groups.splice(best.right, 1);
   }
 
-  return groups;
+  const components = new Map();
+  for (let index = 0; index < items.length; index += 1) {
+    const root = find(index);
+    const component = components.get(root) || [];
+    component.push(items[index]);
+    components.set(root, component);
+  }
+  return Array.from(components.values())
+    .map(groupFromItems)
+    .sort((left, right) => compareText(groupKey(left), groupKey(right)));
+}
+
+function compressToEntryLimit(groups, limit) {
+  if (groups.length <= limit) return groups;
+  const buckets = Array.from({ length: limit }, () => []);
+  for (let index = 0; index < groups.length; index += 1) {
+    const bucketIndex = Math.floor(index * limit / groups.length);
+    buckets[bucketIndex].push(groups[index]);
+  }
+  return buckets.map(mergeGroupList);
 }
 
 function consolidateItems(items, limit = MAX_ENTRIES) {
-  return mergeToEntryLimit(consolidateRelatedItems(items), limit);
+  return compressToEntryLimit(connectedTopicGroups(items), limit);
 }
 
 function textComplexity(text) {
@@ -182,7 +228,7 @@ function textComplexity(text) {
 }
 
 function groupComplexity(group) {
-  return group.summaries.reduce((score, summary) => score + textComplexity(summary), 0);
+  return group.outcomes.reduce((score, outcome) => score + textComplexity(outcome.summary), 0);
 }
 
 function allocateHalfHourUnits(groups, totalUnits = TOTAL_HALF_HOUR_UNITS) {
@@ -198,39 +244,39 @@ function allocateHalfHourUnits(groups, totalUnits = TOTAL_HALF_HOUR_UNITS) {
   remaining -= additionalUnits.reduce((sum, value) => sum + value, 0);
 
   const remainderOrder = shares
-    .map((share, index) => ({ index, fraction: share - Math.floor(share), score: scores[index] }))
+    .map((share, index) => ({
+      index,
+      fraction: share - Math.floor(share),
+      score: scores[index],
+      key: groupKey(groups[index])
+    }))
     .sort((left, right) =>
-      right.fraction - left.fraction || right.score - left.score || left.index - right.index
+      right.fraction - left.fraction ||
+      right.score - left.score ||
+      compareText(left.key, right.key)
     );
   for (let index = 0; index < remaining; index += 1) units[remainderOrder[index].index] += 1;
 
   return units;
 }
 
-function representativeSummary(group) {
-  let bestIndex = 0;
-  let bestScore = textComplexity(group.summaries[0]);
-  for (let index = 1; index < group.summaries.length; index += 1) {
-    const score = textComplexity(group.summaries[index]);
-    if (score > bestScore) {
-      bestIndex = index;
-      bestScore = score;
-    }
+function describeOutcomes(group) {
+  if (group.modules.length === 1) {
+    return `${group.modules[0]}：${group.outcomes.map(outcome => outcome.summary).join("；")}`;
   }
-  const summary = group.summaries[bestIndex];
-  return group.sourceItemCount > 1 ? `${summary}等${group.sourceItemCount}项` : summary;
+  return group.outcomes
+    .map(outcome => `${outcome.module}：${outcome.summary}`)
+    .join("；");
 }
 
 function toEntry(group, units) {
   const module = group.modules.join("、");
-  const completionSummary = representativeSummary(group);
-  const kinds = ["task", "bug"].filter(kind => group.kinds.includes(kind));
   return {
     module,
-    completionSummary,
-    description: `${module}：${completionSummary}`,
-    kind: kinds.length === 1 ? kinds[0] : "mixed",
-    kinds,
+    completionSummary: group.outcomes.map(outcome => outcome.summary).join("；"),
+    description: describeOutcomes(group),
+    outcomes: group.outcomes,
+    kinds: group.kinds,
     sourceItemCount: group.sourceItemCount,
     hours: units / 2
   };
@@ -271,7 +317,8 @@ export function generateZentaoDailyLog(items, options = {}) {
   const consolidated = consolidateItems(completedItems);
   const units = allocateHalfHourUnits(consolidated);
   const entries = consolidated.map((group, index) => toEntry(group, units[index]));
-  const date = beijingDate(options.now ?? new Date());
+  const safeOptions = options && typeof options === "object" ? options : {};
+  const date = beijingDate(resolveNow(safeOptions.now));
   const summary = summaryForKinds(consolidated.flatMap(group => group.kinds));
 
   return {
