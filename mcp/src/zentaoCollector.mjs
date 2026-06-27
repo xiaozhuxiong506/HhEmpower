@@ -1,11 +1,56 @@
 import os from "node:os";
 import path from "node:path";
 import { chromium } from "playwright";
-import { analyzeZentaoTasks, normalizeTaskText } from "./zentaoAnalyzer.mjs";
+import {
+  analyzeZentaoTasks,
+  analyzeZentaoWorkItems,
+  normalizeTaskText
+} from "./zentaoAnalyzer.mjs";
 
 const DEFAULT_ZENTAO_URL = "http://hallzd.internal.tsb.com/zentao/my.html";
 const DEFAULT_MAX_TASKS = 2000;
 const DEFAULT_LOGIN_WAIT_MS = 120000;
+
+const WORK_ITEM_KIND_CONFIG = Object.freeze({
+  task: Object.freeze({
+    kind: "task",
+    listPath: "/zentao/my-work-task-assignedTo.html",
+    fallbackListPaths: [
+      "/zentao/my-work-task-assignedTo.html",
+      "/zentao/my-task.html",
+      "/zentao/my-task-assignedTo.html",
+      "/zentao/task-browse.html"
+    ],
+    listHrefFragment: "my-work-task-assignedTo",
+    detailType: "task",
+    hrefPatternSource: "task-(view|edit)|/task/view|taskID=|task-view",
+    idPatternSource: "task-(?:view|edit)-(\\d+)|taskID=(\\d+)|/task/view/(\\d+)"
+  }),
+  bug: Object.freeze({
+    kind: "bug",
+    listPath: "/zentao/my-work-bug-assignedTo.html",
+    fallbackListPaths: [
+      "/zentao/my-work-bug-assignedTo.html",
+      "/zentao/my-bug.html",
+      "/zentao/bug-browse.html"
+    ],
+    listHrefFragment: "my-work-bug-assignedTo",
+    detailType: "bug",
+    hrefPatternSource: "bug-(view|edit)|/bug/view|bugID=|bug-view",
+    idPatternSource: "bug-(?:view|edit)-(\\d+)|bugID=(\\d+)|/bug/view/(\\d+)"
+  })
+});
+
+function getWorkItemKindConfig(kind) {
+  const config = WORK_ITEM_KIND_CONFIG[kind];
+  if (!config) throw new Error(`Unsupported Zentao work item kind: ${kind}`);
+  return config;
+}
+
+function stripKind(item) {
+  const { kind: _kind, ...legacyItem } = item;
+  return legacyItem;
+}
 
 function defaultProfileDir() {
   const base = process.env.LOCALAPPDATA || os.tmpdir();
@@ -141,15 +186,18 @@ async function openAssignedTaskListLegacy(page, startUrl) {
   }
 }
 
-async function openAssignedTaskList(page, startUrl) {
+export async function openAssignedWorkItemList(page, startUrl, kind) {
+  const config = getWorkItemKindConfig(kind);
   await waitForPageReady(page);
   const contentFrame = await findZentaoContentFrame(page);
+  const assignedText = kind === "bug"
+    ? /指派给我.*(?:Bug|缺陷)|(?:Bug|缺陷).*指派给我/i
+    : /指派给我|指派给我的任务|我的任务|待处理任务|任务数/;
 
   const clicked = await clickFirstVisible(contentFrame, [
-    contentFrame.locator("a[href*='my-work-task-assignedTo']"),
-    contentFrame.getByRole("link", { name: /指派给我|指派给我的任务|我的任务|待处理任务|任务数/ }),
-    contentFrame.locator("a").filter({ hasText: /指派给我|指派给我的任务|我的任务|待处理/ }),
-    contentFrame.locator("a[href*='my-task'],a[href*='task']").filter({ hasText: /任务|指派|待处理/ })
+    contentFrame.locator(`a[href*='${config.listHrefFragment}']`),
+    contentFrame.getByRole("link", { name: assignedText }),
+    contentFrame.locator("a").filter({ hasText: assignedText })
   ]);
 
   if (clicked) {
@@ -157,30 +205,36 @@ async function openAssignedTaskList(page, startUrl) {
     return findZentaoContentFrame(page);
   }
 
-  const fallbackUrls = [
-    "/zentao/my-work-task-assignedTo.html",
-    "/zentao/my-task.html",
-    "/zentao/my-task-assignedTo.html",
-    "/zentao/task-browse.html"
-  ].map(item => toAbsoluteUrl(startUrl, item));
+  const fallbackUrls = config.fallbackListPaths.map(item => toAbsoluteUrl(startUrl, item));
 
   for (const url of fallbackUrls) {
-    await page.goto(url).catch(() => null);
+    const response = await page.goto(url).catch(() => null);
+    if (!response) continue;
     await waitForPageReady(page);
     const frame = await findZentaoContentFrame(page);
-    const foundLinks = await countTaskLinks(frame);
-    if (foundLinks > 0) return frame;
+    const foundLinks = await countWorkItemLinks(frame, kind);
+    if (url === toAbsoluteUrl(startUrl, config.listPath) || foundLinks > 0) return frame;
   }
 
   return contentFrame;
 }
 
-async function countTaskLinks(page) {
-  return page.evaluate(() => {
+async function openAssignedTaskList(page, startUrl) {
+  return openAssignedWorkItemList(page, startUrl, "task");
+}
+
+async function countWorkItemLinks(page, kind) {
+  const config = getWorkItemKindConfig(kind);
+  return page.evaluate(patternSource => {
+    const pattern = new RegExp(patternSource, "i");
     return Array.from(document.querySelectorAll("a[href]")).filter(anchor =>
-      /task-(view|edit)|\/task\/view|taskID=|task-view/i.test(anchor.href || "")
+      pattern.test(anchor.href || "")
     ).length;
-  });
+  }, config.hrefPatternSource);
+}
+
+async function countTaskLinks(page) {
+  return countWorkItemLinks(page, "task");
 }
 
 async function setPageSize(page, pageSize = DEFAULT_MAX_TASKS) {
@@ -222,20 +276,23 @@ async function setPageSize(page, pageSize = DEFAULT_MAX_TASKS) {
   return false;
 }
 
-export async function extractTaskLinks(page, maxTasks = DEFAULT_MAX_TASKS) {
-  const links = await page.evaluate(limit => {
+export async function extractWorkItemLinks(page, kind, maxItems = DEFAULT_MAX_TASKS) {
+  const config = getWorkItemKindConfig(kind);
+  const links = await page.evaluate(({ itemKind, limit, hrefPatternSource, idPatternSource, detailType }) => {
     const seen = new Set();
     const result = [];
+    const hrefPattern = new RegExp(hrefPatternSource, "i");
+    const idPattern = new RegExp(idPatternSource, "i");
     const normalize = value => String(value || "").replace(/\s+/g, " ").trim();
     const pushLink = (item) => {
       const id = normalize(item.id);
       const title = normalize(item.title);
       const url = normalize(item.url);
       if (!title || !url) return false;
-      const key = id ? `task:${id}` : url.replace(/#.*$/, "");
+      const key = id ? `${itemKind}:${id}` : `${itemKind}:${url.replace(/#.*$/, "")}`;
       if (seen.has(key)) return false;
       seen.add(key);
-      result.push({ id, title, url });
+      result.push({ id, kind: itemKind, title, url });
       return result.length >= limit;
     };
 
@@ -245,7 +302,7 @@ export async function extractTaskLinks(page, maxTasks = DEFAULT_MAX_TASKS) {
         "#table-my-work",
         ...Array.from(document.querySelectorAll("[id]"))
           .map(element => `#${CSS.escape(element.id)}`)
-          .filter(selector => /table|task|work/i.test(selector))
+          .filter(selector => /table|task|bug|work/i.test(selector))
       ];
       for (const candidate of candidates) {
         const table = window.zui?.DTable?.query?.(candidate) ||
@@ -259,23 +316,25 @@ export async function extractTaskLinks(page, maxTasks = DEFAULT_MAX_TASKS) {
 
     for (const row of dtableRows) {
       const data = row?.data || row || {};
-      const id = normalize(data.id || data.taskID || data.taskId);
+      const id = normalize(data.id || data.bugID || data.bugId || data.taskID || data.taskId);
       const title = normalize(data.name || data.title);
       if (!/^\d+$/.test(id) || !title) continue;
       if (pushLink({
         id,
         title,
-        url: new URL(`/zentao/task-view-${id}.html`, location.href).href
+        url: new URL(`/zentao/${detailType}-view-${id}.html`, location.href).href
       })) return result;
     }
+
+    if (result.length) return result;
 
     const anchors = Array.from(document.querySelectorAll("a[href]"));
     for (const anchor of anchors) {
       const href = anchor.href || "";
       const text = normalize(anchor.innerText || anchor.textContent);
       if (!text) continue;
-      if (!/task-(view|edit)|\/task\/view|taskID=|task-view/i.test(href)) continue;
-      const idMatch = href.match(/task-(?:view|edit)-(\d+)|taskID=(\d+)|\/task\/view\/(\d+)/i);
+      if (!hrefPattern.test(href)) continue;
+      const idMatch = href.match(idPattern);
       if (pushLink({
         id: idMatch ? idMatch.slice(1).find(Boolean) || "" : "",
         title: text,
@@ -284,7 +343,13 @@ export async function extractTaskLinks(page, maxTasks = DEFAULT_MAX_TASKS) {
     }
 
     return result;
-  }, maxTasks);
+  }, {
+    itemKind: kind,
+    limit: maxItems,
+    hrefPatternSource: config.hrefPatternSource,
+    idPatternSource: config.idPatternSource,
+    detailType: config.detailType
+  });
 
   return links.map(item => ({
     ...item,
@@ -292,45 +357,70 @@ export async function extractTaskLinks(page, maxTasks = DEFAULT_MAX_TASKS) {
   }));
 }
 
-async function findNextTaskListPageUrl(page) {
+export async function extractTaskLinks(page, maxTasks = DEFAULT_MAX_TASKS) {
+  const links = await extractWorkItemLinks(page, "task", maxTasks);
+  return links.map(stripKind);
+}
+
+async function findNextWorkItemListPageUrl(page) {
   return page.evaluate(() => {
     const links = Array.from(document.querySelectorAll("a[href]"));
     const next = links.find(anchor => {
       const title = anchor.getAttribute("title") || "";
-      const className = String(anchor.className || "");
-      return title.includes("下一页") && !className.includes("disabled");
+      const label = `${title} ${anchor.getAttribute("aria-label") || ""} ${anchor.textContent || ""}`;
+      const disabledContainer = anchor.closest(".disabled,[aria-disabled='true']");
+      const style = window.getComputedStyle(anchor);
+      const visible = style.display !== "none" && style.visibility !== "hidden" &&
+        Boolean(anchor.offsetWidth || anchor.offsetHeight || anchor.getClientRects().length);
+      return label.includes("下一页") && visible && !disabledContainer &&
+        !anchor.hasAttribute("disabled");
     });
     return next?.href || "";
   });
 }
 
-export async function extractPaginatedTaskLinks(page, initialScope, maxTasks = DEFAULT_MAX_TASKS) {
+export async function extractPaginatedWorkItemLinks(
+  page,
+  initialScope,
+  kind,
+  maxItems = DEFAULT_MAX_TASKS
+) {
+  getWorkItemKindConfig(kind);
   const links = [];
   const seen = new Set();
   const pagesVisited = [];
   let scope = initialScope;
 
-  for (let pageIndex = 0; pageIndex < 50 && links.length < maxTasks; pageIndex += 1) {
+  for (let pageIndex = 0; pageIndex < 50 && links.length < maxItems; pageIndex += 1) {
     pagesVisited.push(scope.url());
-    const pageLinks = await extractTaskLinks(scope, maxTasks);
+    const pageLinks = await extractWorkItemLinks(scope, kind, maxItems);
     for (const link of pageLinks) {
-      const key = link.id ? `task:${link.id}` : link.url.replace(/#.*$/, "");
+      const key = link.id ? `${kind}:${link.id}` : `${kind}:${link.url.replace(/#.*$/, "")}`;
       if (seen.has(key)) continue;
       seen.add(key);
       links.push(link);
-      if (links.length >= maxTasks) break;
+      if (links.length >= maxItems) break;
     }
-    if (links.length >= maxTasks) break;
+    if (links.length >= maxItems) break;
 
-    const nextUrl = await findNextTaskListPageUrl(scope).catch(() => "");
+    const nextUrl = await findNextWorkItemListPageUrl(scope).catch(() => "");
     if (!nextUrl || pagesVisited.includes(nextUrl)) break;
 
-    await page.goto(nextUrl, { waitUntil: "domcontentloaded" }).catch(() => null);
+    const response = await page.goto(nextUrl, { waitUntil: "domcontentloaded" }).catch(() => null);
+    if (!response) break;
     await waitForPageReady(page);
     scope = await findZentaoContentFrame(page);
   }
 
   return { links, pagesVisited };
+}
+
+export async function extractPaginatedTaskLinks(page, initialScope, maxTasks = DEFAULT_MAX_TASKS) {
+  const result = await extractPaginatedWorkItemLinks(page, initialScope, "task", maxTasks);
+  return {
+    ...result,
+    links: result.links.map(stripKind)
+  };
 }
 
 function extractLabelValueFromText(text, labels) {
@@ -350,21 +440,42 @@ function extractLabelValueFromText(text, labels) {
 
 function normalizeRemarkCandidate(value) {
   const text = normalizeTaskText(String(value || "").replace(/^备注[:：]?\s*/, ""));
-  if (/^(添加|添加备注|暂无备注|无备注)$/i.test(text)) return "";
+  if (/^(添加|添加备注|暂无备注|无备注|暂无描述)$/i.test(text)) return "";
   return text;
 }
 
-export async function extractTaskDetail(context, taskLink) {
+function normalizeDetailCandidate(value) {
+  const text = normalizeTaskText(value);
+  if (/^(暂无描述|无描述|添加备注)$/i.test(text)) return "";
+  return text;
+}
+
+export async function extractWorkItemDetail(context, workItemLink) {
+  const config = getWorkItemKindConfig(workItemLink?.kind);
   const page = await context.newPage();
   try {
-    await page.goto(taskLink.url, { waitUntil: "domcontentloaded" });
+    await page.goto(workItemLink.url, { waitUntil: "domcontentloaded" });
     await waitForPageReady(page);
     const detailFrame = await findZentaoContentFrame(page);
 
     const detail = await detailFrame.evaluate(() => {
-      const visibleText = (element) => (element?.innerText || element?.textContent || "")
-        .replace(/\s+/g, " ")
-        .trim();
+      const ignoredText = /^(添加|添加备注|暂无备注|无备注|暂无描述|无描述)$/i;
+      const visibleText = (element) => {
+        if (!element) return "";
+        const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+        const parts = [];
+        let node = walker.nextNode();
+        while (node) {
+          const parent = node.parentElement;
+          const ignoredControl = parent?.closest(
+            "button,input,textarea,select,[role='button'],.add-remark,.add-comment"
+          );
+          const text = String(node.textContent || "").replace(/\s+/g, " ").trim();
+          if (!ignoredControl && text && !ignoredText.test(text)) parts.push(text);
+          node = walker.nextNode();
+        }
+        return parts.join(" ").replace(/\s+/g, " ").trim();
+      };
       const firstText = (selectors) => {
         for (const selector of selectors) {
           const element = document.querySelector(selector);
@@ -374,7 +485,21 @@ export async function extractTaskDetail(context, taskLink) {
         return "";
       };
       const bodyText = document.body?.innerText || "";
-      const articleText = firstText([".article", ".detail-content", ".desc", ".content"]);
+      const articleText = firstText([".article", ".detail-content", ".desc"]);
+      const descriptionText = firstText([
+        ".description",
+        ".bug-description",
+        ".task-description",
+        "[data-field='description']"
+      ]);
+      const contentText = firstText([
+        ".steps",
+        ".reproduce-steps",
+        ".bug-steps",
+        ".content",
+        "[data-field='steps']",
+        "[data-field='content']"
+      ]);
       const commentText = firstText([
         ".comment",
         ".history-panel .comment",
@@ -394,8 +519,17 @@ export async function extractTaskDetail(context, taskLink) {
       }
 
       return {
-        title: firstText(["h1", ".heading h1", ".main-title", ".task-title", "#mainContent h1"]) || document.title,
+        title: firstText([
+          "#mainContent h1",
+          ".heading h1",
+          ".main-title",
+          ".task-title",
+          ".bug-title",
+          "h1"
+        ]) || document.title,
         articleText,
+        descriptionText,
+        contentText,
         commentText,
         bodyText,
         tablePairs
@@ -404,31 +538,44 @@ export async function extractTaskDetail(context, taskLink) {
 
     const pairs = detail.tablePairs || {};
     const bodyText = detail.bodyText || "";
-    const description = normalizeTaskText(
-      pairs["任务描述"] ||
-      pairs["描述"] ||
-      pairs["需求描述"] ||
+    const descriptionLabels = config.kind === "bug"
+      ? ["Bug描述", "问题描述", "描述"]
+      : ["任务描述", "需求描述", "描述"];
+    const contentLabels = config.kind === "bug"
+      ? ["重现步骤", "复现步骤", "步骤", "Bug内容", "内容"]
+      : ["任务内容", "内容"];
+    const titleLabels = config.kind === "bug"
+      ? ["Bug标题", "标题"]
+      : ["任务名称", "任务标题", "标题"];
+    const description = normalizeDetailCandidate(
+      descriptionLabels.map(label => pairs[label]).find(Boolean) ||
+      detail.descriptionText ||
       detail.articleText ||
-      extractLabelValueFromText(bodyText, ["任务描述", "需求描述", "描述"])
+      extractLabelValueFromText(bodyText, descriptionLabels)
     );
     const remarks =
       normalizeRemarkCandidate(pairs["备注"]) ||
       normalizeRemarkCandidate(pairs["备注信息"]) ||
       normalizeRemarkCandidate(pairs["说明"]) ||
       normalizeRemarkCandidate(detail.commentText);
-    const content = normalizeTaskText(
-      pairs["内容"] ||
-      pairs["任务内容"]
+    const content = normalizeDetailCandidate(
+      contentLabels.map(label => pairs[label]).find(Boolean) ||
+      detail.contentText ||
+      extractLabelValueFromText(bodyText, contentLabels)
     );
 
-    const detailTitle = normalizeTaskText(detail.title);
-    const title = detailTitle && !/^TASK#\d+/i.test(detailTitle)
+    const detailTitle = normalizeTaskText(
+      titleLabels.map(label => pairs[label]).find(Boolean) || detail.title
+    );
+    const browserTitlePattern = new RegExp(`^${config.kind.toUpperCase()}#\\d+`, "i");
+    const title = detailTitle && !browserTitlePattern.test(detailTitle)
       ? detailTitle
-      : normalizeTaskText(taskLink.title);
+      : normalizeTaskText(workItemLink.title);
 
     return {
-      id: taskLink.id,
-      url: taskLink.url,
+      id: workItemLink.id,
+      kind: config.kind,
+      url: workItemLink.url,
       title,
       content,
       remarks,
@@ -437,6 +584,11 @@ export async function extractTaskDetail(context, taskLink) {
   } finally {
     await page.close().catch(() => {});
   }
+}
+
+export async function extractTaskDetail(context, taskLink) {
+  const detail = await extractWorkItemDetail(context, { ...taskLink, kind: "task" });
+  return stripKind(detail);
 }
 
 export function formatZentaoAnalysisMarkdown(result) {
@@ -466,6 +618,135 @@ export function formatZentaoAnalysisMarkdown(result) {
   }
 
   return lines.join("\n").trim();
+}
+
+export function formatZentaoWorkItemAnalysisMarkdown(result) {
+  const groups = result.groups || [];
+  const lines = [
+    "# 禅道指派给我工作项分析",
+    "",
+    `- 工作项数：${result.workItemCount}`,
+    `- 任务数：${result.taskCount}`,
+    `- Bug 数：${result.bugCount}`,
+    `- 分组数：${groups.length}`,
+    ""
+  ];
+
+  for (const group of groups) {
+    const workItems = group.workItems || group.tasks || [];
+    const workItemCount = group.workItemCount ?? workItems.length;
+    lines.push(`## ${group.module}（${workItemCount}）`);
+    for (const workItem of workItems) {
+      const kindLabel = workItem.kind === "bug" ? "Bug" : "任务";
+      lines.push(`- ${kindLabel}：${workItem.title}${workItem.id ? `（#${workItem.id}）` : ""}`);
+      if (workItem.url) lines.push(`  - 链接：${workItem.url}`);
+      if (workItem.content) lines.push(`  - 内容：${workItem.content}`);
+      if (workItem.remarks) lines.push(`  - 备注：${workItem.remarks}`);
+      if (workItem.description) lines.push(`  - ${kindLabel}描述：${workItem.description}`);
+    }
+    lines.push("");
+  }
+
+  lines.push("## 多 Agent 执行包");
+  for (const item of result.agentPlan || []) {
+    lines.push(
+      `- ${item.agentName}：${item.workItemCount} 个工作项` +
+      `（任务 ${item.taskCount}，Bug ${item.bugCount}）`
+    );
+  }
+
+  return lines.join("\n").trim();
+}
+
+export async function collectAssignedZentaoWorkItems(options = {}) {
+  const startUrl = options.url || DEFAULT_ZENTAO_URL;
+  const maxTasks = Number(options.maxTasks || DEFAULT_MAX_TASKS);
+  const maxBugs = Number(options.maxBugs || maxTasks);
+  const pageSize = Number(options.pageSize || DEFAULT_MAX_TASKS);
+  const loginWaitMs = Number(options.loginWaitMs || DEFAULT_LOGIN_WAIT_MS);
+  const keepBrowserOpen = options.keepBrowserOpen !== false;
+  const includeRawText = Boolean(options.includeRawText);
+
+  const context = await launchPersistentChrome(options);
+  const page = context.pages()[0] || await context.newPage();
+
+  const state = {
+    task: { listUrl: "", pagesVisited: [], linksFound: 0, workItems: [] },
+    bug: { listUrl: "", pagesVisited: [], linksFound: 0, workItems: [] }
+  };
+  const collectionErrors = [];
+
+  try {
+    await page.goto(startUrl, { waitUntil: "domcontentloaded" });
+    await waitForPageReady(page);
+    await waitForLoginIfNeeded(page, loginWaitMs);
+
+    for (const [kind, maxItems] of [["task", maxTasks], ["bug", maxBugs]]) {
+      const kindState = state[kind];
+      try {
+        if (kind === "bug") {
+          await page.goto(startUrl, { waitUntil: "domcontentloaded" });
+          await waitForPageReady(page);
+        }
+
+        const listScope = await openAssignedWorkItemList(page, startUrl, kind);
+        kindState.listUrl = listScope.url();
+        await setPageSize(listScope, pageSize);
+
+        const linkResult = await extractPaginatedWorkItemLinks(
+          page,
+          listScope,
+          kind,
+          maxItems
+        );
+        kindState.pagesVisited = linkResult.pagesVisited;
+        kindState.linksFound = linkResult.links.length;
+
+        for (const link of linkResult.links.slice(0, maxItems)) {
+          try {
+            const workItem = await extractWorkItemDetail(context, link);
+            if (!includeRawText) delete workItem.rawText;
+            kindState.workItems.push(workItem);
+          } catch (error) {
+            collectionErrors.push({
+              kind,
+              message: error instanceof Error ? error.message : String(error)
+            });
+          }
+        }
+      } catch (error) {
+        collectionErrors.push({
+          kind,
+          message: error instanceof Error ? error.message : String(error)
+        });
+      }
+    }
+
+    const analysis = analyzeZentaoWorkItems([
+      ...state.task.workItems,
+      ...state.bug.workItems
+    ]);
+    const result = {
+      sourceUrl: startUrl,
+      collectedAt: new Date().toISOString(),
+      pageSizeRequested: pageSize,
+      taskListUrl: state.task.listUrl,
+      bugListUrl: state.bug.listUrl,
+      taskPagesVisited: state.task.pagesVisited,
+      bugPagesVisited: state.bug.pagesVisited,
+      taskLinksFound: state.task.linksFound,
+      bugLinksFound: state.bug.linksFound,
+      ...analysis,
+      collectionErrors
+    };
+
+    return {
+      ...result,
+      markdown: formatZentaoWorkItemAnalysisMarkdown(result)
+    };
+  } finally {
+    if (!keepBrowserOpen) await context.close().catch(() => {});
+  }
 }
 
 export async function collectAssignedZentaoTasks(options = {}) {

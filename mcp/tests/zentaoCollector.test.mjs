@@ -2,10 +2,14 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { chromium } from "playwright";
 import {
+  extractPaginatedWorkItemLinks,
   extractPaginatedTaskLinks,
+  extractWorkItemDetail,
+  extractWorkItemLinks,
   extractTaskDetail,
   extractTaskLinks,
-  findZentaoContentFrame
+  findZentaoContentFrame,
+  formatZentaoWorkItemAnalysisMarkdown
 } from "../src/zentaoCollector.mjs";
 
 test("finds task links inside Zentao app iframe", async () => {
@@ -230,6 +234,241 @@ test("ignores Zentao navigation and add-remark controls in empty task details", 
     assert.equal(task.description, "");
   } finally {
     await context.close();
+    await browser.close();
+  }
+});
+
+test("extracts Zentao Bug rows from DTable state with Bug detail URLs", async () => {
+  const browser = await chromium.launch({ headless: true });
+  const page = await browser.newPage();
+
+  try {
+    await page.route("http://example.test/bugs.html", route => {
+      route.fulfill({
+        contentType: "text/html; charset=utf-8",
+        body: "<html><body><div id='table-my-work'></div></body></html>"
+      });
+    });
+    await page.goto("http://example.test/bugs.html");
+    await page.evaluate(() => {
+      window.zui = {
+        DTable: {
+          query: () => ({
+            $: {
+              state: {
+                data: [
+                  { bugID: "71", title: "采购订单保存时报错" },
+                  { bugId: "72", name: "销售出货无法生成应收单" }
+                ]
+              }
+            }
+          })
+        }
+      };
+    });
+
+    const links = await extractWorkItemLinks(page, "bug", 10);
+    assert.deepEqual(links, [
+      {
+        id: "71",
+        kind: "bug",
+        title: "采购订单保存时报错",
+        url: "http://example.test/zentao/bug-view-71.html"
+      },
+      {
+        id: "72",
+        kind: "bug",
+        title: "销售出货无法生成应收单",
+        url: "http://example.test/zentao/bug-view-72.html"
+      }
+    ]);
+  } finally {
+    await browser.close();
+  }
+});
+
+test("falls back to Zentao Bug DOM links", async () => {
+  const browser = await chromium.launch({ headless: true });
+  const page = await browser.newPage();
+
+  try {
+    await page.setContent(`
+      <a href="http://example.test/zentao/bug-view-81.html">采购订单审批页空白</a>
+      <a href="http://example.test/zentao/task-view-82.html">不应收集的任务</a>
+    `);
+
+    const links = await extractWorkItemLinks(page, "bug", 10);
+    assert.deepEqual(links, [{
+      id: "81",
+      kind: "bug",
+      title: "采购订单审批页空白",
+      url: "http://example.test/zentao/bug-view-81.html"
+    }]);
+  } finally {
+    await browser.close();
+  }
+});
+
+test("follows Zentao Bug pagination and preserves kind", async () => {
+  const browser = await chromium.launch({ headless: true });
+  const page = await browser.newPage();
+
+  try {
+    await page.route("http://example.test/bug-page1.html", route => {
+      route.fulfill({
+        contentType: "text/html; charset=utf-8",
+        body: `
+          <html><body>
+            <div id="table-my-work"></div>
+            <a title="下一页" href="http://example.test/bug-page2.html">下一页</a>
+            <script>
+              window.zui = {DTable: {query: () => ({$: {state: {data: [
+                {bugID: "91", title: "第一页 Bug"}
+              ]}}})}};
+            </script>
+          </body></html>
+        `
+      });
+    });
+    await page.route("http://example.test/bug-page2.html", route => {
+      route.fulfill({
+        contentType: "text/html; charset=utf-8",
+        body: `
+          <html><body>
+            <div id="table-my-work"></div>
+            <script>
+              window.zui = {DTable: {query: () => ({$: {state: {data: [
+                {bugId: "92", name: "第二页 Bug"}
+              ]}}})}};
+            </script>
+          </body></html>
+        `
+      });
+    });
+
+    await page.goto("http://example.test/bug-page1.html");
+    const result = await extractPaginatedWorkItemLinks(page, page, "bug", 10);
+    assert.deepEqual(result.links.map(link => [link.kind, link.title]), [
+      ["bug", "第一页 Bug"],
+      ["bug", "第二页 Bug"]
+    ]);
+    assert.equal(result.pagesVisited.length, 2);
+  } finally {
+    await browser.close();
+  }
+});
+
+test("extracts and cleans Bug detail fields from the Zentao app iframe", async () => {
+  const browser = await chromium.launch({ headless: true });
+  const context = await browser.newContext();
+
+  try {
+    await context.route("**/bug-view-88.html", route => {
+      route.fulfill({
+        contentType: "text/html; charset=utf-8",
+        body: `
+          <html>
+            <head><title>BUG#88</title></head>
+            <body>
+              <nav>地盘 产品 测试 文档</nav>
+              <iframe
+                name="app-bug"
+                srcdoc="
+                  <div id='mainContent'>
+                    <h1>BUG#88</h1>
+                    <table>
+                      <tr><th>重现步骤</th><td><div class='steps'>打开采购订单并点击保存</div></td></tr>
+                      <tr><th>描述</th><td><div class='description'>保存失败且页面没有错误提示</div></td></tr>
+                      <tr><th>备注</th><td><div class='remarks'><button>添加备注</button><p>仅在审批开启时复现</p><p>暂无描述</p></div></td></tr>
+                    </table>
+                  </div>
+                "
+              ></iframe>
+            </body>
+          </html>
+        `
+      });
+    });
+
+    const bug = await extractWorkItemDetail(context, {
+      id: "88",
+      kind: "bug",
+      title: "采购订单保存失败",
+      url: "http://example.test/zentao/bug-view-88.html"
+    });
+
+    assert.deepEqual(bug, {
+      id: "88",
+      kind: "bug",
+      url: "http://example.test/zentao/bug-view-88.html",
+      title: "采购订单保存失败",
+      content: "打开采购订单并点击保存",
+      remarks: "仅在审批开启时复现",
+      description: "保存失败且页面没有错误提示"
+    });
+  } finally {
+    await context.close();
+    await browser.close();
+  }
+});
+
+test("task wrappers preserve their legacy object shape", async () => {
+  const browser = await chromium.launch({ headless: true });
+  const context = await browser.newContext();
+  const page = await context.newPage();
+
+  try {
+    await page.setContent(`<a href="http://example.test/zentao/task-view-101.html">采购任务</a>`);
+    const [taskLink] = await extractTaskLinks(page, 10);
+    assert.equal("kind" in taskLink, false);
+
+    await context.route("**/task-view-101.html", route => {
+      route.fulfill({
+        contentType: "text/html; charset=utf-8",
+        body: `<html><body><h1>TASK#101</h1><div class="article">任务描述</div></body></html>`
+      });
+    });
+    const task = await extractTaskDetail(context, taskLink);
+    assert.equal("kind" in task, false);
+  } finally {
+    await context.close();
+    await browser.close();
+  }
+});
+
+test("formats mixed task and Bug counts and labels", () => {
+  const markdown = formatZentaoWorkItemAnalysisMarkdown({
+    workItemCount: 2,
+    taskCount: 1,
+    bugCount: 1,
+    groups: [{
+      module: "采购模块",
+      workItemCount: 2,
+      workItems: [
+        { id: "1", kind: "task", title: "采购订单增加审批详情" },
+        { id: "2", kind: "bug", title: "采购订单保存时报错" }
+      ]
+    }],
+    agentPlan: []
+  });
+
+  assert.match(markdown, /工作项数：2/);
+  assert.match(markdown, /任务数：1/);
+  assert.match(markdown, /Bug 数：1/);
+  assert.match(markdown, /任务：采购订单增加审批详情/);
+  assert.match(markdown, /Bug：采购订单保存时报错/);
+});
+
+test("rejects unsupported generic work item kinds clearly", async () => {
+  const browser = await chromium.launch({ headless: true });
+  const page = await browser.newPage();
+
+  try {
+    await assert.rejects(
+      extractWorkItemLinks(page, "story", 10),
+      /Unsupported Zentao work item kind: story/
+    );
+  } finally {
     await browser.close();
   }
 });
