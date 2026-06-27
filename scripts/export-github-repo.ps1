@@ -11,6 +11,7 @@ $include = @(
     "commands",
     "rules",
     "skills",
+    "mcp",
     "scripts",
     "LICENSE",
     "README.md",

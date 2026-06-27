@@ -1,0 +1,15 @@
+{
+  "name": "tsb-browser-mcp",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "Cursor MCP tools for browser automation and Zentao task collection.",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "start": "node src/server.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.17.5",
+    "playwright": "^1.61.1"
+  }
+}
