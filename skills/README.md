@@ -6,7 +6,7 @@ Tsb ERP 业务页（TradeErp ts* / HallErp th*）的 Agent 编码规范。
 
 1. **[t-page](t-page/SKILL.md)** — 总入口与 Skill 路由表
 2. **[t-page/profiles.md](t-page/profiles.md)** — 项目画像表（ts/th 自动探测、占位符替换）
-3. **[t-page/anchors.md](t-page/anchors.md)** — 标准页(ts/th双列)、主单/详情映射、**四条红线（含禁脚本）**
+3. **[t-page/anchors.md](t-page/anchors.md)** — 标准页(ts/th双列)、主单/详情映射、**五条红线（含禁脚本 + 最小改动原则）**
 4. **[t-page/orchestration.md](t-page/orchestration.md)** — 21 subagent 六组 + 模块并行拆解 调度矩阵
 5. **[t-workflow](t-workflow/SKILL.md)** — 任何改代码前必读
 6. **Rule** `t-agent-guidance` — 编辑 `src/views/{ts,th}*/**` 时自动加载
@@ -26,6 +26,7 @@ Tsb ERP 业务页（TradeErp ts* / HallErp th*）的 Agent 编码规范。
 ## Skill 索引
 
 - `t-page` — 内核 · 路由表 + profiles/anchors/orchestration/naming
+- `t-clarify` — 需求澄清（模糊信号词 → 澄清三问 → 硬卡停放行）
 - `t-workflow` — 蓝图 · 必问 · 最简代码
 - `t-registry` — 全模块路由与 Tab 检测
 - `t-standards` — 命名、解耦、import、列宽

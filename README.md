@@ -9,7 +9,7 @@ Tsb ERP 业务页 Agent 开发规范插件。**同时覆盖两个项目**：
 
 ## 内容
 
-- **13 个 Skills** — `t-page` 内核（profiles/anchors/orchestration/naming）+ workflow + 列表/详情/弹窗等子 Skill
+- **14 个 Skills** — `t-page` 内核（profiles/anchors/orchestration/naming）+ `t-clarify`（需求澄清关卡）+ workflow + 列表/详情/弹窗等子 Skill
 - **21 个 Subagent** — 侦察(2) + 模块并行(1模板) + 实现(11) + 共享/修复(1) + 审查(3) + 验证(3)，多 agent 并行编排，**禁脚本**
 - **1 条 Rule** — 编辑 `src/views/{ts,th}*/**` 时自动应用指引（自动探测 ts/th）
 - **3 个 Command** — `/t-start` · `/t-new-module` · `/t-review`

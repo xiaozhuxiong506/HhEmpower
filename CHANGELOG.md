@@ -1,5 +1,81 @@
 # Changelog
 
+## 2.6.0 — 2026-07-01
+
+### 新增第五条红线「最小改动原则」—— 防范围外顺手改
+
+填补了"明确点哪里只改哪里"这条边界真空。此前插件有"选定前不写代码"（第 4 条，管"什么时候开始写"），但缺"开始后改多少"的红线——AI 在改 A 时发现 B 有独立 bug/不规范/TODO，容易顺手一起改，导致 diff 膨胀、回归风险难定位。
+
+**新增红线 #5**：最小改动原则（[anchors.md](skills/t-page/anchors.md) 五条红线）
+
+核心规则：
+- 用户指定的范围**只改指定范围**
+- 发现的"顺手问题"（独立 bug / 不规范 / 可优化 / TODO）**禁止顺手改**，改列入「范围外发现」报告
+- **例外**：改 A 导致 B 的 import/类型/调用断裂（编译不过）属本次范围，必须一并修（由 `t-impact` 管）
+
+| 情形 | 是否允许改 | 处理方式 |
+|------|-----------|---------|
+| 改 A 导致 B 编译断裂 | ✅ 必须改 | 属本次范围 |
+| 发现 B 有独立 bug / 不规范 / TODO | ❌ 禁止改 | 列入「范围外发现」报告 |
+
+**实现 agent 完工时附「范围外发现」报告**：
+
+```
+【范围外发现】（本次未改，供你决策）
+- src/views/.../xxx.vue:L45  存在独立 bug：空数组时 reduce 报错
+- src/views/.../yyy.ts:L12   TS any 未收窄（规范问题）
+```
+
+**同步更新**：
+- [anchors.md](skills/t-page/anchors.md) 四→五条红线 + 第 5 条执行细则表 + 报告格式
+- [rules/t-agent-guidance.mdc](rules/t-agent-guidance.mdc) 红线清单加第 5 条
+- [agents/t-spec.md](agents/t-spec.md) 范围审查加「范围外顺手改」检查项 + Critical 严重度增加违反最小改动
+- 5 处"四条红线"→"五条红线"引用同步（t-page/SKILL、skills/README、profiles、t-spec、t-i18n-check）
+
+**定位边界（防重叠）**：
+- 第 4 条（选定前不写代码）= 管"什么时候开始写"
+- 第 5 条（最小改动原则）= 管"开始后改多少"
+- 二者配对，覆盖"范围确定前 → 确定 → 执行"全链路
+
+**功能完全保持**：21 agent / skill / command / 编排逻辑均未变（非破坏性更新，无需重装插件）。
+
+## 2.5.0 — 2026-07-01
+
+### 新增 `t-clarify` Skill — 需求澄清前置关卡（硬卡停）
+
+填补了「需求层模糊」这一真空。此前插件只在「范围不清」时有 `t-start` 的 AskUserQuestion 兜底，但对「那个页面优化下」「按上次那样改」这类**意图不清**的需求没有守门机制，AI 容易按自己解读一路跑到底、做完才发现方向错。
+
+**新增 Skill**：[skills/t-clarify/SKILL.md](skills/t-clarify/SKILL.md)
+
+核心机制：
+- **信号词 → 澄清方向表（9 类）**：指代不明(那个) / 目标不明(优化下) / 参照不明(按上次) / 范围不明(加个查询) / 标准不明(随便) / 动作不明(处理一下) / 类比不明(像XX那样) / 现象不明(卡) / 故障不明(报错了)
+- **澄清三问**：AskUserQuestion 一次发 1–3 个单选题，候选项必须具体（不敷衍"其他"），第一选项放 AI 最可能的解读（标注推荐）
+- **硬卡停**：触发后用户答完前，禁止 Read 下游 Skill、禁止派 subagent、禁止出蓝图/写码/取 diff、禁止「我先按理解做」
+- **放行条件**：主 Agent 用一句话复述确认，用户认可后把【已澄清需求】写入 context 头
+
+**接入点（4 处 command 流程统一改造）**：
+
+| Command | 插入位置 |
+|---------|---------|
+| `/t-start` | 探测项目之后、读 workflow 之前（第 2 步） |
+| `/t-new-module` | 探测项目之后、读 module Skill 之前（第 2 步） |
+| `/t-review` | 取 diff 之后、探测项目之前（第 2 步） |
+| `/t-zentao-collect` | 禅道任务分组之后、派 `t-mod` 之前（command 第 7 步） |
+
+**同步更新**：
+- [t-page/SKILL.md](skills/t-page/SKILL.md) 路由表置顶新增 t-clarify 行（标为「最先读」）
+- [t-page/orchestration.md](skills/t-page/orchestration.md) 头部新增「⚠️ 前置关卡」章节
+- [rules/t-agent-guidance.mdc](rules/t-agent-guidance.mdc) 强制顺序加第 2 步
+- [README.md](README.md) Skills 计数 13→14
+- [skills/README.md](skills/README.md) 入口列表 + Skill 索引同步
+
+**定位边界（防重叠）**：
+- `t-clarify` 处理「意图不清=想达到什么效果」
+- `t-start` 的 AskUserQuestion 处理「范围不清=改哪个文件」
+- 二者不冲突，可串联使用
+
+**功能完全保持**：21 agent / 六组职责划分 / 编排逻辑 / mcp 工具行为均未变（无需重装插件，非破坏性更新）。
+
 ## 2.4.0 — 2026-07-01
 
 ### 全仓命名统一为 `t-` 前缀（agent + skill + command + 插件名 + mcp 包名）

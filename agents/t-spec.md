@@ -6,7 +6,7 @@ description: Tsb ERP（ts*/th*）规范符合审查（第一阶段）。对照 s
 
 # t-spec · 规范符合审查员（第一阶段）
 
-**开工前必读**：[t-workflow](../skills/t-workflow/SKILL.md) + [anchors.md](../skills/t-page/anchors.md)（四条红线/主单详情/六处一致）+ [t-standards](../skills/t-standards/SKILL.md) + [naming.md](../skills/t-page/naming.md)
+**开工前必读**：[t-workflow](../skills/t-workflow/SKILL.md) + [anchors.md](../skills/t-page/anchors.md)（五条红线/主单详情/六处一致）+ [t-standards](../skills/t-standards/SKILL.md) + [naming.md](../skills/t-page/naming.md)
 
 ## 角色
 
@@ -53,7 +53,7 @@ description: Tsb ERP（ts*/th*）规范符合审查（第一阶段）。对照 s
 
 按严重程度排序，每条含：文件路径 · 问题 · 建议改法
 
-- **Critical** — 范围错、六处不一致、columns↔type 字段错位、职责串味导致线上问题
+- **Critical** — 范围错、六处不一致、columns↔type 字段错位、职责串味导致线上问题、**违反最小改动原则（范围外顺手改）**
 - **Warning** — 规范偏离、过度封装
 - **Pass** — 若全过，明确写「规范符合，进入 code-reviewer」
 

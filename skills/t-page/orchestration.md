@@ -3,6 +3,12 @@
 > 本文件教主 Agent **何时、按什么顺序、派哪些 subagent**。
 > 编排模式：**skill 指引 + 主 Agent 调度**——主 Agent 读本文，用 Task/Agent 工具按需派发，不引入额外 orchestrator。
 
+## ⚠️ 前置关卡：需求澄清（在派任何 agent 之前）
+
+主 Agent 在派 subagent **之前**，必须先扫描用户原始需求是否命中模糊信号词（那个/优化下/按上次/加个查询/随便/处理一下/像XX那样）。命中 → Read [../t-clarify/SKILL.md](../t-clarify/SKILL.md) 发起澄清三问，**用户答完前禁止派任何 agent**。
+
+本关卡由 command（`/t-start`、`/t-new-module`、`/t-review`、`/t-zentao-collect`）在各自流程里触发，主 Agent 按其步骤执行即可。澄清结论作为 context 头带入后续所有 agent 的派发上下文。
+
 ## 全景：21 个 Subagent 六组
 
 | 组 | Agent | 何时用 |

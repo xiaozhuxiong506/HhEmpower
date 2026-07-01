@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Tsb ERP 业务页开发 Agent 插件（TradeErp ts* / HallErp th*）",
-    "version": "2.4.0"
+    "version": "2.6.0"
   },
   "plugins": [
     {
