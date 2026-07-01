@@ -86,7 +86,7 @@ test("groups tasks by module and emits multi-agent execution prompts", () => {
 
   const plan = toAgentExecutionPlan(groups);
   assert.equal(plan.length, 2);
-  assert.equal(plan[0].agentName, "tsb-module-agent-采购模块");
+  assert.equal(plan[0].agentName, "t-mod-采购模块");
   assert.match(plan[0].prompt, /采购订单复制产品失败/);
   assert.match(plan[0].prompt, /供应商选择弹窗分页错误/);
   assert.match(plan[1].prompt, /销售订单导出缺少客户字段/);

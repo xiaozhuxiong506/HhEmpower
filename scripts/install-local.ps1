@@ -1,4 +1,4 @@
-# 本地安装 tsb-erp-page 插件到 Cursor（完整三步：放目录 + 注册 + 启用）
+# 本地安装 t-erp-page 插件到 Cursor（完整三步：放目录 + 注册 + 启用）
 #
 # 依据：Cursor 本地插件需通过 ~/.claude/ 共享配置面注册（与 Claude Code 共用）。
 # 仅放目录不够，还必须在 installed_plugins.json 登记 + settings.json 启用，否则命令/技能不加载。
@@ -15,7 +15,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$PluginName = "tsb-erp-page"
+$PluginName = "t-erp-page"
 $PluginId = "$PluginName@local"
 
 # --- 路径定义 ---
@@ -181,7 +181,7 @@ Write-Host ""
 Write-Host "下一步：" -ForegroundColor Cyan
 Write-Host "  1. 完全退出并重启 Cursor（不是 Reload Window，是退出重开）"
 Write-Host "  2. Settings → Features → 确认「Include third-party Plugins/Skills」已开（若无此选项跳过）"
-Write-Host "  3. 输入 /tsb-page-start 测试命令是否出现"
+Write-Host "  3. 输入 /t-start 测试命令是否出现"
 Write-Host ""
 Write-Host "验证文件：" -ForegroundColor Cyan
 Write-Host "  - $InstalledPluginsJson"

@@ -15,7 +15,7 @@ test("MCP server exposes Zentao browser automation tools", async () => {
   });
   const client = new Client(
     {
-      name: "tsb-browser-mcp-smoke",
+      name: "t-browser-mcp-smoke",
       version: "0.1.0"
     },
     {
@@ -45,7 +45,7 @@ test("MCP server exposes Zentao browser automation tools", async () => {
     });
     const text = callResult.content.map(item => item.text || "").join("\n");
     assert.match(text, /采购模块/);
-    assert.match(text, /tsb-module-agent-采购模块/);
+    assert.match(text, /t-mod-采购模块/);
   } finally {
     await client.close();
   }

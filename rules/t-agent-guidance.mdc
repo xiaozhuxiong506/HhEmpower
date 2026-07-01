@@ -1,0 +1,45 @@
+---
+description: Tsb ERP（ts*/th*）改业务页时必须先读 Skills 再写代码
+alwaysApply: false
+globs: "src/views/{ts,th}*/**/*"
+---
+
+# Tsb ERP — Agent 指引（TradeErp ts* / HallErp th*）
+
+改 **`src/views/${views前缀}*/**`**（ts* 或 th*）下业务页时，**必须先 Read Skills**，再写代码。
+
+## 强制顺序
+
+1. **探测项目** — `skills/t-page/profiles.md`（判定 ts/th，套用画像）
+2. **总入口** — `t-page` Skill（不确定用哪个 Skill 时先读）
+3. **锚点** — `t-page/anchors.md`（标准页路径 ts/th 双列、主单/详情映射、四条红线）
+4. **工作流** — `t-workflow` Skill（**任何改代码前必读**：蓝图、必问单选题、最简代码）
+5. **子 Skill** — 按任务只读一个或多个：
+   - 列表 → `t-list`
+   - 详情 → `t-detail`
+   - 弹窗/抽屉 → `t-dialog`
+   - 新模块 → `t-module`
+   - 编码规范 → `t-standards`
+   - 权限 → `t-auth`
+   - 操作日志 → `t-oplog`
+   - 字段设置 → `t-field`
+   - Tab 可编辑 → `t-tab`
+   - 路由/Tab 影响 → `t-registry`
+
+## 四条红线
+
+- **禁脚本**（绝对红线）—— 处理 ERP 代码禁止写任何批处理脚本；批量/跨模块任务按菜单拆 subagent 并行，AI 逐文件读改
+- **范围不清必 AskQuestion**（主单 / 详情 / 两者；删功能未指明页面）
+- **参考他模块必查 locales**（禁止错模块提示文案）
+- **选定前不写代码**（范围未定前不删改；定了之后逐文件改）
+- **遇到国际化必须问写在那个字母后面**（禁止直接写在已有的中间）
+
+标准页：ts→`tsMaterialOrdering` · th→`thCustomerInfo`（按 profiles 探测结果）
+
+## 多 subagent 编排
+
+要派 subagent 分头干活 → 读 `skills/t-page/orchestration.md`（21 个 agent：侦察/模块并行/实现/共享/审查/验证六组 + 模块专家模板）
+
+批量/跨模块任务 → 按大菜单拆 `t-mod` 实例并行，AI 逐文件改，禁止脚本执行
+
+改完可用 `/t-review` 或审查组 subagent（`t-spec` + `t-i18n-check` + `t-code`）做专项审查，再派 `t-build` 实跑 vue-tsc/eslint 验证。

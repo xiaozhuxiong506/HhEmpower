@@ -12,7 +12,7 @@ import {
 
 const server = new Server(
   {
-    name: "tsb-browser-mcp",
+    name: "t-browser-mcp",
     version: "0.1.0"
   },
   {

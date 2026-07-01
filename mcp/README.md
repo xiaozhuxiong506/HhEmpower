@@ -9,7 +9,7 @@ cd D:\company\HhEmpower
 .\scripts\install-mcp.ps1
 ```
 
-安装后重启 Cursor，在 **Settings -> Tools & MCP** 中确认 `tsb-browser-mcp` 已启用。
+安装后重启 Cursor，在 **Settings -> Tools & MCP** 中确认 `t-browser-mcp` 已启用。
 
 ## 工具
 

@@ -1,4 +1,4 @@
-# 从 Tsb.TradeErp.PC 项目 .cursor/skills/tsb-page* 同步到本插件 skills/
+# 从 Tsb.TradeErp.PC 项目 .cursor/skills/t-page* 同步到本插件 skills/
 param(
     [string]$SourceRoot = (Join-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) "Tsb.TradeErp.PC\.cursor\skills"),
     [string]$TargetRoot = (Join-Path (Split-Path $PSScriptRoot -Parent) "skills")
@@ -10,7 +10,7 @@ if (-not (Test-Path $SourceRoot)) {
     exit 1
 }
 
-$patterns = @("tsb-page", "tsb-page-*")
+$patterns = @("t-page", "t-page-*")
 $copied = 0
 
 foreach ($pattern in $patterns) {

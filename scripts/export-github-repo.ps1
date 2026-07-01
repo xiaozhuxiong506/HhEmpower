@@ -1,7 +1,7 @@
 # 导出插件到独立 Git 仓库目录（不含 ERP 业务代码）
 param(
     [string]$PluginRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path,
-    [string]$ExportDir = (Join-Path (Split-Path $PluginRoot -Parent) "tsb-erp-page-plugin")
+    [string]$ExportDir = (Join-Path (Split-Path $PluginRoot -Parent) "t-erp-page-plugin")
 )
 
 $include = @(

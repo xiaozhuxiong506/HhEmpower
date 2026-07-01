@@ -234,7 +234,7 @@ export function toAgentExecutionPlan(groups) {
     const bugCount = workItems.filter(item => item.kind === "bug").length;
     return {
       module: moduleName,
-      agentName: `tsb-module-agent-${moduleName}`,
+      agentName: `t-mod-${moduleName}`,
       workItemCount: workItems.length,
       taskCount,
       bugCount,

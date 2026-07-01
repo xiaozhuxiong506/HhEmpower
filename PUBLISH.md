@@ -9,7 +9,7 @@ cd D:\company\HhEmpower
 .\scripts\export-github-repo.ps1
 ```
 
-默认导出到 `D:\company\tsb-erp-page-plugin/`（不含 ERP 源码）。
+默认导出到 `D:\company\t-erp-page-plugin/`（不含 ERP 源码）。
 
 自定义导出目录：
 
@@ -19,15 +19,15 @@ cd D:\company\HhEmpower
 
 ## 2. 推到 GitHub
 
-在 GitHub 新建**私有**仓库，例如 `tsb-erp-page-plugin`：
+在 GitHub 新建**私有**仓库，例如 `t-erp-page-plugin`：
 
 ```powershell
-cd D:\company\tsb-erp-page-plugin
+cd D:\company\t-erp-page-plugin
 git init
 git add .
-git commit -m "feat: tsb-erp-page cursor plugin v2.0.0"
+git commit -m "feat: t-erp-page cursor plugin v2.0.0"
 git branch -M main
-git remote add origin https://github.com/<你的账号>/tsb-erp-page-plugin.git
+git remote add origin https://github.com/<你的账号>/t-erp-page-plugin.git
 git push -u origin main
 ```
 
@@ -38,7 +38,7 @@ git push -u origin main
 
 1. [cursor.com/dashboard](https://cursor.com/dashboard) → **Settings** → **Plugins**
 2. **Team Marketplaces** → **Add Marketplace** → **Import from Repo**
-3. 选 GitHub 私有仓 → 应解析出 `tsb-erp-page` → **Add to Marketplace**
+3. 选 GitHub 私有仓 → 应解析出 `t-erp-page` → **Add to Marketplace**
 4. 设 Team Access → Save
 5. 若仍显示 0 plugins：点 **Refresh**；不行则删掉该 Marketplace 重新 Import
 
@@ -53,4 +53,4 @@ git push -u origin main
 
 - GitHub 仓里**不要**放 `src/`、`.env` 等业务代码
 - 私有仓即可，不必公开
-- 插件名现为 `tsb-erp-page`（原 `trade-erp-ts-page`，v2.0.0 更名）
+- 插件名现为 `t-erp-page`（原 `trade-erp-ts-page`，v2.0.0 更名）

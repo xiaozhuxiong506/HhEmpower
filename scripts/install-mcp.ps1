@@ -12,7 +12,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$ServerName = "tsb-browser-mcp"
+$ServerName = "t-browser-mcp"
 $McpRoot = Join-Path $PluginRoot "mcp"
 $ServerPath = Join-Path $McpRoot "src\server.mjs"
 $CursorDir = Join-Path $env:USERPROFILE ".cursor"
