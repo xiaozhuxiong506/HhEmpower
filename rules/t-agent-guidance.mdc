@@ -4,7 +4,7 @@ alwaysApply: false
 globs: "src/views/{ts,th}*/**/*"
 ---
 
-# Tsb ERP — Agent 指引（TradeErp ts* / HallErp th*）
+# Tsb ERP — Agent 指引
 
 改 **`src/views/${views前缀}*/**`**（ts* 或 th*）下业务页时，**必须先 Read Skills**，再写代码。
 

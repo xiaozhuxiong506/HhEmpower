@@ -1,7 +1,7 @@
 ---
 name: t-page
 description: >-
-  Tsb ERP（TradeErp ts* / HallErp th*）业务页 Skill 总入口。改页面、列表、详情、弹窗、规范前先读，再分发子 Skill / 调度 subagent。
+  Tsb ERP 业务页 Skill 总入口。改页面、列表、详情、弹窗、规范前先读，再分发子 Skill / 调度 subagent。
   Use when 改页面, 新页面, 页面规范, tsMaterialOrdering, tsProcurementOrdering, thCustomerInfo,
   列表, 详情, 弹窗, 不确定用哪个skill, 多agent, subagent.
 ---

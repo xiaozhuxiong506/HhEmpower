@@ -1,7 +1,7 @@
 {
   "name": "t-erp-page",
-  "displayName": "Tsb ERP · 页面开发",
-  "description": "Tsb ERP（TradeErp ts* / HallErp th*）业务页 Agent Skills、21 个 subagent 编排与快捷命令。改 src/views/{ts,th}* 页面时自动加载规范。",
+  "displayName": "Tsb ERP",
+  "description": "Tsb ERP 业务 Agent Skills、21 个 subagent 编排与快捷命令。改 src/views/{ts,th}* 页面时自动加载规范。",
   "version": "2.6.0",
   "logo": "assets/logo.png",
   "author": {

@@ -1,4 +1,4 @@
-# Tsb ERP · 页面开发（Cursor Plugin）
+# Tsb ERP（Cursor Plugin）
 
 Tsb ERP 业务页 Agent 开发规范插件。**同时覆盖两个项目**：
 

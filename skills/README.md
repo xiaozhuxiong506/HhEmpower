@@ -1,6 +1,6 @@
 # Tsb ERP 页面 Skills
 
-Tsb ERP 业务页（TradeErp ts* / HallErp th*）的 Agent 编码规范。
+Tsb ERP  Agent 编码规范。
 
 ## 入口（Agent 先读）
 
