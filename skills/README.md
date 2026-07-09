@@ -1,56 +1,55 @@
-# Tsb ERP 页面 Skills
+# TSB ERP 技能
 
-Tsb ERP  Agent 编码规范。
+## 入口
 
-## 入口（Agent 先读）
-
-1. **[t-page](t-page/SKILL.md)** — 总入口与 Skill 路由表
-2. **[t-page/profiles.md](t-page/profiles.md)** — 项目画像表（ts/th 自动探测、占位符替换）
-3. **[t-page/anchors.md](t-page/anchors.md)** — 标准页(ts/th双列)、主单/详情映射、**五条红线（含禁脚本 + 最小改动原则）**
-4. **[t-page/orchestration.md](t-page/orchestration.md)** — 21 subagent 六组 + 模块并行拆解 调度矩阵
-5. **[t-workflow](t-workflow/SKILL.md)** — 任何改代码前必读
-6. **Rule** `t-agent-guidance` — 编辑 `src/views/{ts,th}*/**` 时自动加载
+- 页面、路由、主单、详情、弹窗、抽屉、字段、权限、操作日志或页面级路由工作，从 [t-page](t-page/SKILL.md) 开始。
+- Zentao 任务收集、分析、分组或派发，从 [t-zentao](t-zentao/SKILL.md) 开始。
 
 ## 快捷命令
 
-| 命令 | 用途 |
+专家已明确任务类型时，可以直接读对应 skill；不要在索引里复制它们的工作流。
+
+| 任务 | Skill |
+|------|-------|
+| 需求澄清 | `t-clarify` |
+| 页面级入口路由 | `t-page` |
+| 改动决策、必问单选 | `t-workflow` |
+| 新建模块 | `t-module` |
+| 主单列表 | `t-list` |
+| 详情明细 | `t-detail` |
+| 弹窗抽屉 | `t-dialog` |
+| 页面标准 | `t-standards` |
+| 权限 | `t-auth` |
+| 字段设置 | `t-field` |
+| Tab 与保存编辑态 | `t-tab` |
+| 操作日志 | `t-oplog` |
+| 路由与 Tab 发现 | `t-registry` |
+| Zentao | `t-zentao` |
+
+## 技能分组
+
+| 分组 | 内容 |
 |------|------|
-| `/t-start` | 启动改页工作流（先探测 ts/th） |
-| `/t-new-module` | 新建页面模块 |
-| `/t-review` | 改完专项审查 |
+| 入口与调度 | `t-page`、`t-clarify`、`t-workflow`、`t-zentao`、`t-page/orchestration.md` |
+| 页面结构 | `t-module`、`t-list`、`t-detail`、`t-dialog`、`t-registry` |
+| 能力规则 | `t-standards`、`t-auth`、`t-field`、`t-tab`、`t-oplog` |
+| 支持文档 | `t-page/profiles.md`、`t-page/anchors.md`、`t-page/naming.md`、各 skill 的 `reference.md` 或 `examples.md` |
 
-## 必问单选题
+## 单一事实源
 
-凡需用户做选择时，按 [t-workflow/reference.md#必问单选题总表](t-workflow/reference.md#必问单选题总表) 处理：**AskQuestion** 单选 · 选定前不写代码
+- [t-page/profiles.md](t-page/profiles.md)
+- [t-page/anchors.md](t-page/anchors.md)
+- [t-page/naming.md](t-page/naming.md)
+- [t-page/orchestration.md](t-page/orchestration.md)
+- [t-standards/reference.md](t-standards/reference.md)
+- [t-module/reference.md](t-module/reference.md)
+- [t-registry/examples.md](t-registry/examples.md)
 
-## Skill 索引
+## 旧名映射
 
-- `t-page` — 内核 · 路由表 + profiles/anchors/orchestration/naming
-- `t-clarify` — 需求澄清（模糊信号词 → 澄清三问 → 硬卡停放行）
-- `t-workflow` — 蓝图 · 必问 · 最简代码
-- `t-registry` — 全模块路由与 Tab 检测
-- `t-standards` — 命名、解耦、import、列宽
-- `t-list` / `t-detail` / `t-dialog` / `t-module`
-- `t-auth` / `t-oplog` / `t-field` / `t-tab`
-
-## Subagent（21 个）
-
-详见 [t-page/orchestration.md](t-page/orchestration.md)。六组：
-
-- **侦察**：`t-scout`（只定范围）· `t-survey`
-- **模块并行**：`t-mod`（模板，运行时按大菜单实例化：每模块派一个，锁目录逐文件改，禁脚本）
-- **实现**：`t-api` · `t-col` · `t-type` · `t-view` · `t-dialog` · `t-style` · `t-route` · `t-oplog` · `t-auth` · `t-scaffold` · `t-i18n`（locales 唯一写入者）
-- **共享/修复**：`t-shared`（跨模块共享组件/utils/hook 单点手术）
-- **审查**：`t-spec`（第一阶段·六处一致）· `t-i18n-check` · `t-code`（第二阶段）
-- **验证**：`t-impact`（影响核查）· `t-registry` · `t-build`（实跑 vue-tsc/eslint）
-
-> 批量/跨模块任务不走实现组串行，改走**模块并行拆解**——`t-mod` 多实例并行，禁脚本。
-
-## 旧名映射（已废弃）
-
-| 旧名（1.x） | 新名（2.0.0） |
+| 旧名 | 新名 |
 |------|------|
-| `trade-erp-ts-page`（插件） | `t-erp-page` |
+| `trade-erp-ts-page` | `t-erp-page` |
 | `ts-page` | `t-page` |
 | `ts-page-workflow` | `t-workflow` |
 | `ts-page-standards` | `t-standards` |
@@ -63,7 +62,6 @@ Tsb ERP  Agent 编码规范。
 | `ts-page-field-setting` | `t-field` |
 | `ts-page-tab-editability` | `t-tab` |
 | `ts-page-registry` | `t-registry` |
-| `ts-page-code-reviewer`（agent） | `t-code` |
 | `/ts-page-start` | `/t-start` |
 | `/ts-page-new-module` | `/t-new-module` |
 | `/ts-page-review` | `/t-review` |

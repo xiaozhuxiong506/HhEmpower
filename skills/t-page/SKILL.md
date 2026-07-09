@@ -1,55 +1,54 @@
 ---
 name: t-page
-description: >-
-  Tsb ERP 业务页 Skill 总入口。改页面、列表、详情、弹窗、规范前先读，再分发子 Skill / 调度 subagent。
-  Use when 改页面, 新页面, 页面规范, tsMaterialOrdering, tsProcurementOrdering, thCustomerInfo,
-  列表, 详情, 弹窗, 不确定用哪个skill, 多agent, subagent.
+description: Use when Codex works on a TSB ERP business page, route, module, list, detail, popup, drawer, tab, field, auth, operation log, route registry, or page-level skill routing；触发词包括 页面、路由、主单、详情、明细、弹窗、抽屉、字段、权限、操作日志、vxe-grid、hasAuth、AUTH_CODES、OP_HEADERS、staticRoutes、setField、sysRoleFiledCode、ts/th。
 ---
 
-# t-page 总入口（Tsb ERP 通用）
+# t-page
 
-本插件同时服务 **Tsb.TradeErp.PC（ts*）** 与 **Tsb.HallErpTenant.PC（th*）**。
+## 入口顺序
 
-改 **`src/views/${views前缀}*/**`** 业务页时，按下方顺序读。
+1. 如果需求含模糊信号、反绕过表达，或要求跳过确认，先读 [t-clarify](../t-clarify/SKILL.md)，由澄清结果决定是否继续。
+2. 读 [profiles.md](profiles.md)，确认当前页面画像是 `ts`、`th`，或仍需继续探测。
+3. 读 [anchors.md](anchors.md)，只引用其中的全局关卡、范围、共享影响、归因和标准源。
+4. 只有当前任务涉及必问单选、改动决策或“是否可以直接改”的判断时，才读 [t-workflow](../t-workflow/SKILL.md)。
+5. 按下方路由表读取具体子 skill；`t-page` 本身不进入代码实现步骤。
 
-> **前置关卡**：若用户需求含模糊词（那个/优化下/按上次/加个查询/随便/处理一下/像XX那样），**最先读 [t-clarify](../t-clarify/SKILL.md)** 发起澄清三问，答完再进入下方流程。
+## 必读材料
 
-## 第 0 步：探测项目（必做）
+| 文档 | 读取时机 |
+|------|----------|
+| [profiles.md](profiles.md) | 每个页面相关任务先读，用于判定 `ts` / `th` 画像和路径令牌。 |
+| [anchors.md](anchors.md) | 画像判定后读，用于范围、红线、共享影响、Git 归因、反绕过和标准源。 |
+| [naming.md](naming.md) | 涉及路由、菜单、组件、API、类型、i18n、权限、日志、`pageId` 或字段对齐时读。 |
+| [orchestration.md](orchestration.md) | 需要 subagent、跨模块拆解、批量任务或调度边界时读；只用于编排选择。 |
 
-先读 [profiles.md](profiles.md) → 判定当前是 ts 还是 th → 后续所有 `${占位符}` 套用对应列。
+## 技能路由
 
-## 内核文件（先读）
+| 任务信号 | 读取 skill |
+|----------|------------|
+| 新建模块、新页面骨架、模块级补齐 | [t-module](../t-module/SKILL.md) |
+| 主单、列表页、查询区、表格、`vxe-grid` | [t-list](../t-list/SKILL.md) |
+| 详情、明细、主单详情映射 | [t-detail](../t-detail/SKILL.md) |
+| 弹窗、抽屉、对话框、批量操作面板 | [t-dialog](../t-dialog/SKILL.md) |
+| 命名、列宽、import、通用页面标准 | [t-standards](../t-standards/SKILL.md) |
+| 权限按钮、`hasAuth`、`v-auth`、`AUTH_CODES` | [t-auth](../t-auth/SKILL.md) |
+| 字段设置、字段对齐、`setField`、`sysRoleFiledCode` | [t-field](../t-field/SKILL.md) |
+| Tab、保存、编辑态、只读态 | [t-tab](../t-tab/SKILL.md) |
+| 操作日志、`OP_HEADERS`、`pageId` | [t-oplog](../t-oplog/SKILL.md) |
+| 路由、菜单、Tab 发现、`staticRoutes`、route registry | [t-registry](../t-registry/SKILL.md) |
+| Zentao 任务收集、分析、分组、派发 | [t-zentao](../t-zentao/SKILL.md) |
 
-1. **[profiles.md](profiles.md)** — 项目画像表（ts/th 自动探测 + 占位符替换）
-2. **[anchors.md](anchors.md)** — 五条红线（含禁脚本 + 最小改动原则）、标准源码(ts/th双列)、主单/详情映射
-3. **[naming.md](naming.md)** — 六处命名一致（含 columns↔type 字段对齐）、tsb 命名规则
-4. **[orchestration.md](orchestration.md)** — 主 Agent 调度手册（21 subagent 六组 + 模块并行拆解）
+## 停止关卡
 
-## Skill 路由表
+以下只列关卡名；具体规则以 [anchors.md](anchors.md) 为准。
 
-| 你在做什么 | Read 这个 Skill |
-|------------|-----------------|
-| **需求含模糊词（那个/优化下/按上次/随便/加个查询）** | [t-clarify](../t-clarify/SKILL.md) — 硬卡停澄清三问，**最先读** |
-| **任何改代码前** | [t-workflow](../t-workflow/SKILL.md) |
-| 列表页 / vxe-grid | [t-list](../t-list/SKILL.md) |
-| 详情页 / 明细 | [t-detail](../t-detail/SKILL.md) |
-| 弹窗 / Drawer | [t-dialog](../t-dialog/SKILL.md) |
-| 新页面模块 | [t-module](../t-module/SKILL.md) |
-| 命名 / 列宽 / import | [t-standards](../t-standards/SKILL.md) |
-| 按钮权限 auth | [t-auth](../t-auth/SKILL.md) |
-| OP_HEADERS 操作日志 | [t-oplog](../t-oplog/SKILL.md) |
-| 字段设置 setField | [t-field](../t-field/SKILL.md) |
-| Tab 只读 / 保存 | [t-tab](../t-tab/SKILL.md) |
-| 路由 / Tab 影响范围 | [t-registry](../t-registry/SKILL.md) |
+- [五条红线](anchors.md#五条红线)
+- [范围契约](anchors.md#范围契约)
+- [共享影响关卡](anchors.md#共享影响关卡)
+- [Git 归因关卡](anchors.md#git-归因关卡)
+- [反绕过关卡](anchors.md#反绕过关卡)
+- [范围外报告](anchors.md#范围外报告)
 
-## Subagent 编排
+## 输出契约
 
-要派 subagent 分头干活 → 读 [orchestration.md](orchestration.md)。21 个 agent 定义见 [../../agents/](../../agents/)。
-
-## 快捷命令
-
-- `/t-start` — 启动改页工作流
-- `/t-new-module` — 新建页面模块
-- `/t-review` — 改完专项审查
-
-索引 → [../README.md](../README.md)
+`t-page` 只负责选择需要读取的 skill 和 support docs，并说明读取顺序。它不写代码、不生成实现方案、不替代子 skill 的规则，也不复制 support docs 的长规则正文。
