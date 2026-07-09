@@ -1,6 +1,6 @@
 ---
 name: t-field
-description: Use when adding or changing TSB ERP 字段设置、setField、settingList、列表可见、详情可见、编辑可见、可编辑、批量编辑、fieldName 对齐、字段设置维度。
+description: Use when adding or changing TSB ERP 字段设置、setField、settingList、列表可见、详情可见、编辑可见、可编辑、批量编辑、fieldName 对齐、接口字段精确匹配、字段设置维度。
 ---
 
 # t-field
@@ -35,6 +35,15 @@ description: Use when adding or changing TSB ERP 字段设置、setField、setti
 
 只因为 UI 样式相似而照搬兄弟字段名，属于命名错误。
 
+## 接口字段精确匹配（Exact Field Contract）
+
+接口字段名是数据绑定事实源。物料编号、采购编号、客户编码等业务字段必须与接口入参/返回字段完全一致，禁止用相似中文含义、兄弟页面字段名或个人推断替代。
+
+- 先查接口定义、请求/响应类型、Swagger/OpenAPI 或当前模块已验证调用，再写 `columns.field`、表单 `prop`、`type.ts` 和 `fieldName`。
+- 存在多个候选字段、接口与页面文案冲突、或接口未给出字段时，先问用户/后端确认；确认前不写近似字段。
+- 若页面模型必须与接口字段做显式映射，必须已有 mapper/转换证据，并说明映射位置；禁止静默把 `xxxCode`、`xxxNo`、`xxxId` 混用。
+- 接口约束包含值域、长度、小数位、必填、枚举、正则、禁止中文等规则时，转交 [../t-standards/reference.md#接口字段与输入规则契约](../t-standards/reference.md#接口字段与输入规则契约)。
+
 ## 必问门禁（Ask Gates）
 
 新增表单项、详情字段、详情 grid 列或批量编辑字段时，必须先问字段设置维度：
@@ -62,6 +71,7 @@ description: Use when adding or changing TSB ERP 字段设置、setField、setti
 
 - 禁止新增字段不问维度。
 - 禁止 `fieldName` 与 `columns.field` / form prop / type 字段不一致。
+- 禁止把物料编号、采购编号等字段按中文含义近似匹配；必须完全等于接口字段或有明确映射证据。
 - 禁止只写 `v-if` 或只写 `:disabled`，却与同容器字段风格不一致。
 - 禁止把按钮权限 `AUTH_CODES` 当字段设置。
 
