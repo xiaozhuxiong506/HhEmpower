@@ -23,6 +23,7 @@ description: Use when building or changing 构建或修改 TSB ERP 弹窗、抽�
 ## 字段与保存转交
 
 - 新字段、字段显隐、表单可见可编辑、`setField` 和字段设置维度交给 [t-field](../t-field/SKILL.md)；未确认维度前不写字段代码。
+- 输入框数字范围、小数位、禁止中文、编码格式等限制，先读 [t-standards/reference.md#输入限制与自定义指令](../t-standards/reference.md#输入限制与自定义指令)，优先复用项目自定义指令或 `utils`。
 - 保存、确认、取消、只读、可编辑性、footer 按钮显隐、`isEdit`、`editable`、`*SaveHidden` 和 `*OpsHidden` 交给 [t-tab](../t-tab/SKILL.md)。
 - 写操作日志、`OP_HEADERS`、`pageId` 和 headers 交给 [t-oplog](../t-oplog/SKILL.md)。
 - 弹窗内 grid 如果项目模式要求虚拟滚动，必须配置 `virtualYConfig` 和稳定 `height`。
@@ -41,6 +42,7 @@ description: Use when building or changing 构建或修改 TSB ERP 弹窗、抽�
 - 禁止 popup/drawer/route 已指定时修改未指定组件。
 - 禁止发现共享组件后静默做全局行为变更。
 - 禁止新增字段时跳过 [t-field](../t-field/SKILL.md) 的字段设置维度确认。
+- 禁止为单个输入框复制大段数字/小数/中文限制逻辑，未查自定义指令和 `utils` 就直接手写。
 - 禁止把保存、确认或可编辑性规则写散在弹窗内，必须转交 [t-tab](../t-tab/SKILL.md)。
 - 禁止在弹窗技能内猜 `OP_HEADERS`、`pageId` 或日志 headers，必须转交 [t-oplog](../t-oplog/SKILL.md)。
 - 禁止父组件 inline 大表单，禁止提交成功后漏刷新调用方。
