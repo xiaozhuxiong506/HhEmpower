@@ -1,53 +1,53 @@
-# 命名规则（从 t-standards 抽出的公共部分）
+# 命名一致性
 
-> 项目特定值（前缀 ts/th）→ 先读 [profiles.md](profiles.md) 探测。
+> 项目画像先读 [profiles.md](profiles.md)；命名规则在确认 `ts` / `th` 后执行。
 
-## 六处保持一致
+## 六处命名
 
-新增页面 **六处** 用同一名字（细则 → [../t-standards/SKILL.md](../t-standards/SKILL.md#命名对照)）：
+新增或调整页面时，以下六处必须表达同一个页面或业务对象：
 
-**列表**（`${views前缀}` = ts 或 th）：
+| 位置 | 要求 |
+|------|------|
+| 路由/菜单 | `path`、`name`、菜单 key 与页面目录保持同源命名 |
+| 组件文件名 | 列表固定 `index.vue`；详情按画像使用独立详情目录或内嵌 `Detail.vue` / `MaiDetail.vue` |
+| 组件名 | 使用 PascalCase，并与路由 `name`、目录名同源 |
+| API/类型名 | API 函数、请求/响应类型、页面类型字段使用同一业务词 |
+| i18n key | `locales/zh-CN.yaml` 与 `locales/en.yaml` 使用同一业务层级和 key |
+| 权限/日志/pageId | `AUTH_CODES`、`hasAuth`、`OP_HEADERS`、`pageId`、`sysRoleFiledCode` 与页面名同源 |
 
-| 处 | 值 |
-|----|----|
-| 文件夹 | `${views前缀}Xxx`（如 `tsMaterialOrdering` / `thCustomerInfo`） |
-| path | `/${views前缀}Xxx` |
-| name（PascalCase） | `${Views大写}Xxx`（如 `TsMaterialOrdering` / `ThCustomerInfo`） |
-| OP_HEADERS key | `${views前缀}Xxx`（th 项目为 `PAGE{N}` 形态，见 profiles OP形态） |
-| sysRoleFiledCode | `${Views大写}Xxx` |
-| **columns.field ↔ type 字段** | 每个 `field`（业务列）在 `type.ts` 有同名字段，小驼峰一致（seq/checkBox/operation 元列除外） |
+详情页独立成目录时，权限可从列表页 `auth.ts` 引入；内嵌详情时，仍要保留独立的日志和 pageId 语义。
 
-> 前 5 处是"命名样式一致"，第 6 处是"字段对齐"——后者由 [t-spec](../../agents/t-spec.md) 第一阶段静态审，不用等 Bug 后查。
+## 字段对齐
 
-**详情**：
+同一业务字段必须在以下位置对齐：
 
-- 独立目录：文件夹 `${views前缀}XxxDetail` · 独立 OP_HEADERS · auth 从列表 import
-- th 内嵌详情：`components/Detail.vue` / `MaiDetail.vue`，OP_HEADERS 仍独立一组
+- `columns.field`
+- 表单 `prop`
+- `type.ts` 类型字段
+- API 请求/响应字段
+- 字段设置 `fieldName`
+- i18n 标签
 
-```typescript
-// 详情引用列表 auth（两项目通用）
-import { AUTH_CODES } from "../${views前缀}Xxx/auth";
-```
+`seq`、`checkBox`、`operation` 等元列不参与业务字段对齐。
 
-## 固定文件名
+新增字段时，先确认后端字段和现有同模块命名，再同步列、表单、类型、API、字段设置和文案。
 
-| 页类型 | 固定文件 |
-|--------|---------|
-| 列表 | `index.vue` · `columns.ts`（`DEFAULT_COLUMNS`）· `auth.ts` · `type.ts` · `components/` |
-| 详情 | `index.vue` · `columns.ts`（`DEFAULT_COLUMNS_INDEX`）· `components/` |
+## 样式一致不等于字段对齐
 
-> th 项目部分页用 `*Columns.ts`（如 `customerColumns.ts`）、`hook/`、`constants/` 组织——以当前模块实际结构为准，新页优先照抄本项目 `${标准页}` 的文件组织。
+不要因为兄弟字段的 UI 样式相似，就复制它的字段名、类型名、API 字段或 i18n key。
 
-## 组件命名
+样式只能作为组件结构参考；字段名必须来自业务含义、后端字段、现有类型和页面文案。
 
-`AEDrawer` · `AEDialog` · `XxxModal.vue` · `XxxDrawer.vue` · `XxxDetail.vue`
+## `th` 历史拼写
 
-## API 命名
+`th` 项目已有 legacy 拼写只在现有文件要求时保留，例如 `exportCloumns.ts`、`typs.d.ts`。
 
-`${api目录}/${api文件}`（如 `src/api/procerement.ts` / `src/api/hallbasic.ts`）：照抄模板函数名，全局替换业务前缀，勿自造。
+新页面、新文件、新字段使用正确拼写；没有现有证据时，不把 legacy 拼写复制到新页面。
 
-## 命名红线
+## 重命名红线
 
-- 禁止下划线（`xxx_yyy`），一律小驼峰。例外：`DEFAULT_COLUMNS`、`AUTH_CODES` 等后端码常量
-- 函数前缀：`get` · `handle` · `to` · `open` · `refresh` · `guard`
-- th 项目已有的拼写遗留（如 `exportCloumns.ts`、`typs.d.ts`）**不照抄到新页**，新页用正确拼写
+重命名共享标识符前，先报告影响范围，再等待确认。
+
+影响范围至少覆盖：路由/菜单、文件名、组件名、imports、API/类型、i18n、`AUTH_CODES`、`OP_HEADERS`、`pageId`、`sysRoleFiledCode`、字段设置、所有调用方。
+
+未完成影响范围报告前，不要静默重命名共享组件、hook、util、类型、API 函数或业务字段。

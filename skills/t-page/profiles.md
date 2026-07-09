@@ -1,66 +1,62 @@
-# 项目画像表（去硬编码的核心）
+# TSB 项目画像
 
-> 本插件同时服务 **Tsb.TradeErp.PC（ts*）** 与 **Tsb.HallErpTenant.PC（th*）**。
-> 两项目同构（electron-pure-admin 孪生：Vue3 + Vite + element-plus + vxe-table + pinia + electron + vue-i18n），差异仅在业务前缀与少量约定。
-> **任何 skill / agent 引用项目特定路径前，必须先按本文探测当前项目，套用对应列。**
+> 本文件是页面技能识别 `ts` / `th` 项目画像的单一事实源。
 
-## 自动探测流程（每个任务第一棒必做）
+## 读取顺序
 
-```
-1. 读 package.json 的 name 字段 → 匹配下方画像表
-2. 兜底：扫 src/views/ 一级目录，前缀 ts* 即 TradeErp，前缀 th* 即 HallErp
-3. 探测命中后，整条链路用对应列的值替换 ${占位符}
-```
+每个页面 skill 在引用项目特定路径、标准页、路由、API、权限、操作日志、字段设置前，先读本文件。
+
+先完成画像探测，再替换路径令牌；探测完成前不得硬编码 `ts` 或 `th` 专属路径。
+
+## 画像探测
+
+1. 检查用户给出的路由、根目录、文件路径：`src/views/ts*` 选 `ts`，`src/views/th*` 选 `th`。
+2. 检查同级现有页面：目录前缀、路由模块、列表页、详情页归属必须同画像。
+3. 检查 imports、组件、API、权限、操作日志、`locales`：用现有同模块写法校准画像。
+4. 命中唯一画像后，整条链路只使用该画像；证据冲突或未知时继续只读探测或询问。
 
 ## 画像表
 
-| 探测字段 | 探测方法 | TradeErp | HallErp |
-|---------|---------|----------|---------|
-| **package.json name** | 读 name | `tsb-erp` | `tsb-hall-user` |
-| **项目别名（本文简称）** | — | ts 项目 | th 项目 |
-| **views 前缀（`${views前缀}`）** | 扫 src/views | `ts` | `th` |
-| **业务页 glob** | `${views前缀}*` | `src/views/ts*/**` | `src/views/th*/**` |
-| **标准模板页（`${标准页}`）** | 结构最全的列表页 | `tsMaterialOrdering` | `thCustomerInfo` |
-| **标准页完整路径** | — | `src/views/tsProcurementManagement/tsMaterialOrdering/` | `src/views/thCustomerManagement/thCustomerInfo/` |
-| **复杂参考页** | 弹窗/Drawer 最多 | `tsProcurementOrdering` | `thSampleSManagement` |
-| **详情模板** | — | `tsMaterialOrderingDetail` | 内嵌 `components/Detail.vue`（少数用 `thXxxDetail` 目录） |
-| **详情后缀约定** | 扫后缀 | 混用 `Detail`/`Details`（新页用单数 `Detail`） | 多数内嵌；独立目录仅 `thOpenToPublicDetail`/`thSampleSelectionDetail` |
-| **OP_HEADERS 形态** | 读 `src/utils/operationLog.ts`（⚠ 两项目均有混合格式——ts 项目约 100 个页名 key + 4 处 PAGE；th 项目 59 个 PAGE + 少量页名 key。新增时**先读同模块现有写法**，不机械套规则） | 主流 `OP_HEADERS[页名][动作]={headers:{pageTitle,useTitle,pageId}}` | 主流 `OP_HEADERS[PAGE{N}][AUTH{N}].headers={pageTitle,useTitle,pageId}` |
-| **OP_HEADERS 文件** | — | `src/utils/operationLog.ts` | `src/utils/operationLog.ts` |
-| **API 目录（`${api目录}`）** | src/api | `src/api/` | `src/api/` |
-| **API 文件命名** | — | 按域分文件，如 `procerement.ts` | 按域 `hall*` 前缀，如 `hallbasic.ts`/`hallnegotia.ts`/`hallquote.ts`/`hallroom.ts` |
-| **API 函数约定** | POST + Result | `http.request<Result>("post", \`${baseURL}/tpr/{Controller}/{Action}\`, {data}, headers)` | 同（POST + Result，前缀按域替换） |
-| **locales 目录** | 根目录 | `locales/zh-CN.yaml` + `locales/en.yaml` | `locales/zh-CN.yaml` + `locales/en.yaml` |
-| **locales 顶层命名空间** | 读 yaml 顶层 key | `projectTitle`/`m`/`z`/`buttons`/`search`/`panel`/`menus`/`status`/`login`/`home`/`form`/`placeholder`/`label`/`result`/`g`/`l`/`tsb`/`fm` | `projectTitle`/`cm`/`m`/`z`/`buttons`/`search`/`panel`/`menus`/`status`/`login`/`home`/`form`/`placeholder`/`label`/`result`/`g`/`l`/`tsb`/`fm`/`tg`/`psv`/`product`/`so` |
-| **权限：hasAuth** | src/router/utils.ts | `hasAuth(value, path?)` | `hasAuth(value, path?)`（同） |
-| **权限：v-auth 指令** | src/directives/auth/ | ✅ | ✅ |
-| **权限：AUTH_CODES** | 页内 auth.ts | 页 `auth.ts` 导 `AUTH_CODES` | 多数页 `auth.ts`/`constants/` 内（同思路） |
-| **路由模块文件** | src/router/modules/ | `ts{模块}Management.ts` 等 | `th{模块}.ts` 等 |
-| **菜单页注册** | 路由 children | `src/router/modules/ts*.ts` | `src/router/modules/th*.ts` |
-| **静态/详情页注册** | showLink:false | `src/router/modules/staticRoutes.ts` | `src/router/modules/staticRoutes.ts` |
-| **共享组件前缀** | src/components | `Th*` + `Re*` | `Th*` + `Re*`（同） |
-| **独有子系统** | — | — | `src/tsb/`（小竹熊子应用，不走标准页栈，D 档） |
+| 项 | `ts` 项目：TradeErp | `th` 项目：HallErp |
+|----|---------------------|--------------------|
+| 源码根 | `src/views/ts*/**` | `src/views/th*/**` |
+| 标准列表页 | `src/views/tsProcurementManagement/tsMaterialOrdering/` | `src/views/thCustomerManagement/thCustomerInfo/` |
+| 复杂参考页 | `src/views/tsProcurementManagement/tsProcurementOrdering/` | `src/views/thSampleSelectionManagement/thSampleSManagement/` |
+| 路由形态 | `src/router/modules/ts{模块}Management.ts`；详情/静态页进 `src/router/modules/staticRoutes.ts` | `src/router/modules/th{模块}.ts`；详情/静态页进 `src/router/modules/staticRoutes.ts` |
+| 列表/详情模式 | 列表与详情常分目录；新详情优先用单数 `Detail`，保留既有 legacy 目录名 | 详情多数内嵌在主单 `components/Detail.vue` 或 `MaiDetail.vue`；仅有证据时使用独立详情目录 |
+| 详情模板 | `src/views/tsProcurementManagement/tsMaterialOrderingDetail/` | `thCustomerInfo/components/Detail.vue`；独立详情参考 `thOpenToPublicDetail` / `thSampleSelectionDetail` |
+| 共享组件前缀 | `Th*`、`Re*` | `Th*`、`Re*` |
+| i18n | `locales/zh-CN.yaml`、`locales/en.yaml`；常见命名空间含 `projectTitle`、`m`、`z`、`buttons`、`search`、`panel`、`menus`、`form`、`placeholder`、`label` | 同目录；额外常见命名空间含 `cm`、`tg`、`psv`、`product`、`so` |
+| 权限 | `hasAuth(value, path?)`、`v-auth`、页内 `auth.ts` 导出 `AUTH_CODES` | `hasAuth(value, path?)`、`v-auth`、页内 `auth.ts` 或 `constants/` 导出权限码 |
+| 操作日志 | `src/utils/operationLog.ts`；主流为 `OP_HEADERS[页名][动作].headers`，但存在混合写法，新增前先读同模块 | `src/utils/operationLog.ts`；主流为 `OP_HEADERS[PAGE{N}][AUTH{N}].headers`，但存在混合写法，新增前先读同模块 |
+| API | `src/api/`；按域分文件，如 `procerement.ts`；POST + `Result` | `src/api/`；按域用 `hall*` 文件，如 `hallbasic.ts`、`hallnegotia.ts`、`hallquote.ts`、`hallroom.ts`；POST + `Result` |
+| 字段设置 | `columns.field`、表单 `prop`、类型字段、API 字段、`fieldName`、i18n 标签必须指向同一业务字段；`sysRoleFiledCode` 跟随页面名 | 同左；遇 legacy 字段或文件名只在现有文件要求时保留 |
 
-## 占位符替换规则
+## 路径令牌
 
-skill / agent 正文里凡见 `${...}`，一律按当前探测结果替换：
+页面 skill 正文使用令牌描述画像差异，探测完成后再替换：
 
-| 占位符 | 含义 | 示例(TradeErp) |
-|--------|------|---------------|
-| `${views前缀}` | ts 或 th | `ts` |
-| `${标准页}` | 标准模板页目录名 | `tsMaterialOrdering` |
-| `${标准页路径}` | 完整路径 | `src/views/tsProcurementManagement/tsMaterialOrdering/` |
-| `${api目录}` | API 所在目录 | `src/api/` |
-| `${api文件}` | 该域 API 文件 | `procerement.ts` |
-| `${OP形态}` | OP_HEADERS 写法形态 | `[页名][动作]` |
-| `${locales目录}` | locales 目录 | `locales/` |
+| 令牌 | 含义 | 示例 |
+|------|------|------|
+| `<profile-root>` | 当前画像的页面根范围 | `src/views/ts*/**` 或 `src/views/th*/**` |
+| `<module>` | 当前业务模块目录 | `tsProcurementManagement`、`thCustomerManagement` |
+| `<page>` | 列表页目录或页面名 | `tsMaterialOrdering`、`thCustomerInfo` |
+| `<detail>` | 详情目录或内嵌详情组件 | `tsMaterialOrderingDetail`、`components/Detail.vue` |
+| `<route-module>` | 路由模块文件 | `src/router/modules/tsXxxManagement.ts`、`src/router/modules/thXxx.ts` |
+| `<api-file>` | 当前域 API 文件 | `src/api/procerement.ts`、`src/api/hallbasic.ts` |
+| `<locale-file>` | 当前语言文件 | `locales/zh-CN.yaml`、`locales/en.yaml` |
 
-## 新增第三个项目时（扩展指引）
+不得在画像探测前把令牌替换成项目专属路径。
 
-本文以两项目为基线。若未来加入同模板第三 ERP：
-1. 先跑「自动探测流程」确认无法命中现有两列
-2. 在画像表新增一列，填齐探测字段
-3. 选定其标准模板页（结构最全、含完整 vxe + ThToolbar + OP_HEADERS 栈）
-4. 无需改任何 skill / agent 正文（它们都引用占位符）
+## 新增第三画像
 
-> 五条红线、命名规则、OP_HEADERS/pageId 必问等**方法论不随项目变**，仅"具体值"按列替换。
+新增同模板项目时，只在本文件补一列或一组表项：源码根、路由形态、列表/详情模式、共享组件前缀、i18n、权限、操作日志、API、字段设置。
+
+不要把第三画像判断复制到各 skill 正文；skill 继续读取本文件并替换路径令牌。
+
+## 硬规则
+
+- 未知画像时先询问或继续只读探测；永远不要猜。
+- 同一任务只允许使用一个已确认画像；证据冲突时停下确认。
+- `Th*`、`Re*` 是两项目共享前缀，不能单独作为画像证据。
+- 操作日志和权限写法以同模块现有文件为准；不要机械套用另一项目。

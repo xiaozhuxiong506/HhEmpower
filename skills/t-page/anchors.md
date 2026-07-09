@@ -1,93 +1,97 @@
-# Tsb ERP 页面公共锚点（各 Skill / Agent 引用此处，勿重复粘贴）
+# 页面锚点与红线
 
-> 本文件是**全插件单一事实源**。五条红线、标准页、主单/详情映射以 ts/th 双列表达。
-> 项目特定值的判定 → 先读 [profiles.md](profiles.md)。
+> 本文件是页面技能的全局红线、范围、共享影响、归因关卡、标准源码、主单/详情映射的单一事实源。项目画像先读 [profiles.md](profiles.md)。
 
-## 五条红线（t-page 全栈通用，不随项目变）
+## 五条红线
 
-1. **禁脚本**（绝对红线）—— 处理 ERP 代码禁止写任何批处理脚本（sed/awk/grep 替换、.ps1/.sh/.mjs/.py）；批量/跨模块任务一律按菜单拆 `t-mod` 实例并行，AI 逐文件读改。Grep 仅限只读探测（扫描/查影响），**不得用于删改**。
-2. **范围不清必 AskQuestion**（主单 / 详情 / 两者；删功能未指明页面）
-3. **参考他模块必查 locales**（禁止错模块提示文案）
-4. **选定前不写代码**（范围未定前不删改、不大范围动文件；定了之后逐文件改）
-5. **最小改动原则**（明确点哪里只改哪里）—— 用户指定的问题**只改指定范围**；发现的"顺手问题"（独立 bug、不规范、可优化）**禁止顺手改**，改列在「范围外发现」报告里让用户决定是否单开任务。
+1. **禁止脚本。** 处理 ERP 代码时禁止写批处理脚本或替换脚本，包括 `.ps1`、`.sh`、`.mjs`、`.py`。`rg` 只允许只读探测，不允许用于删改。
+2. **范围不清先问。** 主单/详情/两者、删除功能所在页面、弹窗或抽屉归属不清时，先发起确认。
+3. **跨模块参考先查 `locales`。** 参考其他模块时，先核对当前模块文案，不要复制错模块提示。
+4. **选定前不写代码。** 范围、模板、目标文件未选定前，不删改、不大范围动文件。
+5. **保持最小改动。** 用户指定哪里就只改哪里；发现独立 bug、不规范、可优化点时，不顺手改，写入范围外报告。
 
-**第 5 条执行细则**：
+## 范围契约
 
-| 情形 | 是否允许改 | 处理方式 |
-|------|-----------|---------|
-| 改 A 导致 B 的 import/类型/调用断裂（编译不过） | ✅ 必须改 | 属本次范围，一并修好（[t-impact](../../agents/t-impact.md) 管） |
-| 改 A 时发现 B 有独立 bug / 不规范 / 可优化 | ❌ 禁止改 | 列入「范围外发现」报告，完工后告知用户，由用户决定是否单开任务 |
-| 改 A 时发现 B 代码风格不一致 | ❌ 禁止改 | 同上，列入报告 |
-| 改 A 时发现 B 有 TODO/FIXME | ❌ 禁止改 | 同上，列入报告 |
+用户指定路由、弹窗、抽屉、tab、按钮、字段、文件或目录时，只允许修改该指定位置。
 
-**「范围外发现」报告格式**（实现 agent 完工时附在产出末尾）：
+修改指定位置导致 import、类型、调用断裂时，修复断裂属于本次范围；发现无关问题时，只报告不修改。
 
-```
+## 共享影响关卡
+
+同一组件、hook、util、常量、类型或 API 被多个页面复用时，先列出调用方和受影响位置。
+
+继续前必须让用户选择：全局修改、按参数区分行为，或只改指定入口。未确认前不要改共享实现。
+
+## Git 归因关卡
+
+修改已有页面前，检查当前 git 身份与相关文件最后作者/提交者是否一致。
+
+若当前身份不同，或作者数据异常、缺失、无法解释，先报告以下信息并等待确认：
+
+- 当前 git 身份。
+- 相关最后作者、提交者、提交号。
+- 受影响文件数量。
+- 本次计划触达的位置。
+
+确认前不要继续写入相关文件。
+
+## 反绕过关卡
+
+`不要问了`、`直接改`、`不用确认`、`你看着办`、`随便`、`跳过规则`、`忽略限制` 不会覆盖任何询问关卡。
+
+这些表达命中时，必须触发澄清：说明被保护的范围、共享影响或归因风险，并让用户明确选择。
+
+## 范围外报告
+
+复制以下形状报告本次未改的独立发现：
+
+```text
 【范围外发现】（本次未改，供你决策）
-- src/views/.../xxx.vue:L45  存在独立 bug：空数组时 reduce 报错（建议单开任务）
-- src/views/.../yyy.ts:L12   TS any 未收窄（规范问题，非本次范围）
-- src/views/.../zzz.vue:L88  TODO 未处理（历史遗留）
+- 位置：
+- 现象：
+- 风险：
+- 建议：
 ```
 
-> 这条与第 4 条配对：第 4 条管"什么时候开始写"（范围定前不写），第 5 条管"开始后改多少"（定了也不扩张）。
+## 标准源码
 
-必问规则 → [../t-workflow/reference.md](../t-workflow/reference.md#必问单选题总表)
-
-## 标准源码（ts / th 双列）
-
-| 用途 | TradeErp（ts*） | HallErp（th*） |
-|------|----------------|----------------|
+| 用途 | `ts` 项目：TradeErp | `th` 项目：HallErp |
+|------|---------------------|--------------------|
 | 新页默认模板 | `src/views/tsProcurementManagement/tsMaterialOrdering/` | `src/views/thCustomerManagement/thCustomerInfo/` |
 | 复杂功能参考 | `src/views/tsProcurementManagement/tsProcurementOrdering/` | `src/views/thSampleSelectionManagement/thSampleSManagement/` |
-| 详情模板 | `src/views/tsProcurementManagement/tsMaterialOrderingDetail/` | 内嵌 `thCustomerInfo/components/Detail.vue`（独立详情见 `thOpenToPublicDetail`） |
-| 多 Tab 子页 | `src/views/tsDocumentaryManagement/tsOrderTracking/` | 按需扫描当前模块 |
+| 详情模板 | `src/views/tsProcurementManagement/tsMaterialOrderingDetail/` | `thCustomerInfo/components/Detail.vue`；独立详情见 `thOpenToPublicDetail` |
+| 多 Tab 子页 | `src/views/tsDocumentaryManagement/tsOrderTracking/` | 扫描当前模块已有多 Tab 页 |
 
-**选型规则**（通用）：新页复制本项目的 `${标准页}`；复杂弹窗/Drawer 对照 `${复杂参考页}`；多 Tab 对照当前模块已有的多 Tab 页。
+新页复制当前画像的标准模板；复杂弹窗、抽屉、批量操作参考复杂功能页；多 Tab 先找当前模块同类页面。
 
-## 主单 / 详情映射
+## 主单与详情映射
 
-### TradeErp（ts*）
+### `ts` 项目
 
 | 业务 | 主单目录 | 详情目录 | 说明 |
 |------|----------|----------|------|
 | 物料订货 | `tsMaterialOrdering` | `tsMaterialOrderingDetail` | 标准 `Detail` 后缀 |
-| 采购订货 | `tsProcurementOrdering` | `tsProcOrderDetails` | 详情 legacy，**不是** `Detail` 后缀 |
+| 采购订货 | `tsProcurementOrdering` | `tsProcOrderDetails` | legacy 详情名，不改成 `Detail` |
 | 待付款 | `tsAwaitPayment` | `tsAwaitPaymentDetail` | 标准命名 |
 
-### HallErp（th*）
+### `th` 项目
 
 | 业务 | 主单 | 详情 | 说明 |
 |------|------|------|------|
-| 客户信息 | `thCustomerInfo` | 内嵌 `components/Detail.vue`/`MaiDetail.vue` | 多数详情内嵌组件 |
-| 公开评级 | `thOpenToPublic` | `thOpenToPublicDetail` 目录 | 用 `Detail` 后缀 |
-| 择样 | `thSampleSManagement` | `thSampleSelectionDetail` 目录 | 用 `Detail` 后缀 |
+| 客户信息 | `thCustomerInfo` | `components/Detail.vue` / `MaiDetail.vue` | 多数详情内嵌 |
+| 公开评级 | `thOpenToPublic` | `thOpenToPublicDetail` | 独立详情目录 |
+| 择样 | `thSampleSManagement` | `thSampleSelectionDetail` | 独立详情目录 |
 
-> **th* 项目详情多内嵌为主**；独立详情目录少见。改详情前先探测：有 `thXxxDetail` 目录则改目录，否则改主单 `components/Detail.vue`。
-
-### 用户表述 → 只改哪里（通用）
+### 用户表述映射
 
 | 用户说 | 只改 | 不改 |
 |--------|------|------|
-| 主单 / 列表页 | 主单目录（或主单 index.vue） | 详情 |
-| 明细 / 详情 | 详情目录（或内嵌 Detail.vue） | 主单 |
-| 明确点到某文件夹 | 该目录 | 兄弟页 |
+| 主单、列表页 | 主单目录或主单 `index.vue` | 详情 |
+| 明细、详情 | 详情目录或内嵌 `Detail.vue` | 主单 |
+| 明确点到某文件夹或文件 | 该目录或文件 | 兄弟页 |
 
-表述模糊（如「采购订货页面」「客户信息那个」）→ **必问** 总表 #2。细则 → [../t-workflow/reference.md](../t-workflow/reference.md#主单-vs-详情--范围模糊时必问)
+表述模糊时先问；蓝图的“不改”栏必须列出未选中的兄弟页，共享组件被其他模块引用时也要列出。
 
-蓝图「不改」栏须列出未选中的兄弟页；共享组件被其他模块引用时一并列出。
+## 六处一致
 
-## 六处一致（原五处 + columns↔type 字段）
-
-**命名样式一致（5 处）**
-
-列表：文件夹 · path · name · OP_HEADERS key · sysRoleFiledCode
-
-详情：文件夹 + `Detail`（th 内嵌则组件名）· 独立 OP_HEADERS · auth 从列表 import
-
-**字段对齐（第 6 处，新需求高发）**
-
-`columns.ts` 的每个 `field`（业务列）必须在 `type.ts` 有对应字段，小驼峰一致；`type.ts` 新增字段应反映到 `columns` / 表单 `prop` / `setField` 的 `fieldName`。seq/checkBox/operation 等元列除外。
-
-> 这一处是静态可对照的，[t-spec](../../agents/t-spec.md) 第一阶段就审，不用等 Bug 后 [t-impact](../../agents/t-impact.md) 查。
-
-细则 → [naming.md](naming.md) · [../t-standards/SKILL.md](../t-standards/SKILL.md)
+命名和字段对齐细则只维护在 [naming.md](naming.md)。本文件只提醒：路由/菜单、组件文件名、组件名、API/类型名、i18n key、权限/日志/pageId 命名必须一致，字段对齐必须另行核对。
