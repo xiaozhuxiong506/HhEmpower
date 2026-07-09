@@ -1,6 +1,6 @@
 ---
 name: t-auth
-description: Use when adding or changing TSB ERP 权限码、AUTH_CODES、auth.ts、hasAuth、v-auth、visible guard、工具栏按钮权限、行操作权限、详情页复用列表 auth。
+description: Use when adding or changing TSB ERP 权限码、AUTH_CODES、auth.ts、hasAuth、v-auth、visible guard、工具栏按钮权限、行操作权限、详情页复用列表 auth、严格权限、AI 权限边界、人类用户等同权限控制。
 ---
 
 # t-auth
@@ -13,6 +13,15 @@ description: Use when adding or changing TSB ERP 权限码、AUTH_CODES、auth.t
 - 权限码值来自后端或用户明确提供；不是 AI 自由命名。
 - 用法优先 `hasAuth(AUTH_CODES.Xxx)`；已有页面使用 `v-auth` 时按同页模式。
 - 工具栏按钮、行操作、详情按钮都必须接入同一套权限来源。
+
+## AI 权限边界（Human-Equivalent Permissions）
+
+AI 只能在与人类用户同等的权限边界内辅助修改和验证，不得创造、模拟或绕过权限。
+
+- 前端按钮隐藏不等于授权；保存、审核、删除、导出、批量操作等关键操作必须保留后端权限码和接口鉴权。
+- 不得硬编码 `hasAuth` 结果、删除 guard、伪造超级用户、绕过菜单/路由权限、跳过字段权限或屏蔽鉴权失败。
+- 使用浏览器、MCP、Swagger/OpenAPI、接口平台或调试账号时，也必须遵守合法账号权限；需要更高权限时让用户走正式授权流程。
+- 权限会影响操作日志、字段配置、数据范围和跨模块业务闭环；权限事实源不清时先问，不继续改。
 
 ## 必问门禁（Ask Gates）
 
@@ -38,5 +47,6 @@ description: Use when adding or changing TSB ERP 权限码、AUTH_CODES、auth.t
 - 禁止未问就新增后端权限码。
 - 禁止详情页绕开列表 auth 单独发明权限文件。
 - 禁止把字段设置的 `setField` 当按钮权限使用。
+- 禁止把 AI、调试账号、接口工具或脚本当成绕过人类用户权限的理由。
 
 关联：[t-list](../t-list/SKILL.md) · [t-detail](../t-detail/SKILL.md) · [t-dialog](../t-dialog/SKILL.md)

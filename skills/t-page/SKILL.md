@@ -1,6 +1,6 @@
 ---
 name: t-page
-description: Use when Codex works on a TSB ERP business page, route, module, list, detail, popup, drawer, tab, field, auth, operation log, route registry, or page-level skill routing；触发词包括 页面、路由、主单、详情、明细、弹窗、抽屉、字段、权限、操作日志、vxe-grid、hasAuth、AUTH_CODES、OP_HEADERS、staticRoutes、setField、sysRoleFiledCode、ts/th。
+description: Use when Codex works on a TSB ERP business page, route, module, list, detail, popup, drawer, tab, field, auth, operation log, route registry, business closed loop, cross-module impact, accountability, or page-level skill routing；触发词包括 页面、路由、主单、详情、明细、弹窗、抽屉、字段、权限、业务闭环、全局感知、责任归属、vxe-grid、hasAuth、AUTH_CODES、OP_HEADERS、staticRoutes、setField、sysRoleFiledCode、ts/th。
 ---
 
 # t-page
@@ -44,8 +44,11 @@ description: Use when Codex works on a TSB ERP business page, route, module, lis
 
 - [五条红线](anchors.md#五条红线)
 - [范围契约](anchors.md#范围契约)
+- [ERP 闭环感知关卡](anchors.md#erp-闭环感知关卡)
+- [责任与审计关卡](anchors.md#责任与审计关卡)
 - [共享影响关卡](anchors.md#共享影响关卡)
 - [Git 归因关卡](anchors.md#git-归因关卡)
+- [权限等同用户关卡](anchors.md#权限等同用户关卡)
 - [反绕过关卡](anchors.md#反绕过关卡)
 - [临时产物清理](anchors.md#临时产物清理)
 - [范围外报告](anchors.md#范围外报告)

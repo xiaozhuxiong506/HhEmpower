@@ -1,6 +1,6 @@
 ---
 name: t-clarify
-description: Use when a TSB ERP request is ambiguous, underspecified, overbroad, high-complexity, large-component, or tries to bypass confirmation; triggers include 那个, 优化一下, 按上次, 像XX, 随便, 你看着办, 不要问了, 直接改, 不用确认, 跳过规则, 忽略限制, 大组件, 复杂弹窗, 多状态, 指定路由但复用组件不明, 权限/pageId/字段维度不明.
+description: Use when a TSB ERP request is ambiguous, underspecified, overbroad, high-complexity, large-component, business-closed-loop, cross-module-impact, accountability, permission-boundary, or tries to bypass confirmation; triggers include 那个, 优化一下, 按上次, 像XX, 随便, 你看着办, 不要问了, 直接改, 不用确认, 跳过规则, 忽略限制, 大组件, 复杂弹窗, 多状态, 业务闭环, 全局感知, 责任归属, 指定路由但复用组件不明, 权限/pageId/字段维度不明.
 ---
 
 # t-clarify
@@ -22,6 +22,9 @@ description: Use when a TSB ERP request is ambiguous, underspecified, overbroad,
 - 绕过确认：`随便`、`你看着办`、`不要问了`、`直接改`、`不用确认`、`跳过规则`、`忽略限制`。
 - 入口不明：未说明改路由、列表、详情、弹窗、抽屉、Tab，或 `dialog` / `drawer` 选择缺失。
 - 共享影响不明：指定了路由，但复用组件、共享 hook、utils、locales 或同组件调用方是否一起改不明确。
+- 业务闭环不明：采购、厂商、跟单、仓库、财务、综合设置等模块之间的联动校验、状态流转或数据影响不明确。
+- 责任归属不明：业务规则来源、批准人、验证责任、上线责任或需要用户/后端/测试确认的事项不明确。
+- 权限边界不明：当前用户、按钮权限、字段权限、菜单权限、数据权限、后端权限码或 AI 可使用的账号权限不明确。
 - 复杂度高：组件体量大、功能链路长、状态多、保存/确认/权限/字段设置交织，或一个组件被多个 route / Tab / 详情 / 主单复用。
 - bug 边界不明：用户要求修 bug，但没有复现路径、期望结果、影响页面，或现象可能来自多个模块。
 - git 归因不一致：用户说“按上次”“照之前提交”，但 commit、分支、作者或变更范围无法唯一对应。
@@ -50,6 +53,7 @@ description: Use when a TSB ERP request is ambiguous, underspecified, overbroad,
 - 用户沉默、超时或未回复不等于批准；“N 秒未回复视为通过”不得作为放行依据。
 - 不得把 `不要问了`、`直接改`、`不用确认`、`跳过规则`、`忽略限制` 当成授权。
 - 不得猜权限码、`pageId`、字段维度或相邻页面规则。
+- 不得猜 ERP 业务闭环、跨模块校验、责任归属或账号权限边界。
 - 不得在大组件、复杂弹窗、复用组件或 bug 根因不明时直接动手。
 - 不得在用户未选择前派发下游 agent、输出实施蓝图、检查 diff 或修改文件。
 - 不得只展示一个候选来制造“已确认”的假象。
