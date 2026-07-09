@@ -2,7 +2,7 @@
 
 ## 入口
 
-- 页面、路由、主单、详情、弹窗、抽屉、字段、权限、操作日志或页面级路由工作，从 [t-page](t-page/SKILL.md) 开始。
+- 页面、路由、主单、详情、弹窗、抽屉、字段、权限、操作日志、业务闭环、责任归属或页面级路由工作，从 [t-page](t-page/SKILL.md) 开始。
 - Zentao 任务收集、分析、分组或派发，从 [t-zentao](t-zentao/SKILL.md) 开始。
 
 ## 快捷命令
@@ -25,6 +25,10 @@
 | 操作日志 | `t-oplog` |
 | 路由与 Tab 发现 | `t-registry` |
 | Zentao | `t-zentao` |
+
+## 全局红线
+
+所有页面类 skill 默认继承 [t-page/anchors.md](t-page/anchors.md)：范围、脚本禁令、业务闭环、责任审计、共享影响、Git 归因、权限等同用户、反绕过和临时产物清理。子 skill 没有重复写明时，仍以 anchors 为准。
 
 ## 技能分组
 

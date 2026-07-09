@@ -1,12 +1,13 @@
 ---
 name: t-module
-description: Use when creating 新建或组装 TSB ERP 页面/模块/菜单/脚手架，涉及 route registration、API wiring、OP_HEADERS、auth、i18n、field settings、list/detail composition 或新页面自检。
+description: Use when creating 新建或组装 TSB ERP 页面/模块/菜单/脚手架，涉及 route registration、API wiring、OP_HEADERS、auth、i18n、field settings、business closed loop、accountability、permission boundary、list/detail composition 或新页面自检。
 ---
 
 # t-module
 
 ## 入口检查清单
 
+0. 先读 [anchors.md](../t-page/anchors.md)，确认范围、业务闭环、责任审计、权限等同用户、共享影响和反绕过关卡。
 1. 检测项目画像：先读 [profiles.md](../t-page/profiles.md)，确认当前是 `ts*` 还是 `th*`，再按画像定位标准页、API、路由、i18n 和 OP 形态。
 2. 决定详情形态：先判断是仅主单、主单加独立详情目录，还是主单加内嵌 `Detail.vue`；未确认前不建详情目录、不注册详情路由。
 3. 检查 API：沿用当前项目的 `${api目录}/${api文件}`、`baseURL`、`prefix`、headers 和函数命名，不凭业务名猜接口。
@@ -37,10 +38,12 @@ description: Use when creating 新建或组装 TSB ERP 页面/模块/菜单/脚�
 - 未确认权限码前，不新增 `AUTH_CODES`，不新增 `hasAuth` 判断。
 - 未确认字段设置维度前，不写新增字段的 `setField`、列显隐、表单可见性或可编辑性。
 - 未确认详情形态前，不创建详情目录，不写 `Detail.vue`，不注册详情路由，不补详情专用 locale 或 `pageId`。
+- 未确认新模块写操作的业务闭环、责任归属和权限边界前，不写保存、审核、删除、导出、批量操作或状态流转代码。
 
 ## 禁止事项
 
 - 禁止猜测 `pageId`、权限码、i18n namespace、字段设置维度或详情形态。
+- 禁止把新模块当成孤立页面，跳过采购/厂商/跟单/仓库/财务/综合设置等闭环影响判断。
 - 禁止在读取 [profiles.md](../t-page/profiles.md) 前硬编码标准页路径、API 文件、路由文件或详情形态。
 - 禁止绕过 [t-registry](../t-registry/SKILL.md) 直接改菜单登记、静态路由登记或检测范围。
 - 禁止让主单为了省事引用详情目录；主单和详情的 columns、auth、type、组件归属必须清楚。

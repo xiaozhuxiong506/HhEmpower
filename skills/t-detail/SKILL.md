@@ -7,6 +7,7 @@ description: Use when building or changing 构建或修改 TSB ERP 详情页、D
 
 ## 先定详情形态
 
+- 详情保存、确认、删除、审核、反审、作废、关闭、提交、状态流转等写操作先按 [anchors.md#erp-闭环感知关卡](../t-page/anchors.md#erp-闭环感知关卡) 判断业务闭环、责任和权限边界。
 - 先读 [profiles.md](../t-page/profiles.md)，再检查主单兄弟文件和已存在详情实现，判断详情是 `ts` 独立详情目录、`th` 内嵌 `Detail.vue`，还是当前项目的例外形态。
 - `ts` 项目常见形态是独立 `${views前缀}XxxDetail` 目录，并由主单通过 `openStaticPage` 或项目既有方式打开。
 - `th` 项目常见形态是主单 `components/Detail.vue`、`MaiDetail.vue` 或同类内嵌组件；少数独立详情以现有兄弟文件为准。
@@ -35,6 +36,7 @@ description: Use when building or changing 构建或修改 TSB ERP 详情页、D
 - 未确认字段设置维度前，不新增详情头字段、明细列、详情表单项或详情弹窗字段。
 - 未确认 i18n namespace 前，不新增详情标题、详情按钮、明细列标题或详情提示文案。
 - 未确认保存/确认/可编辑性规则前，不改详情 footer、详情弹窗确认按钮或 `isEdit` 相关逻辑；转交 [t-tab](../t-tab/SKILL.md)。
+- 未确认业务闭环和权限边界前，不新增或修改详情写操作、状态流转或批量操作。
 
 ## 禁止事项
 
@@ -44,3 +46,4 @@ description: Use when building or changing 构建或修改 TSB ERP 详情页、D
 - 禁止猜测详情 `OP_HEADERS`、`pageId`、权限码、i18n namespace 或字段设置维度。
 - 禁止用户只要求详情时顺手改主单列表列宽、查询或工具栏。
 - 禁止详情明细 grid 在项目模式要求时漏掉 `virtualYConfig` 或稳定 `height`。
+- 禁止把详情写操作当成孤立页面逻辑，跳过闭环、权限和日志判断。

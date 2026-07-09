@@ -7,6 +7,8 @@ description: Use when discovering, registering, or checking TSB ERP 路由、Tab
 
 本 skill 负责发现、登记和检查路由/Tab 影响范围；不替代 [t-workflow](../t-workflow/SKILL.md) 的改前决策，也不授权扩大修改范围。
 
+路由、菜单、隐藏路由、route registry 和 Tab 登记会影响权限入口、日志入口和业务闭环；修改前同时遵守 [../t-page/anchors.md](../t-page/anchors.md)。
+
 ## 发现层级（Discovery Levels）
 
 - **L1 菜单路由**：`src/router/modules/*.ts` 的业务菜单 children。
@@ -42,5 +44,6 @@ description: Use when discovering, registering, or checking TSB ERP 路由、Tab
 - 禁止改 route registry 前不查路由影响。
 - 禁止用本 skill 绕过 `t-clarify` / `t-workflow` 的改前确认。
 - 禁止维护写死的全模块清单；以运行时扫描为准。
+- 禁止把路由登记视为纯配置改动，跳过权限、日志、闭环和责任归属判断。
 
 关联：[t-page](../t-page/SKILL.md) · [t-tab](../t-tab/SKILL.md) · [t-standards](../t-standards/SKILL.md)

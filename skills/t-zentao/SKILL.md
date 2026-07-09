@@ -11,6 +11,8 @@ description: Use when collecting, analyzing, grouping, dispatching, or summarizi
 
 工具返回后，以原始任务数据为事实源，包括任务 ID、URL、标题、描述、备注、日志、状态和工具给出的模块识别结果。
 
+禅道任务进入页面实现前，执行者必须从 [t-page](../t-page/SKILL.md) 开始，并继承 [t-page/anchors.md](../t-page/anchors.md) 的业务闭环、责任审计、权限等同用户、共享影响和反绕过关卡。
+
 ## 登录边界（Login Boundary）
 
 如果 `zentao_collect_assigned_tasks` 报告登录缺失、会话失效或页面要求重新登录，主 Agent 必须要求用户在打开的浏览器中登录，然后重新运行同一工具。
@@ -33,6 +35,7 @@ description: Use when collecting, analyzing, grouping, dispatching, or summarizi
 - 原始描述或原始正文内容。
 - 备注、日志或复现信息中与实现相关的原文。
 - 模块分组和分组依据。
+- 任务中出现的业务闭环、权限、字段、日志、责任人或验收信息原文。
 
 派发给执行者的内容必须保留原文，不得只给压缩摘要。摘要可以附在后面帮助阅读，但不能替代原始任务内容。
 
@@ -43,3 +46,4 @@ description: Use when collecting, analyzing, grouping, dispatching, or summarizi
 - 不得发明完成状态、处理人、优先级、复现步骤或验收结论。
 - 不得把未分组任务强行派给某个模块执行者。
 - 不得让执行者根据不完整禅道信息直接改文件；缺少关键上下文时先澄清。
+- 不得把禅道任务摘要当成业务批准、权限批准或责任归属证据；缺少原文或确认记录时先澄清。

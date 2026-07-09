@@ -7,6 +7,7 @@ description: Use when building or changing 构建或修改 TSB ERP 主单列表�
 
 ## 主单边界
 
+- 主单行操作、批量操作、导出、删除、提交、审核、状态流转等写操作先按 [anchors.md#erp-闭环感知关卡](../t-page/anchors.md#erp-闭环感知关卡) 判断业务闭环、责任和权限边界。
 - 主单只负责列表入口：`index.vue`、查询表单、`vxe-grid`、主单 columns、`ThToolbar`、行操作入口、列表级字段显隐和打开弹窗/详情的接线。
 - 主单不修改详情归属文件，除非用户明确选择本次范围包含详情；详情目录、`Detail.vue`、详情 columns、详情保存和详情日志交给 [t-detail](../t-detail/SKILL.md)。
 - 主单不得为了调用方便 shortcut import 详情目录；如果需要打开独立详情，使用项目既有 `openStaticPage` 或路由接线模式。
@@ -42,6 +43,7 @@ ${views前缀}Xxx/
 - 未确认权限码前，不新增主单按钮权限或 `hasAuth`。
 - 未确认 i18n namespace 前，不新增列表标题、按钮、查询项或列标题 locale key。
 - 未确认“只改主单”还是“主单加详情/弹窗”前，不越界改详情、弹窗或保存流。
+- 未确认业务闭环和权限边界前，不新增或修改会改变数据的行操作、批量操作或工具栏按钮。
 
 ## 转交其他技能
 
@@ -60,3 +62,4 @@ ${views前缀}Xxx/
 - 禁止新增主单列时跳过字段设置维度确认。
 - 禁止新需求主单业务列少于 9 列却主动写 `width`，或使用 `minWidth`；列宽规则以 [t-standards/reference.md](../t-standards/reference.md) 为准。
 - 禁止复制其他模块 `t('key')` 而不查 locales。
+- 禁止把主单写操作当成孤立按钮，跳过闭环、权限和日志判断。

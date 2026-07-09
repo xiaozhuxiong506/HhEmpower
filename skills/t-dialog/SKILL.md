@@ -7,6 +7,7 @@ description: Use when building or changing 构建或修改 TSB ERP 弹窗、抽�
 
 ## 容器选择
 
+- 弹窗/抽屉内的保存、确认、删除、审核、提交、状态流转或批量操作先按 [anchors.md#erp-闭环感知关卡](../t-page/anchors.md#erp-闭环感知关卡) 判断业务闭环、责任和权限边界。
 - 用户明确指定 popup、dialog、drawer、route 或组件名时，按指定位置处理，不重新选型。
 - 用户未明确弹窗还是抽屉时，先走 [t-clarify](../t-clarify/SKILL.md)，确认后再新建或改组件。
 - 复杂表单、步骤多、内容动态或需要较大操作区时，优先沿用项目 `AEDrawer`、`el-drawer` 或 `XxxDrawer` 形态。
@@ -45,5 +46,6 @@ description: Use when building or changing 构建或修改 TSB ERP 弹窗、抽�
 - 禁止为单个输入框复制大段数字/小数/中文限制逻辑，未查自定义指令和 `utils` 就直接手写。
 - 禁止把保存、确认或可编辑性规则写散在弹窗内，必须转交 [t-tab](../t-tab/SKILL.md)。
 - 禁止在弹窗技能内猜 `OP_HEADERS`、`pageId` 或日志 headers，必须转交 [t-oplog](../t-oplog/SKILL.md)。
+- 禁止把弹窗保存或确认当成局部表单问题，跳过闭环、权限和责任判断。
 - 禁止父组件 inline 大表单，禁止提交成功后漏刷新调用方。
 - 禁止弹窗内 grid 在项目模式要求时漏掉 `virtualYConfig` 或稳定 `height`。

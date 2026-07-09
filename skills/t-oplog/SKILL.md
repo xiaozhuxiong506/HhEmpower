@@ -7,6 +7,8 @@ description: Use when adding or changing TSB ERP 操作日志、OP_HEADERS、ope
 
 操作日志由 `src/utils/operationLog.ts` 的 `OP_HEADERS` 驱动。新增页面或新增操作项前，先读 [../t-page/profiles.md](../t-page/profiles.md) 判断 ts/th 形态。
 
+新增写操作日志项前，同时读 [../t-page/anchors.md#责任与审计关卡](../t-page/anchors.md#责任与审计关卡) 和 [../t-page/anchors.md#权限等同用户关卡](../t-page/anchors.md#权限等同用户关卡)；日志不能替代权限，权限也不能替代日志。
+
 ## ts/th 形态（ts/th Shape）
 
 - **ts 主流形态**：`OP_HEADERS[页面名][动作] = { headers: { pageTitle, useTitle, pageId } }`。
@@ -61,5 +63,6 @@ PAGE12: {
 - 禁止 ts key 与页面命名六处不一致。
 - 禁止 th PAGE/AUTH 缺少页面注释。
 - 禁止业务代码直接调用日志记录 API；打印/导出由组件处理。
+- 禁止新增写操作时只补日志，不检查业务闭环、权限边界和责任归属。
 
 关联：[t-module](../t-module/SKILL.md) · [t-list](../t-list/SKILL.md) · [t-detail](../t-detail/SKILL.md) · [t-dialog](../t-dialog/SKILL.md)

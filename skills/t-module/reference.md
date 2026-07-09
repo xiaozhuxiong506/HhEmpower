@@ -1,6 +1,7 @@
 # 新模块自检
 
 > 项目特定值必须来自 [../t-page/profiles.md](../t-page/profiles.md) 和当前项目源码证据。不要在确认画像前套用其他项目路径。
+> 新模块默认继承 [../t-page/anchors.md](../t-page/anchors.md) 的业务闭环、责任审计、权限等同用户、共享影响和反绕过关卡。
 
 ## 命名替换
 
@@ -27,6 +28,7 @@
 - headers、`baseURL`、`prefix`、controller 和 action 来自现有 API 文件或接口文档；缺失时先澄清。
 - 主单 API 与详情 API 分开检查，详情 API 只有详情形态确认后才新增或替换。
 - 写操作需要操作日志时转交 [t-oplog](../t-oplog/SKILL.md)，不要在模块技能里直接猜 headers。
+- 新增保存、审核、删除、导出、批量操作或状态流转前，先确认上游来源、下游影响、权限/字段/日志校验链路和责任归属。
 
 ## 权限与 i18n 清单
 

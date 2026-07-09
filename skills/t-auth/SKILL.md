@@ -7,6 +7,8 @@ description: Use when adding or changing TSB ERP 权限码、AUTH_CODES、auth.t
 
 本 skill 只处理按钮/操作权限。字段权限读 [../t-field/SKILL.md](../t-field/SKILL.md)，页面规范读 [../t-standards/SKILL.md](../t-standards/SKILL.md)。
 
+权限变化同时继承 [../t-page/anchors.md](../t-page/anchors.md) 的责任审计、权限等同用户、业务闭环和反绕过关卡。
+
 ## 权限来源（Permission Source）
 
 - `auth.ts` 只写 `AUTH_CODES` 和后端权限码。

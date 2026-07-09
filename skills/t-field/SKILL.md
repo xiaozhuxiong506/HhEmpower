@@ -7,6 +7,8 @@ description: Use when adding or changing TSB ERP 字段设置、setField、setti
 
 字段设置控制角色字段权限，不等于按钮权限。按钮权限读 [../t-auth/SKILL.md](../t-auth/SKILL.md)；命名对齐读 [../t-page/naming.md](../t-page/naming.md)。
 
+字段显隐、可编辑性和接口字段会影响权限、保存、日志和业务闭环；涉及写操作或跨模块字段时读 [../t-page/anchors.md](../t-page/anchors.md) 的全局关卡。
+
 ## 八个维度（Eight Dimensions）
 
 每个维度取值遵循后端字段配置：`0=不设置`、`1=设置不显示`、`2=设置显示`。
@@ -74,5 +76,6 @@ description: Use when adding or changing TSB ERP 字段设置、setField、setti
 - 禁止把物料编号、采购编号等字段按中文含义近似匹配；必须完全等于接口字段或有明确映射证据。
 - 禁止只写 `v-if` 或只写 `:disabled`，却与同容器字段风格不一致。
 - 禁止把按钮权限 `AUTH_CODES` 当字段设置。
+- 禁止把字段设置当成纯 UI 显隐，跳过接口契约、权限边界和业务闭环影响。
 
 关联：[t-list](../t-list/SKILL.md) · [t-detail](../t-detail/SKILL.md) · [t-dialog](../t-dialog/SKILL.md)
