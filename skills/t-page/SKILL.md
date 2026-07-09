@@ -47,6 +47,7 @@ description: Use when Codex works on a TSB ERP business page, route, module, lis
 - [共享影响关卡](anchors.md#共享影响关卡)
 - [Git 归因关卡](anchors.md#git-归因关卡)
 - [反绕过关卡](anchors.md#反绕过关卡)
+- [临时产物清理](anchors.md#临时产物清理)
 - [范围外报告](anchors.md#范围外报告)
 
 ## 输出契约
