@@ -1,46 +1,53 @@
-# 发现命令示例（Tsb ERP 通用）
+# 路由命令示例
 
-> 新增路由/页面后，跑这些命令确认 grep 能扫到（registry-updater agent 用）。
+命令里的 `{模块}`、`{页}`、`${views前缀}`、`${Views大写}` 必须先按 [../t-page/profiles.md](../t-page/profiles.md) 探测结果替换。
 
-## 1. 路由可扫描
-
-```bash
-# ts 项目
-rg "name: \"TsXxx\"" src/router/modules/
-# th 项目
-rg "name: \"ThXxx\"" src/router/modules/
-```
-
-## 2. defineOptions 可扫描
+## 静态路由搜索（Static Route Search）
 
 ```bash
-rg "defineOptions.*${Views大写}Xxx" src/views/
+rg "path: \"\/(ts|th)" src/router/modules/
+rg "name: \"(Ts|Th)" src/router/modules/
+rg "staticRoutes|remaining" src/router/modules/
 ```
 
-## 3. OP_HEADERS 可扫描
+按指定页查：
 
 ```bash
-# ts 形态（按页名）
-rg "${views前缀}Xxx" src/utils/operationLog.ts
-# th 形态（PAGE 注释含页名）
-rg "${views前缀}Xxx" src/utils/operationLog.ts  # 应命中注释
+rg "${Views大写}Xxx|/${views前缀}Xxx|${views前缀}Xxx" src/router/modules/
 ```
 
-## 4. 六处一致性自检
+## remaining 路由搜索（Remaining Route Search）
 
 ```bash
-name="${views前缀}Xxx"     # 小写
-NAME="${Views大写}Xxx"      # PascalCase
-echo "path / $name / defineOptions $NAME / OP_HEADERS $name / sysRoleFiledCode $NAME"
-rg "$name|/$name" src/router/modules/ src/utils/operationLog.ts
-rg "$NAME" src/views/{模块}/$name/index.vue
+rg "${Views大写}Xxx|${views前缀}Xxx" src/router/modules/remaining.ts src/router/modules/staticRoutes.ts
 ```
 
-## 5. 兄弟页影响扫描
+发现命中后确认是否是详情、导入、工具页，不要直接当菜单页处理。
+
+## Tab 搜索（Tab Search）
 
 ```bash
-# 改某功能后查同模块是否需同步
-rg "改动字段|改动函数" src/views/{模块}/
+rg "activeTab|TABS|tabList|ThTabs|ThTabs2|<component :is|shallowRef" src/views/{模块}/{页}/
 ```
 
-> 命令中 `${views前缀}` = ts 或 th，`${Views大写}` = Ts 或 Th，按 profiles 探测结果替换。
+component 模式继续查子组件：
+
+```bash
+rg "defineOptions|useGridPreferences|OP_HEADERS|AUTH_CODES|settingList" src/views/{模块}/{页}/components/
+```
+
+## 全模块扫描（Full Module Scan）
+
+```bash
+rg "${views前缀}Xxx|${Views大写}Xxx" src/views/{模块}/ src/router/modules/ src/utils/operationLog.ts
+rg "AUTH_CODES|sysRoleFiledCode|useGridPreferences|virtualYConfig" src/views/{模块}/
+```
+
+兄弟页扫描：
+
+```bash
+ls src/views/{模块}/
+rg "改动字段|改动函数|共享组件名" src/views/{模块}/
+```
+
+输出只作为影响报告依据；是否扩大修改范围必须由用户确认。

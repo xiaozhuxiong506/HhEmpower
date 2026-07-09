@@ -1,95 +1,68 @@
 ---
 name: t-field
-description: >-
-  Tsb ERP（ts*/th*）角色字段设置：settingList、utils.setField，编辑可见/详情可见/列表可见。
-  Use when 字段设置, 编辑可见, 详情可见, 列表可见, setField, settingList, sysRoleFiledCode.
+description: Use when adding or changing TSB ERP 字段设置、setField、settingList、列表可见、详情可见、编辑可见、可编辑、批量编辑、fieldName 对齐、字段设置维度。
 ---
 
-# 字段设置（角色字段权限，Tsb ERP 通用）
+# t-field
 
-配置入口：系统管理 → 角色管理 → 字段设置（`FieldSetupDrawer.vue`，两项目都有）
+字段设置控制角色字段权限，不等于按钮权限。按钮权限读 [../t-auth/SKILL.md](../t-auth/SKILL.md)；命名对齐读 [../t-page/naming.md](../t-page/naming.md)。
 
-类型定义：系统管理角色管理页的 `type.ts`（ts→`src/views/tsSystemAdmin/tsRoleManagement/type.ts`）
+## 八个维度（Eight Dimensions）
 
-运行时：`utils.returnFieldList(sysRoleFiledCode)` 拉取 `settingList`，`utils.setField` 控制显隐/禁用。
+每个维度取值遵循后端字段配置：`0=不设置`、`1=设置不显示`、`2=设置显示`。
 
-## 八个维度（`fieldSettingTable`，ts/th 通用）
+| 维度 | 含义 | 页面常见用途 |
+| --- | --- | --- |
+| `showList` | 列表可见 | 主单 grid 列 |
+| `showDetail` | 详情可见 | 详情头、详情信息区 |
+| `isVisible` | 编辑可见 | 弹窗/抽屉表单项 `v-if` |
+| `isEdit` | 可编辑 | 表单项 `:disabled`，逻辑取反 |
+| `isBatch` | 批量编辑可见 | 批量编辑入口/列 |
+| `datchEdit` | 批量编辑可编辑 | grid 单元格 `:disabled`，逻辑取反 |
+| `audit` | 审核 | 审核相关字段 |
+| `trace` | 留痕 | 留痕相关字段 |
 
-每项取值：**0=不设置 · 1=设置不显示 · 2=设置显示**
+## fieldName 对齐（FieldName Alignment）
 
-- **showList** — 列表可见（主单 grid 列）
-- **showDetail** — 详情可见（详情头 `ThDetailHeadInfo`、详情主单信息区）
-- **isVisible** — 编辑可见（弹窗/抽屉表单项 `v-if`）
-- **isEdit** — 可编辑（弹窗/抽屉 `:disabled`，逻辑取反）
-- **isBatch** — 批量编辑可见
-- **datchEdit** — 批量编辑可编辑（详情 grid 单元格 `:disabled`，逻辑取反）
-- **audit** — 审核
-- **trace** — 留痕
+`fieldName` 必须与以下位置指向同一个业务字段：
 
-页面启用哪些列，由后端 `fieldRoleRecord` 的 `isList` / `isDetail` / `isVisible` 等开关决定（`FieldSetupDrawer` 动态列）。
+- `columns.field`
+- 表单 `prop`
+- `type.ts` 字段
+- API 入参/返回字段
+- 字段设置配置名
+- i18n label
 
-## `utils.setField` 对照（写页面时用，ts/th 通用）
+只因为 UI 样式相似而照搬兄弟字段名，属于命名错误。
 
-`fieldName` 与列 `field`、表单 prop **小驼峰一致**（如 `purchaseDate`、`manufacturerCode`）。
+## 必问门禁（Ask Gates）
 
-```typescript
-utils.setField(settingList, "purchaseDate", type);
-```
-
-- **type 0** — 列表列是否可见 → `showList === 2`
-- **type 1** — 详情头是否可见 → `showDetail === 2`
-- **type 2** — 编辑是否**禁用** → `isEdit !== 2`（用于 `:disabled`）
-- **type 3** — 批量编辑是否**禁用** → `datchEdit !== 2`
-- **type 4** — 编辑是否可见 → `isVisible === 2`（用于 `v-if`）
-- **type 5** — 批量编辑是否可见 → `isBatch === 2`
-
-`settingList` 为空或找不到字段 → 返回 `true`（默认显示/不禁用）。
-
-列表列权限另用 `utils.showField(item)`：`showList === 1` 时列 `isNoShow`（见 `GridPreferences`）。
-
-## 页面接入方式
-
-**列表页** — `useGridPreferences` 的 `sysRoleFiledCode` + 自动 `returnFieldList`；`columns.ts` 的 `field` 与 `fieldName` 一致。
-
-**弹窗/抽屉** — 父页传 `:settingList="settingList"`；表单项照抄标准页 AEDrawer：
-
-```vue
-<el-col v-if="utils.setField(props.settingList, 'paymentDays', 4)" :span="12">
-  <el-input :disabled="utils.setField(props.settingList, 'paymentDays', 2)" />
-</el-col>
-```
-
-**详情头** — `ThDetailHeadInfo` 传 `sysRoleFiledCode`，`cloumns[].key` 对应 `fieldName`，内部 `setField(..., 1)`。
-
-**详情 grid 行内编辑** — `:disabled="setField(settingList, 'xxxField', 3)"`。
-
-标准参照：当前项目 `${标准页}/components/AEDrawer.vue`、复杂参考页 `components/AEDialog.vue`
-
-## 新增字段必问（AskQuestion）
-
-在弹窗/抽屉/详情表单/详情 grid **新增表单项或列**时，**必须先问你**（可多选），选定后再写 `setField` 与后端字段名：
+新增表单项、详情字段、详情 grid 列或批量编辑字段时，必须先问字段设置维度：
 
 > 新字段 `xxx` 要接入哪些字段设置？
 
-- **A. 编辑可见** — `setField(..., 4)` 包 `v-if`
-- **B. 可编辑** — `setField(..., 2)` 包 `:disabled`
-- **C. 详情可见** — 详情头 `setField(..., 1)` 或详情信息区
-- **D. 列表可见** — 列表 `columns` + `showList` / `showField`
-- **E. 批量编辑可见** — `setField(..., 5)`
-- **F. 批量编辑可编辑** — `setField(..., 3)` 于 grid 单元格
-- **G. 暂不接字段设置** — 须你明确同意，并说明例外原因
+- **A. 编辑可见**：`setField(..., 4)` 控制 `v-if`。
+- **B. 可编辑**：`setField(..., 2)` 控制 `:disabled`。
+- **C. 详情可见**：详情头或详情信息区使用 `setField(..., 1)`。
+- **D. 列表可见**：列表列接 `showList` / `showField`。
+- **E. 批量编辑可见**：`setField(..., 5)`。
+- **F. 批量编辑可编辑**：`setField(..., 3)`。
+- **G. 暂不接字段设置**：必须由用户明确选择，并记录原因。
 
-**默认照抄**：同页、同容器内**相邻已有字段**的维度组合。
+用户未选定前，不写对应字段设置代码。
 
-**禁止**：
+## 证据规则（Evidence Rules）
 
-- 未问就写字段且不包 `setField`
-- `fieldName` 与 `field` / prop 不一致
-- 只写 `v-if` 不写 `:disabled`（或反之），与同页其它字段风格不一致
-- 自造 `sysRoleFiledCode`（须与六处 name 一致）
+- 若用户选择“照同页相邻字段”，必须写明相邻字段名和相同维度证据。
+- `settingList` 来源照当前页面已有模式；父组件传入或 `returnFieldList(sysRoleFiledCode)` 不混用。
+- `sysRoleFiledCode` 与页面命名六处一致；禁止临时自造。
+- 后端尚未登记新字段时，前端仍按最终 `fieldName` 写，交付中说明需后台登记。
 
-**后端**：新 `fieldName` 通常需后台在角色字段配置中登记；前端先按选定维度写好 `setField`，`fieldName` 用最终 prop 名。若后台尚未配置，`settingList` 无该项时前端默认显示。
+## 禁止项（Prohibitions）
 
-提问格式 → [t-workflow 必问单选题总表](../t-workflow/reference.md#必问单选题总表) **#13**
+- 禁止新增字段不问维度。
+- 禁止 `fieldName` 与 `columns.field` / form prop / type 字段不一致。
+- 禁止只写 `v-if` 或只写 `:disabled`，却与同容器字段风格不一致。
+- 禁止把按钮权限 `AUTH_CODES` 当字段设置。
 
-关联：[t-dialog](../t-dialog/SKILL.md) · [t-list](../t-list/SKILL.md) · [t-detail](../t-detail/SKILL.md) · [t-standards](../t-standards/SKILL.md)
+关联：[t-list](../t-list/SKILL.md) · [t-detail](../t-detail/SKILL.md) · [t-dialog](../t-dialog/SKILL.md)

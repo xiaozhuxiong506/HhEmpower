@@ -1,57 +1,42 @@
 ---
 name: t-auth
-description: >-
-  Tsb ERP（ts*/th*）按钮权限：auth.ts + hasAuth，标准页按当前项目（ts=tsMaterialOrdering / th=thCustomerInfo）。
-  Use when 权限, auth, hasAuth, 按钮权限, AUTH_CODES, visible, v-auth.
+description: Use when adding or changing TSB ERP 权限码、AUTH_CODES、auth.ts、hasAuth、v-auth、visible guard、工具栏按钮权限、行操作权限、详情页复用列表 auth。
 ---
 
-# 页面权限（Tsb ERP 通用）
+# t-auth
 
-标准：照抄 [anchors.md](../t-page/anchors.md) 中当前项目标准页的 `auth.ts`（ts→tsMaterialOrdering；th→thCustomerInfo）
+本 skill 只处理按钮/操作权限。字段权限读 [../t-field/SKILL.md](../t-field/SKILL.md)，页面规范读 [../t-standards/SKILL.md](../t-standards/SKILL.md)。
 
-编码规范 → [t-standards](../t-standards/SKILL.md)
+## 权限来源（Permission Source）
 
-- 文件名固定 `auth.ts`，与列表页同级（th 部分页放 `constants/`，以标准页为准）
-- **只写权限**：`AUTH_CODES` 及后端权限码，不写列配置、类型、API、业务函数
-- 键名 `AUTH_CODES.ADD` 等大写常量
-- 值为后端权限码，原样照抄，不是自由命名
-- 用法 `hasAuth(AUTH_CODES.EDIT)`，禁止魔法字符串 `"edit"`；也可用 `v-auth` 指令
+- `auth.ts` 只写 `AUTH_CODES` 和后端权限码。
+- 权限码值来自后端或用户明确提供；不是 AI 自由命名。
+- 用法优先 `hasAuth(AUTH_CODES.Xxx)`；已有页面使用 `v-auth` 时按同页模式。
+- 工具栏按钮、行操作、详情按钮都必须接入同一套权限来源。
 
-**列表页**
+## 必问门禁（Ask Gates）
 
-```typescript
-import { hasAuth } from "@/router/utils";
-import { AUTH_CODES } from "./auth";
-
-visible: () => hasAuth(AUTH_CODES.ADD);
-utils.msg("error", t("g.g640")); // 无权限
-```
-
-**详情页（复用列表 auth，不单独建文件）**
-
-```typescript
-import { AUTH_CODES } from "../${views前缀}Xxx/auth";
-// 详情按钮用 AUTH_CODES.DETAIL_*
-```
-
-## 新增权限码（必问单选题）
-
-新增 `AUTH_CODES` 时，**必须先 AskQuestion 单选**（总表 #10），未问不得写权限码：
+新增权限码前必须问用户：
 
 > 本次权限码怎么处理？
 
-- **A. 我已提供后端权限码** — 按给定字符串写入 `auth.ts`
-- **B. 后续处理** — 值写 `"需要后台配置！"`（待后台补全）
+- **A. 已提供后端权限码**：按用户给出的字符串写入。
+- **B. 后续配置**：先写 `"需要后台配置！"`，待后端补齐。
 
-**禁止**：自造权限码、从别的页面抄码凑数、未问就写 auth.ts
+未得到明确选择前，不写新的 `AUTH_CODES`。禁止从相邻页面拿一个看似相近的权限码充数。
 
-提问格式统一 → [t-workflow/reference.md#必问单选题总表](../t-workflow/reference.md#必问单选题总表)
+## 详情复用（Detail Reuse）
 
-## 对照源码
+- 详情页默认复用列表页 `auth.ts`。
+- 详情按钮使用列表 auth 中的详情相关 code；没有 code 时先问，不单独新建详情 `auth.ts`。
+- 只有当前项目已有同类详情独立 auth 证据时，才按项目证据处理，并在交付说明里写明证据位置。
 
-- 列表 auth：当前项目 `${标准页}/auth.ts`
-- 详情 import：当前项目详情模板
+## 禁止项（Prohibitions）
 
-同类权限码原样照抄，不要自行改名。
+- 禁止 `auth.ts` 写列配置、API、类型、业务函数。
+- 禁止魔法字符串权限判断，例如直接写 `"edit"`。
+- 禁止未问就新增后端权限码。
+- 禁止详情页绕开列表 auth 单独发明权限文件。
+- 禁止把字段设置的 `setField` 当按钮权限使用。
 
-关联：[t-list](../t-list/SKILL.md) · [t-detail](../t-detail/SKILL.md)
+关联：[t-list](../t-list/SKILL.md) · [t-detail](../t-detail/SKILL.md) · [t-dialog](../t-dialog/SKILL.md)

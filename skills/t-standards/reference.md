@@ -1,115 +1,92 @@
-# 补充参考（Tsb ERP 通用）
+# TSB 规范参考
 
-> 项目特定值（标准页/前缀）→ 先读 [../t-page/profiles.md](../t-page/profiles.md)。
+项目画像、标准页和 ts/th 差异先读 [../t-page/profiles.md](../t-page/profiles.md)；全局红线读 [../t-page/anchors.md](../t-page/anchors.md)；命名细则读 [../t-page/naming.md](../t-page/naming.md)。
 
-## 命名对照
+## 命名
 
-以当前项目标准页为模板，新页类推。命名六处一致细则 → [../t-page/naming.md](../t-page/naming.md)
+- 新页以当前项目标准页为模板，不从另一个项目照搬。
+- 路由 path、route name、`defineOptions.name`、目录名、API/type、i18n、auth/log/pageId 命名必须成组替换。
+- 禁止业务字段使用下划线命名；后端码、`AUTH_CODES`、`DEFAULT_COLUMNS` 等已有常量名保持原样。
+- 函数名前缀优先用 `get`、`handle`、`to`、`open`、`refresh`、`guard`。
 
-**列表**（`${views前缀}` = ts 或 th）
+## 主单与详情
 
-- 文件夹 `${views前缀}Xxx`
-- path `/${views前缀}Xxx`
-- name / defineOptions / sysRoleFiledCode `${Views大写}Xxx`
-- OP_HEADERS `${views前缀}Xxx`（th 项目为 `PAGE{N}` 形态，见 profiles）
+- 主单负责列表、查询、工具栏、进入详情入口。
+- 详情负责详情头、明细、详情弹窗、详情自己的 OP_HEADERS。
+- 详情可以引用主单 auth；主单不得引用详情目录。
+- `ts` 常见独立详情目录；`th` 常见内嵌 `Detail.vue`，以 [../t-page/profiles.md](../t-page/profiles.md) 和同模块现有页面为准。
 
-**详情**
+## API
 
-- 文件夹 `${views前缀}XxxDetail`（ts；th 视情况内嵌 Detail.vue）
-- path / name / OP_HEADERS / sysRoleFiledCode 同步替换
-- auth import `import { AUTH_CODES } from "../${views前缀}Xxx/auth"`
+- 新页 API 名照当前项目标准页整体替换业务前缀。
+- 列表常见：`GetXxxPage`、`GetXxxColumns`、`UpdateXxxConfig`。
+- 详情常见：`GetXxx`、`SearchDetailXxx`、`GetXxxDetailColumns`、`UpdateXxxDetailConfig`。
+- 业务 API 第二参若承接日志 headers，形态照当前项目 API 文件，不自行发明包装。
 
-## 主单 / 详情 对照
+## 模块解耦
 
-通用映射见 [../t-page/anchors.md](../t-page/anchors.md#主单--详情映射)。
-
-> legacy 命名注意（ts 项目）：采购订货详情是 `tsProcOrderDetails`（非 `Detail` 后缀）；新页一律用单数 `Detail`。
-
-## API 对照
-
-新页照抄当前项目标准页的 API 函数名，全局替换业务前缀。例如标准页有：
-
-- 列表：`GetXxxPage` · `GetXxxColumns` · `UpdateXxxConfig`
-- 详情：`GetXxx` · `SearchDetailXxx` · `GetXxxDetailColumns` · `UpdateXxxDetailConfig`
-
-变量/函数：禁止 `purchase_code`、`get_data`；必须 `purchaseCode`、`getData`
-例外：`DEFAULT_COLUMNS`、`AUTH_CODES` 后端码
-
-## 模块耦合
-
-- 详情可引用主单 auth、共用组件；主单禁止引用详情目录
-- 主单没有的功能，不在主单里为详情预留逻辑
+- 页面只引用自己模块、公共组件、公共 hook、明确允许的主单 auth。
+- 共享组件/common hook/util 改动前先查调用方，按 [../t-page/anchors.md](../t-page/anchors.md) 的共享影响门禁确认。
+- 发现兄弟页也有类似问题时，列入范围外报告，不直接扩散修改。
 
 ## 文件职责
 
-- columns.ts → 仅列配置
-- auth.ts → 仅权限码
-- type.ts → 仅类型
-- 不在定义文件里塞 API、路由、hasAuth 等业务
+| 文件 | 只承载 |
+| --- | --- |
+| `columns.ts` | 列定义、formatter、列可见性配置 |
+| `auth.ts` | `AUTH_CODES` 和后端权限码 |
+| `type.ts` | 类型、枚举、页面内数据结构 |
+| `index.vue` | 组装、事件、查询、状态流转 |
+| `components/` | 弹窗、抽屉、局部子组件 |
 
-## 写法
-
-- 最简可用：照抄标准页，禁止过度泛型、过度封装、堆砌冗余代码
+禁止把 API、路由、权限判断、日志注册塞进定义文件。
 
 ## import 顺序
 
-新页照抄当前项目标准页（ts→tsMaterialOrdering；th→thCustomerInfo）；legacy 旧页顺序不作标准。
+新页照当前项目标准页；legacy 旧页不作为新规范来源。
 
-**index.vue / 弹窗**（组间空一行）：
+常用顺序：
 
-1. vue
-2. element-plus
-3. 三方库（pureadmin · vueuse · dayjs · vxe-table）
-4. @/components
-5. @/plugins → @/router/utils → @/utils（同组不空行）
-6. @/hooks · @/utils/hooks
-7. @/api
-8. @/views 跨模块 components
-9. 本页：`./components` → `./columns` → `./type` → `./auth`
+1. `vue`
+2. `element-plus`
+3. 三方库：`pureadmin`、`vueuse`、`dayjs`、`vxe-table`
+4. `@/components`
+5. `@/plugins`、`@/router/utils`、`@/utils`
+6. `@/hooks`、`@/utils/hooks`
+7. `@/api`
+8. 跨模块 `@/views/.../components`
+9. 本页：`./components`、`./columns`、`./type`、`./auth`
 
-**columns.ts**：`i18n` → `filedMap` → `utils`
+`columns.ts` 常见顺序：`i18n`、`filedMap`、`utils`。
 
-## 虚拟列表 virtualYConfig
+## virtualYConfig
+
+vxe-grid 页面默认配置：
 
 ```typescript
 rowConfig: { keyField: "id", isHover: true },
 virtualYConfig: { enabled: true, gt: 10, oSize: 5 }
 ```
 
-- `enabled` 开启纵向虚拟滚动
-- `gt: 10` 超过 10 行触发（页面级标准，全局默认 20）
-- `oSize: 5` 缓冲区行数
-- 必须配合 `:height="tableHeight"` 或弹窗固定 height
-- `virtualXConfig` 页面一般不配，走全局插件
-
-对照文件（ts 项目示例，th 项目对照各自标准页）：
-
-- `${标准页路径}index.vue`
-- `${标准页}Detail/index.vue`（ts）或内嵌 Detail.vue（th）
-- `${标准页}Detail/components/*Modal.vue`（弹窗 grid）
-- `src/plugins/vxe-table/index.ts`（全局默认）
+- 必须配合 `:height="tableHeight"` 或弹窗固定 height。
+- `gt: 10` 是页面级触发阈值；不要照全局插件默认值覆盖页面标准。
+- `virtualXConfig` 一般走全局插件，不在页面单独配置。
+- 弹窗/抽屉内 grid 也按同一规则处理。
 
 ## 列宽与 minWidth
 
-禁止：columnConfig.minWidth · 列上 minWidth
+- 新需求页禁止使用列 `minWidth` 或 `columnConfig.minWidth`。
+- 主单/详情明细：业务列少于 9 列时不设业务列 width；9 列及以上才按通用 width 处理。
+- 弹窗 grid：业务列少于 7 列时不设业务列 width；7 列及以上才按通用 width 处理。
+- 业务列数不含 `seq`、`checkBox`、operation 操作列。
 
-主单（列表/详情明细）：业务列 < 9 不设 width；>= 9 可用通用 width
-弹窗内 grid：业务列 < 7 不设 width；>= 7 可用通用 width
-列数不含 seq、checkBox；operation 操作列 width 150 仍可用
+通用 width：`seq` 50、`checkBox` 50（跟踪 60）、图片 80、编号 160、状态/数量 120、金额 120（采购主金额 130）、日期 160、操作 150。
 
-通用 width：seq 50 · checkBox 50（跟踪 60）· 图片 80 · 编号 160 · 状态/数量 120 · 金额 120（采购主金额 130）· 日期 160 · 操作 150
+搜索项宽度：`productKey` 220px、`codeKey` 160~180px、select 140px。
 
-搜索：productKey 220px · codeKey 160~180px · select 140px
+## columns 属性顺序（Columns Property Order）
 
-select 值为 null：`:empty-values="[null, undefined]"`
-
-## 常用函数名
-
-getData · search · refreshTable · toDetailPage · toQueryNumber · openLazy · guardAllNoDone · handleMouseEnter · changeTab
-
-## columns 属性顺序
-
-普通列：
+普通列按此顺序组织：
 
 ```typescript
 {
@@ -117,38 +94,36 @@ getData · search · refreshTable · toDetailPage · toQueryNumber · openLazy �
   field,
   title: t("..."),
   width,
-  className?,       // text-link 或 text-right
+  className?,
   align: "center",
   sortable: true,
   visible: true,
-  type?,            // 状态色块用 "html"
+  type?,
   formatter?,
   fixed: "",
   slots?
 }
 ```
 
-金额列：`className: "text-right"` · `align: "right"` · `headerAlign: "center"` · `utils.formatWithCommas`
+- 金额列：`className: "text-right"`、`align: "right"`、`headerAlign: "center"`、`utils.formatWithCommas`。
+- 操作列：`field: "operation"`、`fixed: "right"`、`width: 150`。
+- 枚举 formatter 用 `filedMapping`；状态色块用 `type: "html"` + `spanHtml`；日期用 `utils.filterDateTime`。
 
-操作列：`field: "operation"` · `fixed: "right"` · `width: 150`
+## select null
 
-formatter：枚举 → `filedMapping` · 状态 → `type: "html"` + `spanHtml` · 日期 → `utils.filterDateTime` · 金额 → `utils.formatWithCommas`
-
-## 表单 select（值为 null 时）
+值可能是 `null` 的 `el-select` 必须保留空值配置：
 
 ```vue
-<el-select v-model="form.xxx" :empty-values="[null, undefined]" ... />
+<el-select v-model="form.xxx" :empty-values="[null, undefined]" />
 ```
 
-数值 0 为合法选项时，参考当前项目标准页同类写法。
+如果数值 `0` 是合法选项，先查当前项目标准页同类写法，不自行改变空值语义。
 
-## 对照源码
+## 源码对照
 
-- 列表 + 虚拟滚动：当前项目 `${标准页}/index.vue`
-- 列定义 + 列宽：当前项目 `${标准页}/columns.ts`
-- 复杂功能：当前项目 `${复杂参考页}/index.vue`
-- 详情 + 虚拟滚动：当前项目详情模板
-- 弹窗 grid：当前项目详情弹窗 `components/*Modal.vue`
-- 全局 vxe 默认：`src/plugins/vxe-table/index.ts`
-
-新增列或字段：先找标准页同类项，复制属性顺序和 width，只改 field 和 title。
+- 列表与虚拟滚动：当前项目标准页 `index.vue`。
+- 列定义与列宽：当前项目标准页 `columns.ts`。
+- 详情：当前项目详情模板。
+- 弹窗 grid：当前项目详情弹窗 `components/*Modal.vue`。
+- 全局 vxe 默认：`src/plugins/vxe-table/index.ts`。
+- 复杂功能：同项目同模块兄弟页优先于跨模块页面。

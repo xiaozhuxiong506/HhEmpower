@@ -1,161 +1,65 @@
 ---
 name: t-oplog
-description: >-
-  Tsb ERP（ts*/th*）操作日志 OP_HEADERS：关键字查询才传SEARCH，写操作必传，pageId须问后台。ts/th 形态不同见 profiles。
-  Use when 操作日志, OP_HEADERS, operationLog, pageId, 关键字查询, SEARCH, 增删改.
+description: Use when adding or changing TSB ERP 操作日志、OP_HEADERS、operationLog、pageId、SEARCH 日志、写操作、打印、导出、关键字查询、ts/th 日志形态差异。
 ---
 
-# 操作日志（Tsb ERP 通用）
+# t-oplog
 
-配置中心：`src/utils/operationLog.ts` → 导出 `OP_HEADERS`（两项目都有）
+操作日志由 `src/utils/operationLog.ts` 的 `OP_HEADERS` 驱动。新增页面或新增操作项前，先读 [../t-page/profiles.md](../t-page/profiles.md) 判断 ts/th 形态。
 
-HTTP 拦截器 `src/utils/http/index.ts` 把 `pageTitle` / `useTitle` 转成请求头 `PageTitle` / `UseTitle`，后端据此记日志。
+## ts/th 形态（ts/th Shape）
 
-管理端查看：操作日志页（ts→`src/views/tsSystemAdmin/tsOperationLog/`；th→对应系统管理页）
+- **ts 主流形态**：`OP_HEADERS[页面名][动作] = { headers: { pageTitle, useTitle, pageId } }`。
+- **th 主流形态**：`OP_HEADERS[PAGE{N}][AUTH{N}] = { headers: { pageTitle, useTitle, pageId } }`，并用注释标明页面名。
+- 两项目都有少量混合历史写法；新增前先查同模块现有页面，不机械套另一个项目。
 
-## ⚠ ts / th 形态差异 + 混合格式警告（必看）
+## 何时传 OP_HEADERS（When To Pass OP_HEADERS）
 
-**核心规则：新增 OP 时先读同模块现有写法，不机械套规则。** 两项目的 operationLog.ts 均有混合格式（ts 项目约 100 个页名 key + 4 处 PAGE；th 项目 59 个 PAGE + 少量页名 key）。
+- **关键字查询**：只有关键字有值时传 `SEARCH`；普通翻页、Tab 切换、无关键字刷新不传。
+- **写操作**：新增、编辑、删除、批量删除、状态变更、提交审核等改变数据的接口必须传对应操作项。
+- **打印/导出**：`ThToolbar` 使用 `pageIds`，取 `EXPORT` / `PRINT` 的 `pageId`。
+- **不传**：列配置读取/保存、纯读下拉、按 id 拉详情、无关键字的列表刷新。
 
-**主流形态参考**（详看 [profiles.md](../t-page/profiles.md) OP形态列）：
+## pageId 询问门禁（pageId Ask Gate）
 
-| 项目 | 主流 OP_HEADERS 形态 | key 命名 |
-|------|----------------|---------|
-| **ts（TradeErp）** | `OP_HEADERS[页名][动作]={headers:{pageTitle,useTitle,pageId}}` | key = 页面文件夹名（六处一致） |
-| **th（HallErp）** | `OP_HEADERS[PAGE{N}][AUTH{N}].headers={pageTitle,useTitle,pageId}` | key = `PAGE{N}`（页）+ `AUTH{N}`（动作），N 由现有最大值递增 |
-
-ts 形态（按页名取）：
-```typescript
-tsMaterialOrdering: {
-  SEARCH: { headers: { pageTitle: "物料订货", useTitle: "查询", pageId: 859 } },
-  ADD:    { headers: { pageTitle: "物料订货", useTitle: "新增", pageId: 860 } }
-}
-// 用法：OP_HEADERS.tsMaterialOrdering.SEARCH
-```
-
-th 形态（按 PAGE/AUTH 序号取，注释标明页名）：
-```typescript
-PAGE1: {
-  AUTH1: { headers: { pageTitle: "摊位租用", useTitle: "查询", pageId: 1 } },
-  AUTH2: { headers: { pageTitle: "摊位租用", useTitle: "新增", pageId: 2 } }
-}
-// 用法：OP_HEADERS.PAGE1.AUTH1
-```
-
-> th 项目 key 不与文件夹同名，**必须注释标明该 PAGE 属于哪个页面**，便于维护。
-
-## 何时传 OP_HEADERS
-
-**两类，规则相同（ts/th 通用）：**
-
-### 1. 关键字查询（条件传）
-
-分页 / 明细列表接口，**只有携带关键字查询时才传** `SEARCH`；普通翻页、Tab 切换、筛选刷新 **不传**（第二参 `{}`）。
-
-```typescript
-// ts：按页名取
-await GetXxxPage(fd, keyWord ? OP_HEADERS.${views前缀}Xxx.SEARCH : {});
-// th：按 PAGE/AUTH 取
-await GetXxxPage(fd, keyWord ? OP_HEADERS.PAGE{N}.AUTH{搜} : {});
-```
-
-关键字变量名因页而异，常见：`keyWord` · `keyword` · `searchOption.keyWord` · `searchOption.form.keyWord`。判断「有值」即可，空串不传。
-
-### 2. 写操作（必传）
-
-增删改、批量删、状态变更、提交审核等**改变数据**的接口，**每次调用都传**对应操作项：
-
-```typescript
-await BatchDeleteXxx({ ids }, OP_HEADERS.${views前缀}Xxx.BDEL);  // ts
-await url(fd, ruleForm.id ? OP_HEADERS.${views前缀}Xxx.EDIT : OP_HEADERS.${views前缀}Xxx.ADD);
-```
-
-### 3. 打印 / 导出（注册 pageId）
-
-列表 `ThToolbar` 传 `:pageIds`，取 `EXPORT` / `PRINT` 的 `pageId`；组件内部调日志记录，页面无需再包一层。
-
-```vue
-:pageIds="[
-  OP_HEADERS.${views前缀}Xxx.EXPORT.headers.pageId,   // ts
-  OP_HEADERS.${views前缀}Xxx.PRINT.headers.pageId
-]"
-```
-
-### 4. 不传 OP_HEADERS
-
-- 列配置 `GetXxxColumns` · 列保存 `UpdateXxxConfig`
-- 进详情 `GetXxx`（按 id 拉主单）
-- 纯读接口、下拉选项、无关键字的列表刷新
-
-## OP_HEADERS 字段（ts/th 通用）
-
-- `pageTitle` — 中文菜单/页面名
-- `useTitle` — 中文操作动词（查询、新增、编辑、删除…）
-- `pageId` — **后台配置**，由后端分配；见下文「pageId 必问」
-
-详情页单独注册一组（ts→`${views前缀}XxxDetail`；th→新 `PAGE{N}`），不共用列表 key。
-
-## pageId 必问（新增页面 / 新接口必做）
-
-`pageId` **只能由后台配置**。提问格式与选项 → [t-workflow 必问单选题总表](../t-workflow/reference.md#必问单选题总表) **#6**。
-
-新增页面、新增 OP_HEADERS 操作项时，**必须先 AskQuestion 单选**，未问不得写入 `operationLog.ts`：
+`pageId` 只能来自后台配置或用户明确提供。新增页面、新增 OP_HEADERS 操作项时，必须先问：
 
 > 本次各操作的 pageId 怎么处理？
 
-- **A. 我已提供 pageId** — 按你给出的数字写入每个操作项
-- **B. 后续处理** — 先注册结构，`pageId` 统一写 `"需要后台配置！"`（字符串占位，待后台补全后再改回数字）
+- **A. 已提供 pageId**：按用户给出的数字逐项写入。
+- **B. 后续配置**：先写 `"需要后台配置！"`，待后台补齐。
 
-**禁止**：
+未得到明确选择前，不写新的 `pageId`。禁止填写假数字、随机数字、无来源数字，禁止从其他页面拿值充数。
 
-- 未问就写 pageId
-- 自填 `0`、`-1`、随机数等假 pageId
-- 从其他页面抄 pageId 凑数
+## 最小示例（Minimal Examples）
 
-选定 **B** 时，每个操作项示例：
+ts 形态：
 
 ```typescript
-SEARCH: { headers: { pageTitle: "新页名", useTitle: "查询", pageId: "需要后台配置！" } }
+tsXxxPage: {
+  SEARCH: { headers: { pageTitle: "页面名", useTitle: "查询", pageId: "需要后台配置！" } },
+  ADD: { headers: { pageTitle: "页面名", useTitle: "新增", pageId: "需要后台配置！" } }
+}
 ```
 
-后续你或后台提供真实 pageId 后，再逐条替换为数字。
-
-## API 层要求
-
-业务 API 第二参支持 `headers?: object`，照抄当前项目 `${api文件}`：
+th 形态：
 
 ```typescript
-export const GetXxxPage = (data?: object, headers?: object) => {
-  return http.request<Result>("post", `${baseURL}/${prefix}/Xxx/GetPage`, { data }, headers);
-};
+// 页面名
+PAGE12: {
+  AUTH1: { headers: { pageTitle: "页面名", useTitle: "查询", pageId: "需要后台配置！" } },
+  AUTH2: { headers: { pageTitle: "页面名", useTitle: "新增", pageId: "需要后台配置！" } }
+}
 ```
 
-调用时整项传入（含外层 `headers` 键）：
+## 禁止项（Prohibitions）
 
-```typescript
-await CreateXxx(fd, OP_HEADERS.${views前缀}Xxx.ADD);
-// ts: OP_HEADERS.${views前缀}Xxx.ADD === { headers: { pageTitle, useTitle, pageId } }
-```
+- 禁止无关键字查询也传 `SEARCH`。
+- 禁止写操作漏传 OP_HEADERS。
+- 禁止未问用户就写 `pageId`。
+- 禁止填写无来源的 `pageId`。
+- 禁止 ts key 与页面命名六处不一致。
+- 禁止 th PAGE/AUTH 缺少页面注释。
+- 禁止业务代码直接调用日志记录 API；打印/导出由组件处理。
 
-日志记录 API（ts `statistical.ts` 的 `AddBehaviorLog`；th 对应）由打印导出组件内部使用，新页**不要**在业务代码里直接调。
-
-## 新页 checklist
-
-1. **pageId 必问** — AskQuestion 一次（见上节），再写 `operationLog.ts`
-2. `operationLog.ts` 注册列表 + 有详情则详情各一组（按 ts/th 形态）
-3. 至少：`SEARCH` · `ADD` · `EDIT` · `DEL` · 有批量删则 `BDEL` · 有 ThToolbar 则 `EXPORT` + `PRINT`
-4. 列表 `search` 里关键字条件传 `SEARCH`
-5. 弹窗/Drawer 提交传 `ADD` / `EDIT`
-6. 删除/批量删传 `DEL` / `BDEL`
-7. import：`import { OP_HEADERS } from "@/utils/operationLog"`
-
-## 禁止
-
-- 列表每次查询都传 `SEARCH`（无关键字也传）
-- 写操作漏传 OP_HEADERS
-- **未问用户就写 pageId**，或自造 / 写 `0` 占位
-- ts 项目 OP_HEADERS key 与文件夹名不一致
-- th 项目 PAGE/AUTH 不加页名注释
-- 在业务里直接调日志记录 API（打印导出除外，已由 ThToolbar 处理）
-
-关联：[t-standards](../t-standards/SKILL.md) · [t-list](../t-list/SKILL.md) · [t-dialog](../t-dialog/SKILL.md) · [t-module](../t-module/SKILL.md)
+关联：[t-module](../t-module/SKILL.md) · [t-list](../t-list/SKILL.md) · [t-detail](../t-detail/SKILL.md) · [t-dialog](../t-dialog/SKILL.md)

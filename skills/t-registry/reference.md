@@ -1,47 +1,80 @@
-# 基线快照与影响查找（Tsb ERP 通用）
+# 路由发现参考
 
-> 本插件不维护写死的全模块清单（易过时）。基线靠**运行时扫描**当前项目获得，下方是查找方法与典型映射。
+本文件只记录查找方法和规范分档；可复制命令见 [examples.md](examples.md)。
 
-## 查同模块兄弟页（影响查找）
+## L1 静态搜索（L1 Static Search）
 
-任务涉及某页时，先定位它所属的 `src/views/{模块}/` 目录，列同目录所有页面即为兄弟页：
+菜单页通常位于：
 
-```bash
-# 当前页所属模块的兄弟页（替换实际模块名）
-ls src/views/{模块}/
-# 例 ts: ls src/views/tsProcurementManagement/
-# 例 th: ls src/views/thCustomerManagement/
-```
+- `src/router/modules/*.ts`
+- ts 项目常见：`ts{模块}Management.ts`
+- th 项目常见：`th{模块}.ts`
 
-## 主单 / 详情 配对查找
+检查内容：
 
-```bash
-# 找某页的详情（ts 独立目录 / th 内嵌）
-rg "Detail" src/views/{模块}/ --max-depth 1   # ts 独立 Detail 目录
-rg "Detail\.vue|MaiDetail" src/views/{模块}/{页}/components/  # th 内嵌
-```
+- `path`
+- `name`
+- `component`
+- `meta.title`
+- `showLink`
 
-## Tab 子组件查找
+新增菜单页必须保证 route name、目录名、`defineOptions.name`、OP_HEADERS、auth/log/pageId 命名一致。
 
-```bash
-# component 模式 Tab 的子组件
-rg "TABS|tabList|<component :is" src/views/{模块}/{页}/
-```
+## L2 运行时搜索（L2 Runtime Search）
 
-## 全模块路由清单（运行时生成）
+静态/隐藏页通常位于：
 
-```bash
-# 列出所有业务菜单页路由（按项目前缀）
-rg "path: \"\/(ts|th)" src/router/modules/ -o
-```
+- `src/router/modules/staticRoutes.ts`
+- `src/router/modules/remaining.ts`
 
-## 规范分档快速归类
+常见用途：详情页、导入页、工具页、隐藏跳转页。业务新增优先检查 `staticRoutes.ts`，`remaining.ts` 一般不新增业务页。
 
-| 档 | 识别特征 | ts 示例 | th 示例 |
-|----|---------|---------|---------|
-| A | 核心业务 + 完整 vxe 栈 | 采购/跟单列表 | 客户/择样列表 |
-| B | 有 grid 但结构可能异 | 销售/产品/财务 | 摊位/印刷审核 |
-| C | 设置/工具页 | 综合设置/系统管理 | 系统设置/系统管理 |
-| D | 独立子系统 | tsTsbBear | src/tsb/ |
+## L3 全模块扫描（L3 Full Module Scan）
 
-> 分档非写死——以当前项目实际结构为准，新页默认 A 档。
+全模块扫描用于发现影响范围，不直接批量修改。
+
+扫描对象：
+
+- 同模块兄弟页目录
+- route name / path
+- `defineOptions.name`
+- `OP_HEADERS`
+- `sysRoleFiledCode`
+- `AUTH_CODES`
+- `TABS` / `tabList` / `<component :is>`
+
+发现同类问题时，输出影响报告并等待用户决定是否扩大范围。
+
+## 路由影响级别（Route Impact Levels）
+
+| 级别 | 含义 | 处理 |
+| --- | --- | --- |
+| L1 | 指定菜单路由本身 | 可按用户范围处理 |
+| L2 | 详情/隐藏/导入等关联路由 | 先报告关联，再确认是否纳入 |
+| L3 | Tab 子组件或弹窗 Tab | 按组件归属和复用情况确认 |
+| Shared | 共享组件、公共 hook、route registry、跨模块文件 | 走共享影响门禁 |
+
+## Tab 发现（Tab Discovery）
+
+查找关键词：
+
+- `activeTab`
+- `TABS`
+- `tabList`
+- `ThTabs`
+- `ThTabs2`
+- `<component :is`
+- `shallowRef`
+
+component 模式 Tab 的子 `.vue` 必须单独检查列表栈、auth、OP_HEADERS、字段设置和可编辑矩阵。
+
+## 规范分档
+
+| 档位 | 识别特征 | 处理 |
+| --- | --- | --- |
+| A | 新页面、核心业务列表、完整 vxe 栈 | 强制标准栈 |
+| B | 有 grid 但结构不同 | 修 bug 对齐同模块，大改前问 |
+| C | 设置/工具/系统管理 | 检 auth、路由、必要 grid |
+| D | 独立子系统、登录、redirect | 不套本组页面技能 |
+
+分档不是写死清单；以当前项目结构和用户范围为准。
