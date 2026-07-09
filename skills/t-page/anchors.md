@@ -12,28 +12,28 @@
 
 ## 范围契约
 
-用户指定路由、弹窗、抽屉、tab、按钮、字段、文件或目录时，只允许修改该指定位置。
+用户指定路由、弹窗、抽屉、tab、按钮、字段、文件、目录或 `entry point` / 入口时，只允许修改该指定位置；入口包括用户点名进入或触发的页面、调用链、组件挂载点或操作按钮，不得借此改兄弟入口或公共入口。
 
 修改指定位置导致 import、类型、调用断裂时，修复断裂属于本次范围；发现无关问题时，只报告不修改。
 
 ## 共享影响关卡
 
-同一组件、hook、util、常量、类型或 API 被多个页面复用时，先列出调用方和受影响位置。
+同一共享组件、公共 hook/util、常量、类型、API、route registry / route registries、路由/菜单/权限注册或 cross-module files / 跨模块文件被多个页面或模块复用时，先列出调用方、受影响位置和引用路径。
 
-继续前必须让用户选择：全局修改、按参数区分行为，或只改指定入口。未确认前不要改共享实现。
+继续前必须先报告影响范围和已知调用方，再让用户选择：全局修改、按参数区分行为，或只改指定入口。未确认前不要改共享实现、route registry 或跨模块文件。
 
 ## Git 归因关卡
 
-修改已有页面前，检查当前 git 身份与相关文件最后作者/提交者是否一致。
+触达任何 relevant touched file 前，检查当前 git identity 与相关文件的 last author / committer 是否一致；relevant touched file 包括已有页面、共享组件、公共 hook/util、route registry、路由/菜单/权限注册和跨模块文件。
 
-若当前身份不同，或作者数据异常、缺失、无法解释，先报告以下信息并等待确认：
+只要 current git identity 与相关文件 last author/committer 不一致，或作者/提交者异常、缺失、无法解释，先报告以下信息并等待确认：
 
 - 当前 git 身份。
-- 相关最后作者、提交者、提交号。
-- 受影响文件数量。
-- 本次计划触达的位置。
+- 相关 author / last author、committer、commit。
+- affected file count / 受影响文件数量。
+- touched locations / 本次计划触达的位置。
 
-确认前不要继续写入相关文件。
+确认前不要继续写入这些 relevant touched files。
 
 ## 反绕过关卡
 
