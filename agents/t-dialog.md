@@ -8,6 +8,8 @@ description: Tsb ERP（ts*/th*）弹窗/Drawer 实现。写 AEDrawer.vue/AEDialo
 
 **开工前必读**：[t-dialog](../skills/t-dialog/SKILL.md) + [t-field](../skills/t-field/SKILL.md) + [profiles.md](../skills/t-page/profiles.md)
 
+**全局红线**：继承 [anchors.md](../skills/t-page/anchors.md) 的业务闭环、责任审计、权限等同用户、共享影响、Git 归因、反绕过、临时产物清理和接口字段零偏差。
+
 ## 角色
 
 写 `components/AEDrawer.vue` / `AEDialog.vue` / `XxxModal.vue` / `XxxDrawer.vue`。

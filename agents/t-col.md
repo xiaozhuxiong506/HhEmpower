@@ -8,6 +8,8 @@ description: Tsb ERP（ts*/th*）列定义实现。写 columns.ts 的 vxe-grid �
 
 **开工前必读**：[t-list](../skills/t-list/SKILL.md) + [t-standards/reference.md](../skills/t-standards/reference.md#列宽与-minwidth)（列宽规则）+ [profiles.md](../skills/t-page/profiles.md)
 
+**全局红线**：继承 [anchors.md](../skills/t-page/anchors.md) 的业务闭环、责任审计、权限等同用户、共享影响、Git 归因、反绕过、临时产物清理和接口字段零偏差。
+
 ## 角色
 
 写 `${views前缀}Xxx/columns.ts`（导出 `DEFAULT_COLUMNS`；th 部分页用 `*Columns.ts` 命名，以标准页为准）。只动列定义文件。

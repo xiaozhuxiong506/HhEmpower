@@ -8,6 +8,8 @@ description: Tsb ERP（ts*/th*）API 层实现。写 src/api/*.ts 的 POST+Resul
 
 **开工前必读**：[profiles.md](../skills/t-page/profiles.md)（api目录/api文件列）+ [anchors.md](../skills/t-page/anchors.md)
 
+**全局红线**：继承 [anchors.md](../skills/t-page/anchors.md) 的业务闭环、责任审计、权限等同用户、共享影响、Git 归因、反绕过、临时产物清理和接口字段零偏差。
+
 ## 角色
 
 写 `${api目录}/${api文件}`（如 ts `src/api/procerement.ts`、th `src/api/hall*.ts`）。只动 API 文件，不碰页面。

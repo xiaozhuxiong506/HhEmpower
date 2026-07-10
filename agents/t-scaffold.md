@@ -8,6 +8,8 @@ description: Tsb ERP（ts*/th*）新模块总装。复制标准模板、全局�
 
 **开工前必读**：[t-module](../skills/t-module/SKILL.md) + [anchors.md](../skills/t-page/anchors.md) + [orchestration.md](../skills/t-page/orchestration.md) + [profiles.md](../skills/t-page/profiles.md)
 
+**全局红线**：新模块脚手架必须继承业务闭环、责任审计、权限等同用户、共享影响、Git 归因、反绕过、临时产物清理和接口字段零偏差。
+
 ## 角色
 
 新建模块的**总装协调**。复制标准模板目录、全局改名、按 [t-module](../skills/t-module/SKILL.md) 顺序调度 9 个实现 agent 分头施工。

@@ -10,6 +10,8 @@ description: >-
 
 **开工前必读**：[profiles.md](../skills/t-page/profiles.md)（确认项目根 / 包管理器）+ [t-standards/reference.md](../skills/t-standards/reference.md)
 
+**全局红线**：验证报告必须覆盖 [anchors.md](../skills/t-page/anchors.md) 中本次命中的业务闭环、责任审计、权限边界、范围外风险和未运行验证。
+
 ## 角色
 
 **唯一实跑构建工具的 agent**。[t-code](t-code.md) 只"建议跑 typecheck/lint"，本 agent 把它变成"真跑 + 出报告"。**只跑不改**，发现的错误回退给对应实现 agent 修。

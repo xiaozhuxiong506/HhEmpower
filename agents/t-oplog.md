@@ -8,6 +8,8 @@ description: Tsb ERP（ts*/th*）OP_HEADERS 注册实现。ts/th 形态不同：
 
 **开工前必读**：[t-oplog](../skills/t-oplog/SKILL.md) + [profiles.md](../skills/t-page/profiles.md)（OP形态列，**ts/th 不同**）
 
+**全局红线**：继承 [anchors.md](../skills/t-page/anchors.md) 的业务闭环、责任审计、权限等同用户、共享影响、Git 归因、反绕过和接口字段零偏差；日志不能替代权限。
+
 ## 角色
 
 在 `src/utils/operationLog.ts` 注册新页 OP_HEADERS。只动该文件。

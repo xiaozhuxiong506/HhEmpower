@@ -1,6 +1,6 @@
 # Tsb ERP（Cursor Plugin）
 
-Tsb ERP 业务页 Agent 开发规范插件。**同时覆盖两个项目**：
+Tsb ERP 业务页 Agent 开发规范插件。**同时覆盖两个项目**，并统一约束业务闭环、责任审计、权限等同用户、接口字段零偏差和禁脚本红线：
 
 - **Tsb.TradeErp.PC**（`src/views/ts*` — 采购/物料/跟单等）
 - **Tsb.HallErpTenant.PC**（`src/views/th*` — 客户/择样/摊位/CRM 等）
@@ -12,7 +12,8 @@ Tsb ERP 业务页 Agent 开发规范插件。**同时覆盖两个项目**：
 - **14 个 Skills** — `t-page` 内核（profiles/anchors/orchestration/naming）+ `t-clarify`（需求澄清关卡）+ workflow + 列表/详情/弹窗等子 Skill
 - **21 个 Subagent** — 侦察(2) + 模块并行(1模板) + 实现(11) + 共享/修复(1) + 审查(3) + 验证(3)，多 agent 并行编排，**禁脚本**
 - **1 条 Rule** — 编辑 `src/views/{ts,th}*/**` 时自动应用指引（自动探测 ts/th）
-- **3 个 Command** — `/t-start` · `/t-new-module` · `/t-review`
+- **4 个 Command** — `/t-start` · `/t-new-module` · `/t-review` · `/t-zentao-collect`
+- **1 个 MCP** — 禅道任务采集和分组，保留任务原文事实源并生成带治理边界的 agentPlan
 
 ## 核心特性
 
@@ -22,6 +23,10 @@ Tsb ERP 业务页 Agent 开发规范插件。**同时覆盖两个项目**：
 
 - TradeErp：标准页 `tsMaterialOrdering`，OP_HEADERS 形态 `OP_HEADERS[页名][动作]`
 - HallErp：标准页 `thCustomerInfo`，OP_HEADERS 形态 `OP_HEADERS[PAGE{N}][AUTH{N}]`
+
+### ERP 治理红线
+
+所有 Skills、Commands、Rules、MCP、Scripts、Agents 统一继承 [skills/t-page/anchors.md](skills/t-page/anchors.md)：业务操作按存在跨模块闭环风险处理；AI 不替用户做业务/权限/上线批准；AI、MCP、接口工具和调试账号不得绕过人类用户权限；接口字段、输入值域和长度规则零偏差；禁止脚本批量改 ERP 业务代码。
 
 ### 多 Subagent 编排
 
@@ -76,10 +81,10 @@ New-Item -ItemType SymbolicLink -Path $link -Target $target
 
 ### 方式 C：随 ERP 主仓维护
 
-源文件可在 `Tsb.TradeErp.PC\.cursor\skills\t-page*`，改完后：
+源文件可在 `Tsb.TradeErp.PC\.cursor\` 或 `Tsb.HallErpTenant.PC\.cursor\`，改完后同步插件资料：
 
 ```powershell
-.\scripts\sync-skills.ps1 -SourceRoot "D:\company\Tsb.TradeErp.PC\.cursor\skills"
+.\scripts\sync-skills.ps1 -SourceRoot "D:\company\Tsb.TradeErp.PC\.cursor"
 ```
 
 ## 插件结构
@@ -88,7 +93,8 @@ New-Item -ItemType SymbolicLink -Path $link -Target $target
 HhEmpower/
 ├── .cursor-plugin/plugin.json
 ├── agents/                  ← 21 个 subagent（侦察/模块并行/实现/共享/审查/验证六组）
-├── commands/                ← /t-start · /t-new-module · /t-review
+├── commands/                ← /t-start · /t-new-module · /t-review · /t-zentao-collect
+├── mcp/                     ← 禅道任务采集与 agentPlan 生成
 ├── rules/t-agent-guidance.mdc   ← glob 匹配 src/views/{ts,th}*/**/**
 ├── scripts/                 ← install-local · sync-skills · export-github-repo
 ├── skills/
@@ -101,12 +107,12 @@ HhEmpower/
 └── README.md
 ```
 
-## 与项目 `.cursor/skills` 的关系
+## 与项目 `.cursor` 的关系
 
 | 位置 | 用途 |
 |------|------|
-| `Tsb.TradeErp.PC\.cursor\skills\` 或 `Tsb.HallErpTenant.PC\.cursor\skills\` | 可选：项目内 Skill 源 |
-| `HhEmpower\skills\` | 插件分发副本（本目录） |
+| `Tsb.TradeErp.PC\.cursor\` 或 `Tsb.HallErpTenant.PC\.cursor\` | 可选：项目内 Skills/Commands/Rules/Agents/MCP/Scripts 源 |
+| `HhEmpower\` | 插件分发副本（本仓库） |
 | `rules/t-agent-guidance.mdc` | 编辑 ts/th 页时自动加载 |
 
 启用插件后 Skills 随 Cursor 用户级加载；Rule 仅在匹配 `src/views/{ts,th}*/**` 时生效。

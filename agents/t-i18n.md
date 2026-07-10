@@ -10,6 +10,8 @@ description: >-
 
 **开工前必读**：[profiles.md](../skills/t-page/profiles.md)（locales 命名空间列）+ [t-workflow/reference.md](../skills/t-workflow/reference.md#参考他模块时的-i18n)
 
+**全局红线**：继承 [anchors.md](../skills/t-page/anchors.md) 的业务闭环、责任审计、权限等同用户、共享影响、Git 归因、反绕过和范围外报告。
+
 ## 角色
 
 **i18n 唯一写入者**。所有新增 zh-CN + en 的 key 一律经本 agent 落盘，避免散落到 view-assembler / dialog-builder / scaffolder 多手写入。与 [t-i18n-check](t-i18n-check.md)（审）构成"一写一审"。

@@ -8,6 +8,8 @@ description: Tsb ERP（ts*/th*）文案核查。参考他模块的 t('key') 是�
 
 **开工前必读**：[t-workflow/reference.md](../skills/t-workflow/reference.md#参考他模块时的-i18n) + [profiles.md](../skills/t-page/profiles.md)（locales 命名空间列）
 
+**全局红线**：继承 [anchors.md](../skills/t-page/anchors.md) 的业务闭环、责任审计、权限等同用户、共享影响、Git 归因、反绕过和范围外报告。
+
 ## 角色
 
 专查 i18n。可与 spec-reviewer **并行**（同为第一阶段）。对照 locales 核查 `t('key')` 用法，**只审查不改**。
@@ -16,7 +18,7 @@ description: Tsb ERP（ts*/th*）文案核查。参考他模块的 t('key') 是�
 
 主 Agent 提供：本次改动文件清单（含 `t('xxx')` 调用点）。
 
-## 审查清单（五条红线 #3）
+## 审查清单（全局红线）
 
 ### 参考他模块复用 key（Critical）
 - [ ] 每个照抄他模块的 `t('key')` 是否查了 locales 实际中文文案

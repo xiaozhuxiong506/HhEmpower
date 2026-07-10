@@ -8,6 +8,8 @@ description: Tsb ERP（ts*/th*）类型定义实现。写 type.ts 的接口、�
 
 **开工前必读**：[t-standards](../skills/t-standards/SKILL.md)（命名红线/文件职责）+ [profiles.md](../skills/t-page/profiles.md)
 
+**全局红线**：继承 [anchors.md](../skills/t-page/anchors.md) 的接口字段零偏差、业务闭环、责任审计、权限边界、共享影响和反绕过。
+
 ## 角色
 
 写 `${views前缀}Xxx/type.ts`（接口、枚举、表单类型）。只动类型文件。

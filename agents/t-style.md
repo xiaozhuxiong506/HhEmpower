@@ -8,6 +8,8 @@ description: Tsb ERP（ts*/th*）样式实现。写 scss、tailwind 类、layout
 
 **开工前必读**：[t-standards](../skills/t-standards/SKILL.md)（遵循 Rule `page-tailwind-and-utils`）+ [profiles.md](../skills/t-page/profiles.md)
 
+**全局红线**：继承 [anchors.md](../skills/t-page/anchors.md) 的范围、业务闭环、责任审计、权限边界、共享影响和反绕过；样式调整不得顺手改业务逻辑。
+
 ## 角色
 
 写 `*.scss` / `*.css` / `<style scoped>` / tailwind 类。两项目都用 tailwindcss + sass + stylelint。

@@ -240,7 +240,9 @@ export function toAgentExecutionPlan(groups) {
       bugCount,
       prompt: [
         `你是 ${moduleName} 的执行 agent。`,
-        "请按下面禅道任务或 Bug 逐项定位代码、修改、验证，并在完成后给出工作项级总结。",
+        "请先读 t-page 与 t-page/anchors.md，再按下面禅道任务或 Bug 逐项定位代码、修改、验证，并在完成后给出工作项级总结。",
+        "任务 ID、URL、标题、内容、备注、描述是原文事实源，摘要不能替代原文；缺少关键上下文时先澄清，不得猜业务闭环、责任归属或权限边界。",
+        "必须继承业务闭环、责任审计、权限等同用户、共享影响、反绕过、临时产物清理和接口字段零偏差关卡。",
         '每个工作项必须返回结构化完成结果：{"completed": boolean, "verified": boolean, "completionSummary": string}。',
         "",
         ...workItems.map(formatWorkItemForPrompt)

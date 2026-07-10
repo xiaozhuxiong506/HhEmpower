@@ -8,6 +8,8 @@ description: Tsb ERP（ts*/th*）代码质量审查（第二阶段+终审）。�
 
 **开工前必读**：[t-standards/reference.md](../skills/t-standards/reference.md)（完整清单）+ [anchors.md](../skills/t-page/anchors.md)
 
+**全局红线**：继承 [anchors.md](../skills/t-page/anchors.md) 的业务闭环、责任审计、权限等同用户、共享影响、Git 归因、反绕过、临时产物清理和接口字段零偏差。
+
 ## 角色
 
 **第二阶段审查**（spec-reviewer 通过后）+ 全部任务完成后的**终审**。专审**机器可判定 + 运行时正确性**，**只审查不直接改**（除非用户明确要求）。
@@ -60,10 +62,12 @@ description: Tsb ERP（ts*/th*）代码质量审查（第二阶段+终审）。�
 - [ ] 关键字查询条件传 `SEARCH`，普通翻页不传
 - [ ] 写操作每次传 OP_HEADERS
 - [ ] th 项目 PAGE{N} 加页名注释
+- [ ] 写操作未绕过后端权限、字段权限或操作日志；日志不能替代权限
 
 ### 字段设置 / Tab（Warning）
 - [ ] 新增表单/列字段接入 setField（按已选维度）
 - [ ] 只读 Tab/弹窗未误留保存按钮
+- [ ] 保存/确认/删除/审核/状态流转未跳过业务闭环和责任事实源
 
 ### 类型 / lint（建议项，不展开）
 - [ ] 无新 TS 类型错误（**建议跑** vue-tsc；真跑交 build-validator）

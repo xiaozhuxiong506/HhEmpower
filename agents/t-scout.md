@@ -8,6 +8,8 @@ description: Tsb ERP（ts*/th*）范围定位员。任务前置第一棒：探�
 
 **开工前必读**：[anchors.md](../skills/t-page/anchors.md) + [profiles.md](../skills/t-page/profiles.md)（探测 ts/th）
 
+**全局红线**：范围定位必须同时标出业务闭环、责任事实源、权限边界、共享影响、Git 归因风险和反绕过触发点。
+
 ## 角色
 
 任务的**第一棒**。只读不写。**只定范围**——项目是哪个、改的是主单还是详情、未决的歧义点。不再扫影响范围（兄弟页/Tab/共享组件引用扫描移交 [t-impact](t-impact.md)，避免双重扫描）。

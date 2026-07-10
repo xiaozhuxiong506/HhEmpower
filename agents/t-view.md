@@ -8,6 +8,8 @@ description: Tsb ERP（ts*/th*）页面主文件实现。写 index.vue：组装 
 
 **开工前必读**：[t-list](../skills/t-list/SKILL.md) + [t-registry](../skills/t-registry/SKILL.md)（defineOptions/name 一致）+ [profiles.md](../skills/t-page/profiles.md)
 
+**全局红线**：继承 [anchors.md](../skills/t-page/anchors.md) 的业务闭环、责任审计、权限等同用户、共享影响、Git 归因、反绕过、临时产物清理和接口字段零偏差。
+
 ## 角色
 
 写 `${views前缀}Xxx/index.vue`（列表主文件，组装各层）。依赖 column-crafter 的 columns、type-author 的 type、api-builder 的 API、auth-registrar 的 auth。

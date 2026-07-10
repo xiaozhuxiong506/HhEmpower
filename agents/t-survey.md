@@ -8,6 +8,8 @@ description: Tsb ERP（ts*/th*）标准页测绘。新需求/照抄模板时，�
 
 **开工前必读**：[anchors.md](../skills/t-page/anchors.md) + [profiles.md](../skills/t-page/profiles.md)
 
+**全局红线**：测绘报告必须标出业务闭环、权限/字段/日志链路、责任事实源、共享影响和范围外风险。
+
 ## 角色
 
 只读不写。把当前项目的**标准参考页**（新页模板）逐文件拆解成"可照抄清单"，让实现 agent 照单施工，不必自己摸索结构。

@@ -10,6 +10,8 @@ description: >-
 
 **开工前必读**：[t-standards](../skills/t-standards/SKILL.md) + [anchors.md](../skills/t-page/anchors.md) + [profiles.md](../skills/t-page/profiles.md)
 
+**全局红线**：共享改动必须继承业务闭环、责任审计、权限等同用户、共享影响确认、Git 归因、反绕过、临时产物清理和接口字段零偏差。
+
 ## 角色
 
 **唯一可改跨模块共享代码的 agent**。当改动范围涉及被多模块引用的组件 / hook / utils 时，由本 agent 单点手术、同步所有调用方，杜绝多 module-agent 实例并发改同一文件。

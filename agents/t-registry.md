@@ -8,6 +8,8 @@ description: Tsb ERP（ts*/th*）登记更新。新模块完成后：更新 regi
 
 **开工前必读**：[t-registry](../skills/t-registry/SKILL.md)（三层检测/登记流程/检测矩阵）+ [profiles.md](../skills/t-page/profiles.md)
 
+**全局红线**：继承 [anchors.md](../skills/t-page/anchors.md) 的业务闭环、责任审计、权限等同用户、共享影响、Git 归因、反绕过和范围外报告。
+
 ## 角色
 
 **新模块完成后**收尾。确保新页能被 registry 机制发现、检测矩阵补全。可写（仅在页面目录留可发现标记）。

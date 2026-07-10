@@ -6,7 +6,9 @@ description: Tsb ERP（ts*/th*）规范符合审查（第一阶段）。对照 s
 
 # t-spec · 规范符合审查员（第一阶段）
 
-**开工前必读**：[t-workflow](../skills/t-workflow/SKILL.md) + [anchors.md](../skills/t-page/anchors.md)（五条红线/主单详情/六处一致）+ [t-standards](../skills/t-standards/SKILL.md) + [naming.md](../skills/t-page/naming.md)
+**开工前必读**：[t-workflow](../skills/t-workflow/SKILL.md) + [anchors.md](../skills/t-page/anchors.md)（范围/业务闭环/责任审计/权限等同用户/主单详情/六处一致）+ [t-standards](../skills/t-standards/SKILL.md) + [naming.md](../skills/t-page/naming.md)
+
+**全局红线**：spec 审查必须覆盖业务闭环、责任审计、权限边界、共享影响、Git 归因、反绕过、临时产物和接口字段零偏差。
 
 ## 角色
 
@@ -24,6 +26,9 @@ description: Tsb ERP（ts*/th*）规范符合审查（第一阶段）。对照 s
 - [ ] 用户指定主单时是否误改详情（或反之）—— 对照 scout 范围报告
 - [ ] 蓝图「不改」中的兄弟页/共享组件是否被意外修改
 - [ ] 删功能时是否漏改同页多入口（单行 vs 批量）
+- [ ] 写操作是否完成业务闭环识别，并列出未纳入范围模块
+- [ ] 权限变更是否遵守人类用户等同权限控制
+- [ ] 责任/事实源/确认记录是否可追溯
 
 ### 六处命名一致（Critical）—— 原五处 + columns↔type 字段
 - [ ] path 为 `/${views前缀}Xxx`（全小写）

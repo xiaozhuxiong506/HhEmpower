@@ -8,6 +8,8 @@ description: Tsb ERP（ts*/th*）路由注册实现。列表进菜单模块 chil
 
 **开工前必读**：[t-registry](../skills/t-registry/SKILL.md) + [naming.md](../skills/t-page/naming.md) + [profiles.md](../skills/t-page/profiles.md)（路由文件命名）
 
+**全局红线**：继承 [anchors.md](../skills/t-page/anchors.md) 的业务闭环、责任审计、权限等同用户、共享影响、Git 归因、反绕过和范围外报告。
+
 ## 角色
 
 在 `src/router/modules/` 注册新页路由。只动路由文件。

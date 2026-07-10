@@ -8,6 +8,8 @@ description: Tsb ERP（ts*/th*）影响核查（全周期）。任务前定影�
 
 **开工前必读**：[t-registry](../skills/t-registry/SKILL.md) + [anchors.md](../skills/t-page/anchors.md) + [profiles.md](../skills/t-page/profiles.md)
 
+**全局红线**：影响清单必须覆盖业务闭环、责任审计、权限等同用户、共享影响、Git 归因、反绕过、临时产物和接口字段契约。
+
 ## 角色
 
 **唯一的影响扫描者**。统一接管原 scout 的"扫兄弟页/Tab/共享组件引用"职责。在三个时机出场：
@@ -33,6 +35,7 @@ description: Tsb ERP（ts*/th*）影响核查（全周期）。任务前定影�
 - 共享组件引用：ThXxx 被 5 处用 → ⚠ 建议派 t-shared
 - API/hook 调用方：GetXxx 在 3 处调 / useXxx 在 7 处用
 - i18n key 引用方：m.m123 在 2 处用
+- 业务闭环：上游来源 / 下游模块 / 权限字段日志校验链路 / 未纳入范围
 ```
 
 ### Bug 后：漏改核查（逐项）

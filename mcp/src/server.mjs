@@ -26,7 +26,7 @@ const tools = [
   {
     name: "zentao_collect_assigned_tasks",
     description:
-      "自动打开禅道，进入仪表盘/指派给我任务列表，将分页尝试改为 2000，逐个打开任务并提取标题、内容、备注、任务描述，然后按采购/销售等模块分类并生成多 agent 执行包。",
+      "自动打开禅道，进入仪表盘/指派给我任务列表，将分页尝试改为 2000，逐个打开任务并提取任务 ID、URL、标题、内容、备注、任务描述，然后按采购/销售等模块分类并生成保留原文事实源、业务闭环、责任审计和权限边界的多 agent 执行包。",
     inputSchema: {
       type: "object",
       properties: {
@@ -68,7 +68,7 @@ const tools = [
   {
     name: "zentao_analyze_tasks",
     description:
-      "对已采集的禅道任务 JSON 做模块分类并生成多 agent 执行包，不打开浏览器。",
+      "对已采集的禅道任务 JSON 做模块分类并生成保留原文事实源、业务闭环、责任审计和权限边界的多 agent 执行包，不打开浏览器。",
     inputSchema: {
       type: "object",
       properties: {
