@@ -74,7 +74,7 @@ description: >-
 
 | 场景 | 处理 |
 |------|------|
-| 新增 OP_HEADERS | 总表 #6 → [t-oplog](../t-oplog/SKILL.md) |
+| 新增/迁移页面、调整 OP_HEADERS/pageId | 总表 #6 确认贸易/展厅 → [t-oplog](../t-oplog/SKILL.md) 生成 Console 脚本，等待真实 pageId |
 | 多文件可复用写法 | 总表 #7 问是否抽离；默认 **不抽离** |
 | 多文件同类修改 | **禁止脚本**：跨模块按菜单拆 `t-mod` 实例并行；单模块逐文件 AI 改 |
 

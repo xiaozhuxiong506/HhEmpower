@@ -19,7 +19,7 @@
 3. **同页多入口** — 范围已定，同页多个按钮/批量入口 →「改哪些入口？」→ A 入口1 · B 入口2 · C 都改
 4. **i18n 是否动** — 可能涉及文案 →「是否改 locales？」→ A 不改复用 key · B 新增 key（接 #5）；**参考他模块时必查 key 文案是否指当前业务**
 5. **i18n 新增策略** — 确定要新增 key →「zh-CN 与 en 怎么写？」→ A 两文件都中文 · B 中英文区分
-6. **pageId** — 新增 OP_HEADERS / 新页操作日志 →「pageId 怎么处理？」→ A 已提供数字 · B 后续处理 `"需要后台配置！"`
+6. **pageId 系统门禁** — 新增/迁移页面、新增或调整 OP_HEADERS/pageId →「当前页面属于哪个系统？」→ A 贸易（`roleId: 16`）· B 展厅（`roleId: 14`）· C 其他（停止该流程）；随后按 [t-oplog](../t-oplog/SKILL.md) 确认数据、索取当次 Bearer token，并只返回可一键复制的 Console 脚本
 7. **公共代码抽离** — 多文件可复用、大改 →「要不要抽离？」→ A 不抽离照抄 · B 允许抽离（说明范围）
 8. **Bug 兄弟页** — 同模块多页可能有同样问题 →「是否同步改兄弟页？」→ A 仅当前页 · B 兄弟页一并改
 9. **新模块详情** — 新建模块未说要不要详情 →「是否做详情页？」→ A 仅列表 · B 列表+详情（th 项目注意：详情多内嵌 Detail.vue）
@@ -51,7 +51,7 @@ Bug 常见漏改：列表忘了详情 · columns 忘了 type · 只改 zh 忘了
 新需求必做：API 三件套 · OP_HEADERS（列表 + 详情，见 t-oplog）· 路由 · auth · i18n · virtualYConfig · useColWidthSave
 
 i18n：非必须不改 locales；**新增 key 前必问**；**参考他模块必查 locales 文案**，禁止错模块提示
-pageId：**新增 OP_HEADERS 前必问**；选后续处理则写 `"需要后台配置！"`
+pageId：**新增/迁移页面或调整 OP_HEADERS 前必问系统**；贸易/展厅按 [t-oplog](../t-oplog/SKILL.md) 生成 Console 脚本，用户返回真实结果前禁止写 pageId
 主单/详情：说主单只改主单 · 说详情只改详情 · **删改功能名未指明页面必问** · 范围模糊必问单选
 
 全模块路由/Tab 见 t-registry · 文件命名见 [../t-page/naming.md](../t-page/naming.md)
@@ -270,10 +270,13 @@ rg "^  m\.m123:" ${locales目录}/zh-CN.yaml ${locales目录}/en.yaml
 
 **禁止**：只抄 `t('m.mxxx')` 不查 yaml；改已有 key 翻译（会波及原模块）。
 
-**pageId — 新增 OP_HEADERS 时（必问）**
+**pageId — 新增/迁移页面或调整 OP_HEADERS 时（必问）**
 
-- A. 我已提供 pageId（按给定数字写入各操作项）
-- B. 后续处理（`pageId` 统一写 `"需要后台配置！"`，待后台补全）
+- A. 贸易系统（固定 `roleId: 16`，进入 [t-oplog](../t-oplog/SKILL.md) Console 流程）
+- B. 展厅系统（固定 `roleId: 14`，进入 [t-oplog](../t-oplog/SKILL.md) Console 流程）
+- C. 其他系统（停止本流程，不生成脚本，不套 roleId）
+
+贸易/展厅继续核对真实 `pageTitle/useTitle`，再用单独自由输入框索取当次 Bearer token。AI 只返回一个完整、可一键复制的 `javascript` 代码块，不调用接口；用户返回真实结果且 pageId 对应关系明确后，才能写 `OP_HEADERS`。
 
 **主单 vs 详情 — 范围模糊时（必问）**
 
