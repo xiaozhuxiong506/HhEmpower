@@ -1,0 +1,7 @@
+[     490ms] [LOG] 🚀 ~ constantRoutes: [Object] @ https://trade.tsbsoft.com/static/js/index-BdZyL8t5.js:214
+[     701ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ https://tapi.tsbsoft.com/hallbasic/Auth/GetQRCode:0
+[     703ms] io
+[   44712ms] [LOG] 已连接 @ https://trade.tsbsoft.com/static/js/index-BdZyL8t5.js:210
+[   44799ms] [LOG] 🚀 ~ handleAsyncRoutes ~ _routeList: [Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object] @ https://trade.tsbsoft.com/static/js/index-BdZyL8t5.js:214
+[   46325ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ https://tapi.tsbsoft.com/tlb/TsbAuth/IsTsbAuthenticate:0
+[   46332ms] [LOG] io @ https://trade.tsbsoft.com/static/js/index-BdZyL8t5.js:242

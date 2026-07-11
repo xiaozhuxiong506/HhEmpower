@@ -15,6 +15,8 @@ description: Use when applying TSB ERP 代码规范：命名、接口字段精�
 - **文件职责**：`columns.ts` 只写列，`auth.ts` 只写权限码，`type.ts` 只写类型/枚举。
 - **import 顺序**：新页照当前项目标准页，不以 legacy 旧页为准。
 - **现成能力优先**：防抖、节流、日期、金额格式化、表格 formatter、输入限制先查项目 `utils` / hooks / directives。
+- **复杂度预算**：需求、Bug、方案优先最小充分实现；禁止为局部问题造轮子、预建通用层或引入不必要依赖。
+- **业务注释**：业务函数、复杂函数、难懂条件必须注释业务目的、关键规则和功能作用；禁止逐行翻译代码。
 - **grid 基线**：`useGridPreferences`、列宽、`virtualYConfig`、height、columns 属性顺序保持项目标准。
 - **select null**：值可能为 `null` 的 `el-select` 必须处理空值。
 - **源码对照**：新增或改动前先找同项目标准页和同模块兄弟页。

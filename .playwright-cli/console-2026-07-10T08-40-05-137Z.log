@@ -1,0 +1,18 @@
+[      16ms] [LOG] 不是小竹熊菜单 @ https://trade.tsbsoft.com/static/js/index-BdZyL8t5.js:242
+[     208ms] [LOG] 🚀 ~ constantRoutes: [Object] @ https://trade.tsbsoft.com/static/js/index-BdZyL8t5.js:214
+[     261ms] [LOG] 已连接 @ https://trade.tsbsoft.com/static/js/index-BdZyL8t5.js:210
+[     306ms] [LOG] 🚀 ~ handleAsyncRoutes ~ _routeList: [Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object] @ https://trade.tsbsoft.com/static/js/index-BdZyL8t5.js:214
+[    1239ms] [LOG] usePaginationKeyboard id [1783672806319Table] @ https://trade.tsbsoft.com/static/js/usePaginationKeyboard-D5zGo-ES.js:0
+[    1746ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ https://tapi.tsbsoft.com/tlb/TsbAuth/IsTsbAuthenticate:0
+[    1747ms] [LOG] io @ https://trade.tsbsoft.com/static/js/index-BdZyL8t5.js:242
+[    6776ms] [LOG] usePaginationKeyboard id 1783672806319Table @ https://trade.tsbsoft.com/static/js/usePaginationKeyboard-D5zGo-ES.js:0
+[ 1520583ms] [LOG] 已连接 @ https://trade.tsbsoft.com/static/js/index-BdZyL8t5.js:210
+[ 2872530ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ https://tapi.tsbsoft.com/hallbasic/Auth/GetQRCode:0
+[ 2872532ms] io
+[ 2879426ms] [LOG] 已连接 @ https://trade.tsbsoft.com/static/js/index-BdZyL8t5.js:210
+[ 2879491ms] [LOG] 🚀 ~ handleAsyncRoutes ~ _routeList: [Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object] @ https://trade.tsbsoft.com/static/js/index-BdZyL8t5.js:214
+[ 2880373ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ https://tapi.tsbsoft.com/tlb/TsbAuth/IsTsbAuthenticate:0
+[ 2880374ms] [LOG] io @ https://trade.tsbsoft.com/static/js/index-BdZyL8t5.js:242
+[ 2881972ms] [LOG] usePaginationKeyboard id [1783675687100Table] @ https://trade.tsbsoft.com/static/js/usePaginationKeyboard-D5zGo-ES.js:0
+[ 2886776ms] [LOG] usePaginationKeyboard id 1783675687100Table @ https://trade.tsbsoft.com/static/js/usePaginationKeyboard-D5zGo-ES.js:0
+[ 3412405ms] [LOG] 不是小竹熊菜单 @ https://trade.tsbsoft.com/static/js/index-BdZyL8t5.js:242

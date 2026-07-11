@@ -1,0 +1,20 @@
+- generic [ref=e5]:
+  - generic [ref=e7]:
+    - heading "贸易管理系统" [level=2] [ref=e8]
+    - heading "Trade selection management system" [level=4] [ref=e9]
+  - generic [ref=e11]:
+    - generic [ref=e15]:
+      - generic [ref=e16] [cursor=pointer]: 扫码登录
+      - generic [ref=e17] [cursor=pointer]: 账号登录
+      - generic [ref=e18] [cursor=pointer]: 验证码登录
+    - generic [ref=e29]:
+      - generic [ref=e30]:
+        - generic [ref=e31]: 手机号码
+        - combobox [ref=e33]:
+          - textbox "手机号码" [ref=e36]:
+            - /placeholder: 请输入11位手机号
+      - generic [ref=e37]:
+        - generic [ref=e38]: 密码
+        - textbox "密码" [ref=e42]:
+          - /placeholder: 请输入密码
+      - button "登录" [ref=e43] [cursor=pointer]

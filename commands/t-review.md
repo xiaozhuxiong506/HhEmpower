@@ -11,9 +11,9 @@ description: 审查刚改完的所有代码：代码规范、文案核查、代�
 4. 两阶段审查（可派 subagent）：
    - 第一阶段：`t-spec`（规范符合）∥ `t-i18n-check`（文案核查）
    - 第二阶段：`t-code`（代码质量+终审）
-5. Read 相关 Skill：`t-page/anchors.md` + 改动涉及的子 Skill，重点核查业务闭环、责任审计、权限等同用户、共享影响、Git 归因和范围外报告
+5. Read 相关 Skill：`t-page/anchors.md` + 改动涉及的子 Skill；涉及接口契约时加读 [t-api-docs](../skills/t-api-docs/SKILL.md)，重点核查业务闭环、责任审计、权限等同用户、共享影响、Git 归因和范围外报告
 6. **只输出审查报告**，不直接改代码（除非用户明确要求修复）
 
 调度矩阵 → [skills/t-page/orchestration.md](../skills/t-page/orchestration.md)
 
-重点：主单/详情是否改错 · 业务闭环是否漏模块 · 权限边界是否被绕过 · 责任/事实源是否可追溯 · 六处命名一致 · locales 是否指错模块 · OP_HEADERS 是否漏传 · virtualYConfig · 字段设置
+重点：主单/详情是否改错 · 业务闭环是否漏模块 · 权限边界是否被绕过 · 责任/事实源是否可追溯 · 普通 API 文档是否默认 Torna · 实现复杂度是否超过问题规模 · 是否重复造轮子/过度封装 · 业务注释/复杂函数注释是否清楚且同步 · 六处命名一致 · locales 是否指错模块 · OP_HEADERS 是否漏传 · virtualYConfig · 字段设置

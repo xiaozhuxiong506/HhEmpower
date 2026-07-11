@@ -13,7 +13,7 @@ description: 新建 Tsb ERP（ts*/th*）业务页模块：探测项目、复制�
 4. **AskQuestion** 是否做详情页（总表 #9，th 注意详情多内嵌）
 5. 复制当前项目 `${标准页}`（+ 可选详情模板）
 6. 输出蓝图：要改文件清单 / 不改范围 / 六处命名对照
-7. 依次：业务闭环/责任/权限 → API → OP_HEADERS（总表 #6 明确贸易/展厅，按 [t-oplog](../skills/t-oplog/SKILL.md) 返回 Console 脚本，用户回传真实 pageId 后再注册）→ 路由 → 列表/详情 → i18n（#4→#5）→ auth（#10）→ registry 登记
+7. 依次：业务闭环/责任/权限 → API（先读 [t-api-docs](../skills/t-api-docs/SKILL.md)，普通接口文档默认 Torna）→ OP_HEADERS（总表 #6 明确贸易/展厅，按 [t-oplog](../skills/t-oplog/SKILL.md) 返回 Console 脚本，用户回传真实 pageId 后再注册）→ 路由 → 列表/详情 → i18n（#4→#5）→ auth（#10）→ registry 登记
 8. 用户确认蓝图后再动手
 
 可派 `t-scaffold` 总装 + 实现 subagent 分头施工 → 读 [skills/t-page/orchestration.md](../skills/t-page/orchestration.md)

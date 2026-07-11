@@ -36,6 +36,7 @@ description: Use when Codex works on a TSB ERP business page, route, module, lis
 | Tab、保存、编辑态、只读态 | [t-tab](../t-tab/SKILL.md) |
 | 操作日志、`OP_HEADERS`、`pageId` | [t-oplog](../t-oplog/SKILL.md) |
 | 路由、菜单、Tab 发现、`staticRoutes`、route registry | [t-registry](../t-registry/SKILL.md) |
+| 接口文档、API 文档、Torna、Swagger/OpenAPI、请求/响应参数 | [t-api-docs](../t-api-docs/SKILL.md) |
 | Zentao 任务收集、分析、分组、派发 | [t-zentao](../t-zentao/SKILL.md) |
 
 ## 停止关卡

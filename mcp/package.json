@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "type": "module",
   "private": true,
-  "description": "Cursor MCP tools for browser automation and Zentao task collection.",
+  "description": "TSB browser MCP tools for read-only Torna API docs and Zentao task collection.",
   "scripts": {
     "test": "node --test tests/*.test.mjs",
     "start": "node src/server.mjs"

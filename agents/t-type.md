@@ -10,6 +10,8 @@ description: Tsb ERP（ts*/th*）类型定义实现。写 type.ts 的接口、�
 
 **全局红线**：继承 [anchors.md](../skills/t-page/anchors.md) 的接口字段零偏差、业务闭环、责任审计、权限边界、共享影响和反绕过。
 
+接口字段、层级、类型、必填或长度需要文档事实时先读 [t-api-docs](../skills/t-api-docs/SKILL.md)；普通接口文档默认 Torna，明确指定才使用 Swagger/OpenAPI。
+
 ## 角色
 
 写 `${views前缀}Xxx/type.ts`（接口、枚举、表单类型）。只动类型文件。

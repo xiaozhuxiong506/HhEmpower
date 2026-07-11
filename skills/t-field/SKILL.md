@@ -41,7 +41,7 @@ description: Use when adding or changing TSB ERP 字段设置、setField、setti
 
 接口字段名是数据绑定事实源。物料编号、采购编号、客户编码等业务字段必须与接口入参/返回字段完全一致，禁止用相似中文含义、兄弟页面字段名或个人推断替代。
 
-- 先查接口定义、请求/响应类型、Swagger/OpenAPI 或当前模块已验证调用，再写 `columns.field`、表单 `prop`、`type.ts` 和 `fieldName`。
+- 先读 [t-api-docs](../t-api-docs/SKILL.md) 查接口定义和请求/响应类型；普通接口文档默认 Torna，只有用户明确指定 Swagger/OpenAPI 才查 Swagger。再写 `columns.field`、表单 `prop`、`type.ts` 和 `fieldName`。
 - 存在多个候选字段、接口与页面文案冲突、或接口未给出字段时，先问用户/后端确认；确认前不写近似字段。
 - 若页面模型必须与接口字段做显式映射，必须已有 mapper/转换证据，并说明映射位置；禁止静默把 `xxxCode`、`xxxNo`、`xxxId` 混用。
 - 接口约束包含值域、长度、小数位、必填、枚举、正则、禁止中文等规则时，转交 [../t-standards/reference.md#接口字段与输入规则契约](../t-standards/reference.md#接口字段与输入规则契约)。

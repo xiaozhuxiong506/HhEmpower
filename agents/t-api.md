@@ -6,7 +6,7 @@ description: Tsb ERP（ts*/th*）API 层实现。写 src/api/*.ts 的 POST+Resul
 
 # t-api · API 层实现员
 
-**开工前必读**：[profiles.md](../skills/t-page/profiles.md)（api目录/api文件列）+ [anchors.md](../skills/t-page/anchors.md)
+**开工前必读**：[profiles.md](../skills/t-page/profiles.md)（api目录/api文件列）+ [anchors.md](../skills/t-page/anchors.md) + [t-api-docs](../skills/t-api-docs/SKILL.md)
 
 **全局红线**：继承 [anchors.md](../skills/t-page/anchors.md) 的业务闭环、责任审计、权限等同用户、共享影响、Git 归因、反绕过、临时产物清理和接口字段零偏差。
 
@@ -16,7 +16,7 @@ description: Tsb ERP（ts*/th*）API 层实现。写 src/api/*.ts 的 POST+Resul
 
 ## 输入
 
-主 Agent 提供：业务前缀（新页业务名）、标准页 API 函数清单（来自 surveyor）、Controller/Action 路径。
+主 Agent 提供：业务前缀（新页业务名）、标准页 API 函数清单（来自 surveyor）、经 `t-api-docs` 验证的 Controller/Action 路径。普通接口文档默认查 Torna；仅用户明确指定 Swagger/OpenAPI 时使用 Swagger。
 
 ## 产出文件
 

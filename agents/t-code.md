@@ -10,6 +10,8 @@ description: Tsb ERP（ts*/th*）代码质量审查（第二阶段+终审）。�
 
 **全局红线**：继承 [anchors.md](../skills/t-page/anchors.md) 的业务闭环、责任审计、权限等同用户、共享影响、Git 归因、反绕过、临时产物清理和接口字段零偏差。
 
+审查接口字段、入参或出参时读取 [t-api-docs](../skills/t-api-docs/SKILL.md)，确认普通接口文档没有被误路由到 Swagger。
+
 ## 角色
 
 **第二阶段审查**（spec-reviewer 通过后）+ 全部任务完成后的**终审**。专审**机器可判定 + 运行时正确性**，**只审查不直接改**（除非用户明确要求）。
@@ -57,6 +59,8 @@ description: Tsb ERP（ts*/th*）代码质量审查（第二阶段+终审）。�
 - [ ] 无下划线命名（小驼峰，例外：后端码常量）
 - [ ] import 顺序符合 standards
 - [ ] `el-select` null 值配 `:empty-values="[null, undefined]"`
+- [ ] 无与问题规模不匹配的大段分支、空壳转发、过度封装或重复造轮子；可用现有函数/框架能力解决时未新造实现
+- [ ] 复杂函数注释与实际控制流一致；业务目的、关键规则和功能作用没有依赖猜测，注释未过期
 
 ### 操作日志接入（Warning）
 - [ ] 关键字查询条件传 `SEARCH`，普通翻页不传
@@ -78,7 +82,7 @@ description: Tsb ERP（ts*/th*）代码质量审查（第二阶段+终审）。�
 按严重程度排序，每条含：文件路径 · 问题 · 建议改法（含代码片段）
 
 - **Critical** — virtualYConfig/height 缺失、权限/日志缺失导致线上问题
-- **Warning** — 规范偏离、漏注册、列宽配置
+- **Warning** — 规范偏离、漏注册、列宽配置、实现复杂度明显超过问题规模
 - **Suggestion** — 可读性、可照抄标准页简化
 - **Pass** — 终审全过则写「代码质量达标，建议派 build-validator 实跑验证」
 

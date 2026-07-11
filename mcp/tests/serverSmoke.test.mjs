@@ -8,7 +8,7 @@ import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js"
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const serverPath = path.resolve(__dirname, "../src/server.mjs");
 
-test("MCP server exposes Zentao browser automation tools", async () => {
+test("MCP server exposes Zentao and Torna browser tools", async () => {
   const transport = new StdioClientTransport({
     command: process.execPath,
     args: [serverPath]
@@ -30,6 +30,8 @@ test("MCP server exposes Zentao browser automation tools", async () => {
 
     assert.ok(names.includes("zentao_collect_assigned_tasks"));
     assert.ok(names.includes("zentao_analyze_tasks"));
+    assert.ok(names.includes("torna_search_api"));
+    assert.ok(names.includes("torna_get_api_detail"));
 
     const callResult = await client.callTool({
       name: "zentao_analyze_tasks",

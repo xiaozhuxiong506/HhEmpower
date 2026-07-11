@@ -1,0 +1,32 @@
+- generic [ref=e1]:
+  - generic [ref=e5]:
+    - generic [ref=e7]:
+      - heading "贸易管理系统" [level=2] [ref=e8]
+      - heading "Trade selection management system" [level=4] [ref=e9]
+    - generic [ref=e11]:
+      - generic [ref=e15]:
+        - generic [ref=e16] [cursor=pointer]: 扫码登录
+        - generic [ref=e17] [cursor=pointer]: 账号登录
+        - generic [ref=e18] [cursor=pointer]: 验证码登录
+      - generic [ref=e29]:
+        - generic [ref=e30]:
+          - generic [ref=e31]: 手机号码
+          - combobox [ref=e33]:
+            - textbox "手机号码" [ref=e36]:
+              - /placeholder: 请输入11位手机号
+              - text: "18179745884"
+        - generic [ref=e37]:
+          - generic [ref=e38]: 密码
+          - textbox "密码" [ref=e42]:
+            - /placeholder: 请输入密码
+            - text: "123456"
+        - button "登录" [disabled]
+  - dialog "账号已在其他设备登录" [ref=e51]:
+    - generic [active] [ref=e52]:
+      - generic [ref=e53]:
+        - generic [ref=e54]: 账号已在其他设备登录
+        - button "关闭此对话框" [ref=e55] [cursor=pointer]
+      - paragraph [ref=e62]: 您的账号已在其他设备登录，是否覆盖并继续？
+      - generic [ref=e63]:
+        - button "取消" [ref=e64] [cursor=pointer]
+        - button "覆盖" [ref=e66] [cursor=pointer]

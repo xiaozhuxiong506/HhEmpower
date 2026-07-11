@@ -9,6 +9,7 @@ import {
   collectAssignedZentaoTasks,
   formatZentaoAnalysisMarkdown
 } from "./zentaoCollector.mjs";
+import { getTornaApiDetail, searchTornaApi } from "./tornaClient.mjs";
 
 const server = new Server(
   {
@@ -23,6 +24,72 @@ const server = new Server(
 );
 
 const tools = [
+  {
+    name: "torna_search_api",
+    description:
+      "只读检索 TSB Torna API 文档。普通接口/API 文档查询优先使用此工具；仅当用户明确指定 Swagger/OpenAPI 时不要使用。返回整洁的候选表格，唯一命中时默认附带入参与出参详情。",
+    inputSchema: {
+      type: "object",
+      properties: {
+        system: {
+          type: "string",
+          description: "目标系统：贸易、展厅、商城或平台。无法从当前项目唯一判断时必须先询问用户。"
+        },
+        query: {
+          type: "string",
+          description: "接口名称、接口路径或 Torna 文档 ID。"
+        },
+        moduleName: {
+          type: "string",
+          description: "可选的 Torna 应用模块名称，例如 Procurement、Finance。"
+        },
+        method: {
+          type: "string",
+          description: "可选 HTTP 方法，例如 GET、POST。"
+        },
+        includeDetail: {
+          type: "boolean",
+          description: "唯一命中时是否附带完整详情，默认 true。"
+        },
+        limit: {
+          type: "number",
+          description: "最多返回多少个候选，默认 20，最大 100。"
+        },
+        loginWaitMs: {
+          type: "number",
+          description: "检测到登录页时等待人工登录的毫秒数，默认 120000。"
+        },
+        headless: {
+          type: "boolean",
+          description: "是否无头运行，默认 false；首次登录必须为 false。"
+        }
+      },
+      required: ["system", "query"]
+    }
+  },
+  {
+    name: "torna_get_api_detail",
+    description:
+      "按 Torna 文档 ID 只读获取 TSB API 详情，以整洁表格返回基本信息、请求参数、响应参数和示例。不得用于 Swagger/OpenAPI 查询。",
+    inputSchema: {
+      type: "object",
+      properties: {
+        docId: {
+          type: "string",
+          description: "Torna 文档 ID。"
+        },
+        loginWaitMs: {
+          type: "number",
+          description: "检测到登录页时等待人工登录的毫秒数，默认 120000。"
+        },
+        headless: {
+          type: "boolean",
+          description: "是否无头运行，默认 false；首次登录必须为 false。"
+        }
+      },
+      required: ["docId"]
+    }
+  },
   {
     name: "zentao_collect_assigned_tasks",
     description:
@@ -99,6 +166,16 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools }));
 server.setRequestHandler(CallToolRequestSchema, async request => {
   const name = request.params.name;
   const args = request.params.arguments || {};
+
+  if (name === "torna_search_api") {
+    const result = await searchTornaApi(args);
+    return { content: [{ type: "text", text: result.markdown }] };
+  }
+
+  if (name === "torna_get_api_detail") {
+    const result = await getTornaApiDetail(args);
+    return { content: [{ type: "text", text: result.markdown }] };
+  }
 
   if (name === "zentao_collect_assigned_tasks") {
     const result = await collectAssignedZentaoTasks(args);

@@ -17,7 +17,6 @@ $McpRoot = Join-Path $PluginRoot "mcp"
 $ServerPath = Join-Path $McpRoot "src\server.mjs"
 $CursorDir = Join-Path $env:USERPROFILE ".cursor"
 $McpJson = Join-Path $CursorDir "mcp.json"
-$ProfileDir = Join-Path $env:LOCALAPPDATA "TsbBrowserMcp\playwright-profile"
 
 function Convert-ObjectToOrderedMap($Object) {
     $map = [ordered]@{}
@@ -81,13 +80,10 @@ if (!$SkipNpmInstall) {
     }
 }
 
-New-Item -ItemType Directory -Force -Path $ProfileDir | Out-Null
-
 $servers[$ServerName] = [ordered]@{
     command = "node"
     args = @($ServerPath)
     env = [ordered]@{
-        TSB_MCP_PROFILE_DIR = $ProfileDir
         TSB_MCP_BROWSER_CHANNEL = "chrome"
     }
 }
