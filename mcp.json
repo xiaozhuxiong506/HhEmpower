@@ -6,7 +6,7 @@
         "${CURSOR_PLUGIN_ROOT}/mcp/dist/server.mjs"
       ],
       "env": {
-        "TSB_MCP_BROWSER_CHANNEL": "chrome"
+        "T_MCP_BROWSER_CHANNEL": "chrome"
       }
     }
   }

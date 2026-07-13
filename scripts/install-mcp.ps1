@@ -87,7 +87,7 @@ $servers[$ServerName] = [ordered]@{
     command = "node"
     args = @($ServerPath)
     env = [ordered]@{
-        TSB_MCP_BROWSER_CHANNEL = "chrome"
+        T_MCP_BROWSER_CHANNEL = "chrome"
     }
 }
 

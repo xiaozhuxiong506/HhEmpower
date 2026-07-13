@@ -339,7 +339,7 @@ export function formatTornaDetailMarkdown(detail) {
 }
 
 async function launchBrowserContext(options = {}) {
-  const channel = process.env.TSB_MCP_BROWSER_CHANNEL || "chrome";
+  const channel = process.env.T_MCP_BROWSER_CHANNEL || "chrome";
   const launchOptions = {
     headless: Boolean(options.headless),
     args: ["--start-maximized"]

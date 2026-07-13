@@ -54,7 +54,7 @@ function stripKind(item) {
 
 function defaultProfileDir() {
   const base = process.env.LOCALAPPDATA || os.tmpdir();
-  return path.join(base, "TsbBrowserMcp", "playwright-profile");
+  return path.join(base, "TBrowserMcp", "playwright-profile");
 }
 
 function toAbsoluteUrl(baseUrl, href) {
@@ -66,9 +66,9 @@ function toAbsoluteUrl(baseUrl, href) {
 }
 
 async function launchPersistentChrome(options = {}) {
-  const profileDir = options.profileDir || process.env.TSB_MCP_PROFILE_DIR || defaultProfileDir();
+  const profileDir = options.profileDir || process.env.T_MCP_PROFILE_DIR || defaultProfileDir();
   const headless = Boolean(options.headless);
-  const channel = options.browserChannel || process.env.TSB_MCP_BROWSER_CHANNEL || "chrome";
+  const channel = options.browserChannel || process.env.T_MCP_BROWSER_CHANNEL || "chrome";
   const launchOptions = {
     headless,
     viewport: null,

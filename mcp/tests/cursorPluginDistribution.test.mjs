@@ -94,7 +94,7 @@ test("Cursor plugin declares its bundled MCP without developer-specific paths", 
   assert.equal(manifest.mcpServers, "./mcp.json");
   assert.equal(server?.command, "node");
   assert.deepEqual(server?.args, ["${CURSOR_PLUGIN_ROOT}/mcp/dist/server.mjs"]);
-  assert.equal(server?.env?.TSB_MCP_BROWSER_CHANNEL, "chrome");
+  assert.equal(server?.env?.T_MCP_BROWSER_CHANNEL, "chrome");
   assert.equal(Object.hasOwn(marketplace, "displayName"), false);
   assert.equal(Object.hasOwn(marketplace.plugins[0], "logo"), false);
 
