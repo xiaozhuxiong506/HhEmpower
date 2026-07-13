@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.8.0 — 2026-07-13
+
+### 钉钉聊天记录只读接入
+
+- 新增 `t-dingtalk` Skill、`/t-dingtalk-read` 命令、`t-dingtalk` Agent 和聊天隐私 Rule。
+- `t-browser-mcp` 新增 OAuth 状态/登录、群聊检索、关键词消息检索、指定会话和全部会话读取六个工具。
+- 插件内置钉钉官方 DWS `v1.0.51` 的 Windows、macOS、Linux x64/arm64 二进制与许可证，无需全局安装。
+- DWS 调用使用固定参数数组和 `shell: false`，不开放发送、回复、撤回、转发、群管理或任意命令。
+- 只读取当前 OAuth 用户有权访问的会话；多候选必须确认，聊天记录不落盘，禁止索取密码、Cookie 或 Token。
+- 构建设置 `ignore-scripts=true`，不执行官方 npm 安装脚本，不向用户级 Skills 目录写入额外内容。
+
 ## 2.7.1 — 2026-07-13
 
 ### 插件技术标识统一

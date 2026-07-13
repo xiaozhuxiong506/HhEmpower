@@ -3,18 +3,20 @@
   "version": "0.1.0",
   "type": "module",
   "private": true,
-  "description": "t-browser-mcp tools for read-only Torna API docs and Zentao task collection.",
+  "description": "t-browser-mcp tools for Torna API docs, Zentao tasks, and read-only DingTalk chat access.",
   "scripts": {
     "build": "node scripts/build.mjs",
-    "pretest": "npm run build",
-    "test": "node --test tests/*.test.mjs",
+    "test": "npm run build && node --test tests/*.test.mjs",
     "start": "node src/server.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.17.5",
+    "dingtalk-workspace-cli": "1.0.51",
     "playwright": "^1.61.1"
   },
   "devDependencies": {
-    "@vercel/ncc": "^0.44.1"
+    "@vercel/ncc": "^0.44.1",
+    "adm-zip": "0.6.0",
+    "tar": "7.5.20"
   }
 }

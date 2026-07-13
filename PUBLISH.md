@@ -11,7 +11,7 @@ cd D:\company\HhEmpower
 
 默认导出到 `D:\company\t-erp-page-plugin/`（不含 ERP 源码）。
 
-导出脚本会先构建插件内置 MCP，并把 `mcp.json`、MCP 运行产物和 Playwright 运行依赖一起放入导出目录。插件使用者安装后即可使用 Torna 与禅道工具，无需运行 `install-mcp.ps1` 或安装 npm 依赖。
+导出脚本会先构建插件内置 MCP，并把 `mcp.json`、MCP 运行产物、Playwright 运行依赖和钉钉官方 DWS 多平台二进制一起放入导出目录。插件使用者安装后即可使用 Torna、禅道与钉钉只读工具，无需运行 `install-mcp.ps1`、全局安装 DWS 或安装 npm 依赖。
 
 自定义导出目录：
 

@@ -133,7 +133,16 @@ test("exported and Git-tracked MCP starts outside the repository", async () => {
     "mcp.json",
     "mcp/dist/server.mjs",
     "mcp/dist/node_modules/playwright/package.json",
-    "mcp/dist/node_modules/playwright-core/package.json"
+    "mcp/dist/node_modules/playwright-core/package.json",
+    "mcp/dist/vendor/dws/LICENSE",
+    "mcp/dist/vendor/dws/NOTICE",
+    "mcp/dist/vendor/dws/package.json",
+    "mcp/dist/vendor/dws/darwin-x64/dws",
+    "mcp/dist/vendor/dws/darwin-arm64/dws",
+    "mcp/dist/vendor/dws/linux-x64/dws",
+    "mcp/dist/vendor/dws/linux-arm64/dws",
+    "mcp/dist/vendor/dws/win32-x64/dws.exe",
+    "mcp/dist/vendor/dws/win32-arm64/dws.exe"
   ]) {
     assert.ok(trackedFiles.includes(requiredFile), `untracked distribution file: ${requiredFile}`);
   }
@@ -160,10 +169,37 @@ test("exported and Git-tracked MCP starts outside the repository", async () => {
       "torna_search_api",
       "torna_get_api_detail",
       "zentao_collect_assigned_tasks",
-      "zentao_analyze_tasks"
+      "zentao_analyze_tasks",
+      "dingtalk_auth_status",
+      "dingtalk_auth_login",
+      "dingtalk_search_groups",
+      "dingtalk_search_messages",
+      "dingtalk_list_messages",
+      "dingtalk_list_all_messages"
     ]) {
       assert.ok(names.includes(name), `missing bundled MCP tool: ${name}`);
     }
+
+    const platformDir = `${process.platform}-${process.arch}`;
+    const binaryName = process.platform === "win32" ? "dws.exe" : "dws";
+    const dwsBinary = path.join(exportDir, "mcp/dist/vendor/dws", platformDir, binaryName);
+    const version = execFileSync(dwsBinary, ["--version"], { encoding: "utf8" });
+    assert.match(version, /dws version v1\.0\.51/);
+
+    const mockOutput = execFileSync(
+      dwsBinary,
+      ["--mock", "-f", "json", "chat", "search", "--query", "项目", "--limit", "1"],
+      { encoding: "utf8" }
+    );
+    assert.equal(JSON.parse(mockOutput).success, true);
+
+    const authResult = await client.callTool({
+      name: "dingtalk_auth_status",
+      arguments: {}
+    });
+    const authText = authResult.content.map(item => item.text || "").join("\n");
+    assert.match(authText, /dws version v1\.0\.51/);
+    assert.match(authText, /OAuth/);
   } finally {
     await client.close().catch(() => {});
     fs.rmSync(tempRoot, { recursive: true, force: true });
@@ -197,7 +233,7 @@ test("release metadata and docs describe one-install bundled MCP behavior", () =
   const legacyInstaller = readText("scripts/install-mcp.ps1");
   const localInstaller = fs.readFileSync(path.join(repoRoot, "scripts/install-local.ps1"));
 
-  assert.equal(manifest.version, "2.7.1");
+  assert.equal(manifest.version, "2.8.0");
   assert.equal(marketplace.metadata?.version, manifest.version);
   assert.match(docs, /插件内置 MCP/);
   assert.match(docs, /无需.*install-mcp\.ps1/);

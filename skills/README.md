@@ -5,6 +5,7 @@
 - 页面、路由、主单、详情、弹窗、抽屉、字段、权限、操作日志、业务闭环、责任归属或页面级路由工作，从 [t-page](t-page/SKILL.md) 开始。
 - 接口文档、API 文档、Torna 或 Swagger/OpenAPI 来源判定，从 [t-api-docs](t-api-docs/SKILL.md) 开始。
 - Zentao 任务收集、分析、分组或派发，从 [t-zentao](t-zentao/SKILL.md) 开始。
+- 钉钉群聊、单聊、聊天记录或关键词消息只读查询，从 [t-dingtalk](t-dingtalk/SKILL.md) 开始。
 
 ## 快捷命令
 
@@ -27,6 +28,7 @@
 | 路由与 Tab 发现 | `t-registry` |
 | API 文档与 Torna/Swagger 分流 | `t-api-docs` |
 | Zentao | `t-zentao` |
+| 钉钉聊天只读查询 | `t-dingtalk` |
 
 ## 全局红线
 
@@ -36,7 +38,7 @@
 
 | 分组 | 内容 |
 |------|------|
-| 入口与调度 | `t-page`、`t-clarify`、`t-workflow`、`t-zentao`、`t-page/orchestration.md` |
+| 入口与调度 | `t-page`、`t-clarify`、`t-workflow`、`t-zentao`、`t-dingtalk`、`t-page/orchestration.md` |
 | 页面结构 | `t-module`、`t-list`、`t-detail`、`t-dialog`、`t-registry` |
 | 能力规则 | `t-standards`、`t-auth`、`t-field`、`t-tab`、`t-oplog`、`t-api-docs` |
 | 支持文档 | `t-page/profiles.md`、`t-page/anchors.md`、`t-page/naming.md`、各 skill 的 `reference.md` 或 `examples.md` |

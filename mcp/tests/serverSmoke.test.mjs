@@ -8,7 +8,7 @@ import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js"
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const serverPath = path.resolve(__dirname, "../src/server.mjs");
 
-test("MCP server exposes Zentao and Torna browser tools", async () => {
+test("MCP server exposes Zentao, Torna, and read-only DingTalk tools", async () => {
   const transport = new StdioClientTransport({
     command: process.execPath,
     args: [serverPath]
@@ -32,6 +32,21 @@ test("MCP server exposes Zentao and Torna browser tools", async () => {
     assert.ok(names.includes("zentao_analyze_tasks"));
     assert.ok(names.includes("torna_search_api"));
     assert.ok(names.includes("torna_get_api_detail"));
+
+    for (const name of [
+      "dingtalk_auth_status",
+      "dingtalk_auth_login",
+      "dingtalk_search_groups",
+      "dingtalk_search_messages",
+      "dingtalk_list_messages",
+      "dingtalk_list_all_messages"
+    ]) {
+      assert.ok(names.includes(name), `missing DingTalk MCP tool: ${name}`);
+    }
+
+    const searchTool = result.tools.find(tool => tool.name === "dingtalk_search_messages");
+    assert.deepEqual(searchTool.inputSchema.required, ["query", "start", "end"]);
+    assert.equal(searchTool.inputSchema.properties.limit.maximum, 100);
 
     const callResult = await client.callTool({
       name: "zentao_analyze_tasks",

@@ -9,11 +9,11 @@ Tsb ERP 业务页 Agent 开发规范插件。**同时覆盖两个项目**，并�
 
 ## 内容
 
-- **14 个 Skills** — `t-page` 内核（profiles/anchors/orchestration/naming）+ `t-clarify`（需求澄清关卡）+ workflow + 列表/详情/弹窗等子 Skill
-- **21 个 Subagent** — 侦察(2) + 模块并行(1模板) + 实现(11) + 共享/修复(1) + 审查(3) + 验证(3)，多 agent 并行编排，**禁脚本**
-- **1 条 Rule** — 编辑 `src/views/{ts,th}*/**` 时自动应用指引（自动探测 ts/th）
-- **4 个 Command** — `/t-start` · `/t-new-module` · `/t-review` · `/t-zentao-collect`
-- **1 个插件内置 MCP** — Torna 接口文档只读检索 + 禅道任务采集和分组，保留原文事实源并生成带治理边界的 agentPlan
+- **16 个 Skills** — `t-page` 内核（profiles/anchors/orchestration/naming）+ `t-clarify`（需求澄清关卡）+ workflow + 列表/详情/弹窗等子 Skill + `t-api-docs` + `t-dingtalk`（钉钉聊天只读查询）
+- **22 个 Subagent** — 原 ERP 侦察/实现/审查/验证体系 + `t-dingtalk` 只读检索员，多 agent 编排继续遵守**禁脚本**
+- **2 条 Rule** — ERP 页面改动指引 + 钉钉聊天隐私边界
+- **5 个 Command** — `/t-start` · `/t-new-module` · `/t-review` · `/t-zentao-collect` · `/t-dingtalk-read`
+- **1 个插件内置 MCP** — Torna 接口文档、禅道任务和钉钉聊天记录只读能力
 
 ## 核心特性
 
@@ -56,7 +56,9 @@ cd D:\company\HhEmpower
 
 ### 插件内置 MCP
 
-`t-browser-mcp` 随 `t-erp-page` 一起安装，自动提供 Torna 和禅道工具。普通用户无需拥有 `D:\company\HhEmpower`，无需运行 `install-mcp.ps1`，也无需修改用户级 `~/.cursor/mcp.json` 或执行 `npm install`。
+`t-browser-mcp` 随 `t-erp-page` 一起安装，自动提供 Torna、禅道和钉钉只读工具。普通用户无需拥有 `D:\company\HhEmpower`，无需运行 `install-mcp.ps1`，也无需修改用户级 `~/.cursor/mcp.json` 或执行 `npm install`。
+
+钉钉能力内置官方 DWS `v1.0.51` 的 Windows/macOS/Linux 运行时。首次使用先调用 `dingtalk_auth_status`，未登录时调用 `dingtalk_auth_login` 并在钉钉官方页面完成 OAuth；企业管理员需要开启对应 CLI 访问权限。插件不接收密码、Cookie 或 Token，只读取当前授权用户有权访问的会话，且不把聊天记录写入项目或临时文件。
 
 从旧版本升级且曾运行过 `install-mcp.ps1` 时，应先删除全局 `t-browser-mcp` 注册，避免与插件内置 MCP 重复启动。插件安装后在 **Settings -> Tools & MCP** 中确认只存在一个 `t-browser-mcp`。
 
@@ -98,14 +100,15 @@ New-Item -ItemType SymbolicLink -Path $link -Target $target
 ```
 HhEmpower/
 ├── .cursor-plugin/plugin.json
-├── agents/                  ← 21 个 subagent（侦察/模块并行/实现/共享/审查/验证六组）
-├── commands/                ← /t-start · /t-new-module · /t-review · /t-zentao-collect
-├── mcp/                     ← Torna 接口文档 + 禅道任务的插件内置 MCP
-├── rules/t-agent-guidance.mdc   ← glob 匹配 src/views/{ts,th}*/**/**
+├── agents/                  ← 22 个 subagent（ERP 六组 + 钉钉只读检索）
+├── commands/                ← /t-start · /t-new-module · /t-review · /t-zentao-collect · /t-dingtalk-read
+├── mcp/                     ← Torna + 禅道 + 钉钉只读能力的插件内置 MCP
+├── rules/                   ← ERP 页面指引 + 钉钉聊天隐私边界
 ├── scripts/                 ← install-local · sync-skills · export-github-repo
 ├── skills/
 │   ├── t-page/            ← 内核（SKILL + anchors + profiles + orchestration + naming）
 │   ├── t-workflow/   ← 改动工作流 + 必问单选题
+│   ├── t-dingtalk/   ← 钉钉聊天记录只读查询
 │   ├── t-{list,detail,dialog,module,standards}/
 │   ├── t-{auth,oplog,field,tab,registry}/
 │   └── README.md
@@ -132,4 +135,4 @@ HhEmpower/
 
 ## 版本
 
-见 [CHANGELOG.md](CHANGELOG.md) — 当前 **2.7.1**
+见 [CHANGELOG.md](CHANGELOG.md) — 当前 **2.8.0**
