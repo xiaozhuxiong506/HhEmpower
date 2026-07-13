@@ -181,7 +181,7 @@ Expected: 全部 PASS；导出包可在仓库外列出 Torna 与禅道四个工�
 
 Run: `node --test tests/apiDocsPolicy.test.mjs tests/cursorPluginDistribution.test.mjs tests/minimalCodePolicy.test.mjs tests/serverSmoke.test.mjs tests/tornaClient.test.mjs tests/zentaoAnalyzer.test.mjs tests/zentaoDailyLog.test.mjs`（cwd: `mcp`）
 
-Expected: 44 tests、0 fail。
+Expected: 45 tests、0 fail。
 
 - [ ] **Step 4: 校验 Cursor 官方 schema**
 
