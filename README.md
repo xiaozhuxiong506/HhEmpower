@@ -13,7 +13,7 @@ Tsb ERP 业务页 Agent 开发规范插件。**同时覆盖两个项目**，并�
 - **21 个 Subagent** — 侦察(2) + 模块并行(1模板) + 实现(11) + 共享/修复(1) + 审查(3) + 验证(3)，多 agent 并行编排，**禁脚本**
 - **1 条 Rule** — 编辑 `src/views/{ts,th}*/**` 时自动应用指引（自动探测 ts/th）
 - **4 个 Command** — `/t-start` · `/t-new-module` · `/t-review` · `/t-zentao-collect`
-- **1 个 MCP** — 禅道任务采集和分组，保留任务原文事实源并生成带治理边界的 agentPlan
+- **1 个插件内置 MCP** — Torna 接口文档只读检索 + 禅道任务采集和分组，保留原文事实源并生成带治理边界的 agentPlan
 
 ## 核心特性
 
@@ -53,6 +53,12 @@ cd D:\company\HhEmpower
 1. 重启 Cursor（或重新打开窗口）
 2. **Settings → Customize → Plugins**，确认 **t-erp-page** 已启用
 3. 输入 `/t-start` 测试
+
+### 插件内置 MCP
+
+`t-browser-mcp` 随 `t-erp-page` 一起安装，自动提供 Torna 和禅道工具。普通用户无需拥有 `D:\company\HhEmpower`，无需运行 `install-mcp.ps1`，也无需修改用户级 `~/.cursor/mcp.json` 或执行 `npm install`。
+
+从旧版本升级且曾运行过 `install-mcp.ps1` 时，应先删除全局 `t-browser-mcp` 注册，避免与插件内置 MCP 重复启动。插件安装后在 **Settings -> Tools & MCP** 中确认只存在一个 `t-browser-mcp`。
 
 ### 手动安装
 
@@ -94,7 +100,7 @@ HhEmpower/
 ├── .cursor-plugin/plugin.json
 ├── agents/                  ← 21 个 subagent（侦察/模块并行/实现/共享/审查/验证六组）
 ├── commands/                ← /t-start · /t-new-module · /t-review · /t-zentao-collect
-├── mcp/                     ← 禅道任务采集与 agentPlan 生成
+├── mcp/                     ← Torna 接口文档 + 禅道任务的插件内置 MCP
 ├── rules/t-agent-guidance.mdc   ← glob 匹配 src/views/{ts,th}*/**/**
 ├── scripts/                 ← install-local · sync-skills · export-github-repo
 ├── skills/

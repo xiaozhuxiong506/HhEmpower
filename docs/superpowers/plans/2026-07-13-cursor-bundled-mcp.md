@@ -4,7 +4,7 @@
 
 **Goal:** Make `t-erp-page` install `t-browser-mcp` with Torna and Zentao tools as a native Cursor plugin capability without repository paths or post-install dependency setup.
 
-**Architecture:** Cursor discovers a root `mcp.json` referenced by the plugin manifest. The repository keeps editable MCP sources, while `@vercel/ncc` produces a committed `mcp/dist/server.mjs` that contains runtime dependencies and can start from any plugin cache directory.
+**Architecture:** Cursor discovers a root `mcp.json` referenced by the plugin manifest. The repository keeps editable MCP sources; `@vercel/ncc` bundles the application and MCP SDK into `mcp/dist/server.mjs`, while Playwright's package metadata and runtime resources are copied into `mcp/dist/node_modules` so the directory can start from any plugin cache location.
 
 **Tech Stack:** Cursor plugin manifest, MCP stdio, Node.js ESM, `@modelcontextprotocol/sdk`, Playwright, `@vercel/ncc`, Node test runner, PowerShell export tooling.
 
@@ -15,7 +15,7 @@
 - Runtime configuration uses `${CURSOR_PLUGIN_ROOT}` and contains no developer-specific absolute path.
 - Do not change Torna/Zentao tool names, schemas, authentication, permission boundaries, or business behavior.
 - Do not modify ERP project code or refactor unrelated plugin code.
-- Generated runtime must start after being copied outside the repository and without repository `node_modules` resolution.
+- Generated runtime must start after `mcp/dist` is copied outside the repository and without resolving the development `mcp/node_modules` directory.
 
 ---
 
@@ -73,9 +73,9 @@ Run: `node --test mcp/tests/cursorPluginDistribution.test.mjs`
 
 **Interfaces:**
 - Consumes: `mcp/src/server.mjs`.
-- Produces: `npm run build` and self-contained `mcp/dist/server.mjs`.
+- Produces: `npm run build` and self-contained `mcp/dist` containing `server.mjs` plus Playwright runtime packages.
 
-- [ ] **Step 1: Extend the failing test to copy the bundle to a temporary directory and list MCP tools**
+- [ ] **Step 1: Extend the failing test to copy `mcp/dist` to a temporary directory and list MCP tools**
 
 Use `StdioClientTransport` with the copied temp file and assert these names:
 
@@ -92,7 +92,7 @@ Run: `node --test mcp/tests/cursorPluginDistribution.test.mjs`
 
 - [ ] **Step 3: Add the minimal ncc build**
 
-Add `@vercel/ncc` as a development dependency and a `build` script. `mcp/scripts/build.mjs` invokes ncc on `src/server.mjs`, rejects unexpected emitted assets, creates `dist`, and writes the returned code to `dist/server.mjs`.
+Add `@vercel/ncc` as a development dependency and a `build` script. `mcp/scripts/build.mjs` invokes ncc on `src/server.mjs`, keeps `playwright` external, writes the bundled application to `dist/server.mjs`, and copies `playwright` plus `playwright-core` into `dist/node_modules`.
 
 - [ ] **Step 4: Generate the runtime and rerun isolated tests**
 

@@ -2,7 +2,7 @@
   "name": "t-erp-page",
   "displayName": "Tsb ERP",
   "description": "Tsb ERP 业务 Agent Skills、21 个 subagent、快捷命令与 MCP。改 src/views/{ts,th}* 页面时自动加载业务闭环、责任审计、权限边界和禁脚本规范。",
-  "version": "2.6.0",
+  "version": "2.7.0",
   "logo": "assets/logo.png",
   "author": {
     "name": "Tsb ERP Team"
@@ -30,5 +30,6 @@
   "skills": "./skills/",
   "rules": "./rules/",
   "commands": "./commands/",
-  "agents": "./agents/"
+  "agents": "./agents/",
+  "mcpServers": "./mcp.json"
 }

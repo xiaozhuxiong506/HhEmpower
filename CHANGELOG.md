@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.7.0 — 2026-07-13
+
+### Cursor 插件内置 Torna + 禅道 MCP
+
+- 新增根 `mcp.json`，由插件 manifest 原生声明 `t-browser-mcp`。
+- MCP 使用 `${CURSOR_PLUGIN_ROOT}` 从插件安装目录启动，不再依赖开发者本机路径。
+- 新增可分发运行产物，内置 MCP SDK 与 Playwright 运行依赖；安装用户无需运行 `npm install`。
+- Marketplace 导出前自动构建 MCP，包含运行产物并排除开发 `mcp/node_modules`。
+- `install-mcp.ps1` 降级为开发兼容工具；正式用户只安装 `t-erp-page` 插件。
+- Torna 与禅道工具名称、参数、登录方式、权限边界和业务行为保持不变。
+
 ## 2.6.0 — 2026-07-01
 
 ### 新增第五条红线「最小改动原则」—— 防范围外顺手改

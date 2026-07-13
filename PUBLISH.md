@@ -11,6 +11,8 @@ cd D:\company\HhEmpower
 
 默认导出到 `D:\company\t-erp-page-plugin/`（不含 ERP 源码）。
 
+导出脚本会先构建插件内置 MCP，并把 `mcp.json`、MCP 运行产物和 Playwright 运行依赖一起放入导出目录。插件使用者安装后即可使用 Torna 与禅道工具，无需运行 `install-mcp.ps1` 或安装 npm 依赖。
+
 自定义导出目录：
 
 ```powershell
@@ -46,7 +48,7 @@ git push -u origin main
 
 1. 改 `HhEmpower/skills/` 或 `rules/`、`commands/`、`agents/`
 2. 若从 ERP 主仓同步：`.\scripts\sync-skills.ps1`
-3. `.\scripts\export-github-repo.ps1` → 导出目录 `git push`
+3. `.\scripts\export-github-repo.ps1` → 自动构建插件内置 MCP → 导出目录 `git push`
 4. Dashboard **Refresh**（或开 Auto Refresh）
 
 ## 注意

@@ -127,7 +127,7 @@ const tools = [
         },
         browserChannel: {
           type: "string",
-          description: "浏览器 channel，默认 chrome；失败时自动回退到 Playwright chromium"
+          description: "浏览器 channel，默认 chrome；目标电脑需已安装对应浏览器"
         }
       }
     }

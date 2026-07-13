@@ -1,4 +1,7 @@
-# Install or remove the local TSB browser MCP server for Cursor.
+# Legacy development helper for a global Cursor MCP registration.
+# Normal plugin users must not run this script: t-erp-page includes the MCP.
+# Do not enable this global registration together with the bundled plugin MCP;
+# duplicate registrations create duplicate tools and processes.
 #
 # Usage:
 #   .\scripts\install-mcp.ps1

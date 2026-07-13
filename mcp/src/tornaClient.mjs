@@ -344,13 +344,7 @@ async function launchBrowserContext(options = {}) {
     headless: Boolean(options.headless),
     args: ["--start-maximized"]
   };
-  let browser;
-  try {
-    browser = await chromium.launch({ ...launchOptions, channel });
-  } catch (error) {
-    if (channel !== "chrome") throw error;
-    browser = await chromium.launch(launchOptions);
-  }
+  const browser = await chromium.launch({ ...launchOptions, channel });
   const context = await browser.newContext({ viewport: null, ignoreHTTPSErrors: true });
   return { browser, context };
 }

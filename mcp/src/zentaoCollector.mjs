@@ -76,15 +76,10 @@ async function launchPersistentChrome(options = {}) {
     args: ["--start-maximized"]
   };
 
-  try {
-    return await chromium.launchPersistentContext(profileDir, {
-      ...launchOptions,
-      channel
-    });
-  } catch (error) {
-    if (channel !== "chrome") throw error;
-    return chromium.launchPersistentContext(profileDir, launchOptions);
-  }
+  return chromium.launchPersistentContext(profileDir, {
+    ...launchOptions,
+    channel
+  });
 }
 
 async function waitForPageReady(page) {

@@ -5,11 +5,16 @@
   "private": true,
   "description": "TSB browser MCP tools for read-only Torna API docs and Zentao task collection.",
   "scripts": {
+    "build": "node scripts/build.mjs",
+    "pretest": "npm run build",
     "test": "node --test tests/*.test.mjs",
     "start": "node src/server.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.17.5",
     "playwright": "^1.61.1"
+  },
+  "devDependencies": {
+    "@vercel/ncc": "^0.44.1"
   }
 }

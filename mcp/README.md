@@ -1,17 +1,16 @@
 # TSB Browser MCP
 
-本目录提供 Cursor 可用的本地 MCP server，包含 Torna API 文档只读检索和禅道任务自动化工具。
+本目录提供 Cursor 插件内置 MCP server，包含 Torna API 文档只读检索和禅道任务自动化工具。
 
 MCP 只提供事实来源和执行包，不提供业务批准、权限批准或上线批准。采集到的任务 ID、URL、标题、内容、备注、描述和日志必须作为原文事实源传递给后续 agent；摘要不能替代原文。
 
 ## 安装
 
-```powershell
-cd D:\company\HhEmpower
-.\scripts\install-mcp.ps1
-```
+MCP 随 `t-erp-page` 插件自动安装。普通用户无需运行 `install-mcp.ps1`、无需执行 `npm install`，也不需要修改 `~/.cursor/mcp.json`。安装或更新插件后重启 Cursor，在 **Settings -> Tools & MCP** 中确认只存在一个已启用的 `t-browser-mcp`。
 
-安装后重启 Cursor，在 **Settings -> Tools & MCP** 中确认 `t-browser-mcp` 已启用。
+插件已包含 MCP 和 Playwright 运行库，浏览器自动化直接使用目标电脑已安装的 Google Chrome，不会在插件安装后下载额外 Chromium。
+
+`scripts/install-mcp.ps1` 仅保留给源码开发和旧版本兼容调试。它会写入全局 Cursor MCP 配置，不能与插件内置 MCP 同时启用，否则会出现重复工具或重复进程。
 
 ## 工具
 
