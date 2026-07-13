@@ -106,8 +106,8 @@ HhEmpower/
 ├── skills/
 │   ├── t-page/            ← 内核（SKILL + anchors + profiles + orchestration + naming）
 │   ├── t-workflow/   ← 改动工作流 + 必问单选题
-│   ├── t-page-{list,detail,dialog,module,standards}/
-│   ├── t-page-{auth,operation-log,field-setting,tab-editability,registry}/
+│   ├── t-{list,detail,dialog,module,standards}/
+│   ├── t-{auth,oplog,field,tab,registry}/
 │   └── README.md
 ├── CHANGELOG.md
 └── README.md
@@ -123,36 +123,13 @@ HhEmpower/
 
 启用插件后 Skills 随 Cursor 用户级加载；Rule 仅在匹配 `src/views/{ts,th}*/**` 时生效。
 
-## 从 1.x 迁移（v2.0.0）
+## 命名与项目探测
 
-- 插件名 `trade-erp-ts-page` → **`tsb-erp-page`**（2.4.0 起再改为 `t-erp-page`，见下）
-- 命令 `/ts-page-*` → **`/tsb-page-*`**（2.4.0 起再改为 `/t-*`，见下）
-- Skill `ts-page-*` → **`tsb-page-*`**（2.4.0 起再改为 `t-*`，见下）
-- 现在同时支持 **TradeErp(ts*)** 和 **HallErp(th*)**，自动探测
-- 新增 **18 个 subagent** 多 agent 编排 + 模块并行拆解（详见 [skills/t-page/orchestration.md](skills/t-page/orchestration.md)）
-
-## 从 2.3.0 迁移（v2.4.0）
-
-延续 2.3.0（仅 agent 改名）的简化方向，把**全仓所有** `tsb-` 前缀统一为 `t-`：
-
-- **插件名** `tsb-erp-page` → **`t-erp-page`**（marketplace 标识 `tsb-erp-marketplace` → `t-erp-marketplace`）
-- **Command** `/tsb-page-start` → **`/t-start`** · `/tsb-page-new-module` → **`/t-new-module`** · `/tsb-page-review` → **`/t-review`** · `/tsb-zentao-collect` → **`/t-zentao-collect`**
-- **Skill 目录** `tsb-page-*` → `t-*`（如 `tsb-page-workflow` → `t-workflow`、`tsb-page-auth` → `t-auth`、`tsb-page` 内核 → `t-page`）；`tsb-zentao-automation` → `t-zentao`
-- **rule 文件** `tsb-page-agent-guidance.mdc` → `t-agent-guidance.mdc`
-- **mcp 包** `tsb-browser-mcp` → `t-browser-mcp`
-
-**已安装用户需重装**（插件名变了）：
-
-```powershell
-.\scripts\install-local.ps1 -Uninstall   # 卸载旧的 tsb-erp-page
-git pull                                  # 拉取最新代码
-.\scripts\install-local.ps1              # 装 t-erp-page
-```
-
-完整旧名→新名映射表见 [CHANGELOG.md 2.4.0](CHANGELOG.md#240--2026-07-01)。功能完全保持：21 agent / 14 skill / 4 command / 职责划分 / 编排逻辑 / glob 匹配 / mcp 工具行为均未变（mcp 测试 42 全绿）。
-
-**未改**：`skills/t-page/profiles.md` 画像表里的 ERP 项目自身 package.json name（`tsb-erp`/`tsb-hall-user`）——这是探测 ERP 项目的对照值，属 ERP 项目自身标识。
+- 插件、Skill、Command、Agent、Rule 与 MCP 技术标识统一使用 `t-*`。
+- 插件同时支持 **TradeErp(ts*)** 和 **HallErp(th*)**，按 [profiles.md](skills/t-page/profiles.md) 自动探测。
+- `tsb-erp` 与 `tsb-hall-user` 是 ERP 项目自身的 `package.json` 探测值，不属于插件技术命名。
+- 旧版本安装可先运行 `.\scripts\install-local.ps1 -Uninstall`，再运行 `.\scripts\install-local.ps1` 安装当前插件。
 
 ## 版本
 
-见 [CHANGELOG.md](CHANGELOG.md) — 当前 **2.4.0**
+见 [CHANGELOG.md](CHANGELOG.md) — 当前 **2.7.1**

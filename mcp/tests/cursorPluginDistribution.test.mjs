@@ -23,11 +23,18 @@ function findLegacyTechnicalIdentifiers() {
   const legacyUpper = legacyLower.toUpperCase();
   const legacyTitle = `${legacyUpper[0]}${legacyLower.slice(1)}`;
   const allowedDashedNames = new Set(["tsb-erp", "tsb-hall-user"]);
+  const allowedLowercaseFragments = [
+    `${legacyLower}soft.com`,
+    `internal.${legacyLower}.com`,
+    `internal\\.${legacyLower}\\.com`
+  ];
   const patterns = [
     new RegExp(`\\b${legacyLower}-[a-z0-9-]+\\b`, "gi"),
     new RegExp(`\\b${legacyLower}_[a-z0-9_]+\\b`, "gi"),
+    new RegExp(`\\b${legacyLower}\\b(?![-_])`, "g"),
     new RegExp(`\\b${legacyUpper}_MCP_[A-Z0-9_]+\\b`, "g"),
-    new RegExp(`\\b${legacyTitle}BrowserMcp\\b`, "g")
+    new RegExp(`\\b${legacyTitle}BrowserMcp\\b`, "g"),
+    new RegExp(`\\b${legacyUpper}\\s+Browser\\s+MCP\\b`, "g")
   ];
   const trackedFiles = execFileSync("git", ["ls-files", "-z"], {
     cwd: repoRoot,
@@ -48,6 +55,10 @@ function findLegacyTechnicalIdentifiers() {
         for (const match of line.matchAll(pattern)) {
           const normalized = match[0].toLowerCase();
           if (allowedDashedNames.has(normalized)) continue;
+          if (
+            normalized === legacyLower &&
+            allowedLowercaseFragments.some(fragment => line.includes(fragment))
+          ) continue;
           const key = `${file}:${index + 1}:${match.index}:${normalized}`;
           if (seen.has(key)) continue;
           seen.add(key);
@@ -186,7 +197,7 @@ test("release metadata and docs describe one-install bundled MCP behavior", () =
   const legacyInstaller = readText("scripts/install-mcp.ps1");
   const localInstaller = fs.readFileSync(path.join(repoRoot, "scripts/install-local.ps1"));
 
-  assert.equal(manifest.version, "2.7.0");
+  assert.equal(manifest.version, "2.7.1");
   assert.equal(marketplace.metadata?.version, manifest.version);
   assert.match(docs, /插件内置 MCP/);
   assert.match(docs, /无需.*install-mcp\.ps1/);

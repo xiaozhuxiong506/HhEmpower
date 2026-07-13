@@ -3,7 +3,7 @@ name: t-new-module
 description: 新建 Tsb ERP（ts*/th*）业务页模块：探测项目、复制标准页、确认业务闭环/责任归属/权限边界，走命名/API/路由/OP_HEADERS/auth/i18n 全流程，可调度 subagent
 ---
 
-# 新建 tsb 页面模块
+# 新建 Tsb ERP 页面模块
 
 按以下顺序执行，**必问项选定前不写代码**：
 

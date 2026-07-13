@@ -344,7 +344,7 @@ Use frontmatter:
 ```yaml
 ---
 name: t-zentao
-description: Use when collecting, analyzing, grouping, dispatching, or summarizing Zentao tasks assigned to the current user through the TSB browser MCP server; triggers include 禅道, Zentao, assigned-to-me, 我的任务, Bug, 分组, 派发, MCP, 登录, 日志.
+description: Use when collecting, analyzing, grouping, dispatching, or summarizing Zentao tasks assigned to the current user through t-browser-mcp; triggers include 禅道, Zentao, assigned-to-me, 我的任务, Bug, 分组, 派发, MCP, 登录, 日志.
 ---
 ```
 

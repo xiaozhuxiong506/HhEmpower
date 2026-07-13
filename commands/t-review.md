@@ -3,7 +3,7 @@ name: t-review
 description: 审查刚改完的所有代码：代码规范、文案核查、代码质量、业务闭环、责任审计、权限边界，可调度审查 subagent 组
 ---
 
-# tsb 页面改动审查
+# Tsb ERP 页面改动审查
 
 1. 获取本次改动的 `git diff` 或用户指定的文件列表
 2. **需求澄清（硬卡停关卡）** — 扫描用户原始需求，命中模糊信号词（那个改动/那次/那个模块/处理一下 等）→ Read [skills/t-clarify/SKILL.md](../skills/t-clarify/SKILL.md) 按其规则发起澄清三问，**用户答完前不得进入下一步**

@@ -5,7 +5,7 @@
   },
   "metadata": {
     "description": "Tsb ERP 业务页开发 Agent 插件，覆盖业务闭环、责任审计、权限边界和禁脚本治理",
-    "version": "2.7.0"
+    "version": "2.7.1"
   },
   "plugins": [
     {

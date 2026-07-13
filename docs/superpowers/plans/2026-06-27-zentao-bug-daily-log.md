@@ -20,9 +20,9 @@
 - Modify `mcp/tests/zentaoCollector.test.mjs`: cover Bug DTable, pagination, details, and combined collection helpers.
 - Modify `mcp/src/server.mjs`: expose `zentao_collect_assigned_work_items`, `zentao_analyze_work_items`, and `zentao_generate_daily_log`; retain old tool names.
 - Modify `mcp/tests/serverSmoke.test.mjs`: verify new MCP tools and daily-log output.
-- Modify `commands/tsb-zentao-collect.md`: use the combined tool, dispatch all modules, collect completion reports, and force the final single-choice question.
-- Modify `skills/tsb-zentao-automation/SKILL.md`: document Bug collection and the mandatory post-execution confirmation.
-- Modify `agents/tsb-module-agent.md`: require structured completion reports with `completed`, `verified`, and `completionSummary`.
+- Modify `commands/t-zentao-collect.md`: use the combined tool, dispatch all modules, collect completion reports, and force the final single-choice question.
+- Modify `skills/t-zentao/SKILL.md`: document Bug collection and the mandatory post-execution confirmation.
+- Modify `agents/t-mod.md`: require structured completion reports with `completed`, `verified`, and `completionSummary`.
 - Modify `mcp/README.md`, `.cursor-plugin/plugin.json`, and `.cursor-plugin/marketplace.json`: document capabilities and bump the plugin version.
 
 ### Task 1: Unified Work-Item Analysis
@@ -330,9 +330,9 @@ git commit -m "feat: expose zentao work item and daily log tools"
 ### Task 5: Cursor Execution and Mandatory Single Choice
 
 **Files:**
-- Modify: `commands/tsb-zentao-collect.md`
-- Modify: `skills/tsb-zentao-automation/SKILL.md`
-- Modify: `agents/tsb-module-agent.md`
+- Modify: `commands/t-zentao-collect.md`
+- Modify: `skills/t-zentao/SKILL.md`
+- Modify: `agents/t-mod.md`
 - Modify: `mcp/README.md`
 - Modify: `.cursor-plugin/plugin.json`
 - Modify: `.cursor-plugin/marketplace.json`
@@ -371,7 +371,7 @@ Expected: PASS with all mandatory workflow phrases present.
 - [ ] **Step 5: Commit Cursor workflow changes**
 
 ```powershell
-git add commands/tsb-zentao-collect.md skills/tsb-zentao-automation/SKILL.md agents/tsb-module-agent.md mcp/README.md .cursor-plugin/plugin.json .cursor-plugin/marketplace.json mcp/tests/workflowDocs.test.mjs
+git add commands/t-zentao-collect.md skills/t-zentao/SKILL.md agents/t-mod.md mcp/README.md .cursor-plugin/plugin.json .cursor-plugin/marketplace.json mcp/tests/workflowDocs.test.mjs
 git commit -m "feat: orchestrate bugs and optional daily logs"
 ```
 
@@ -400,7 +400,7 @@ Expected: `plugin metadata 2.2.0 valid`.
 
 Run: `powershell -ExecutionPolicy Bypass -File scripts/install-mcp.ps1 -SkipNpmInstall`
 
-Expected: `tsb-browser-mcp` points to `D:\company\HhEmpower\mcp\src\server.mjs` in the Cursor MCP configuration.
+Expected: `t-browser-mcp` points to `D:\company\HhEmpower\mcp\src\server.mjs` in the Cursor MCP configuration.
 
 - [ ] **Step 4: Perform real Zentao browser verification**
 

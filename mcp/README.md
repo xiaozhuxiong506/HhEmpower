@@ -1,4 +1,4 @@
-# TSB Browser MCP
+# t-browser-mcp
 
 本目录提供 Cursor 插件内置 MCP server，包含 Torna API 文档只读检索和禅道任务自动化工具。
 

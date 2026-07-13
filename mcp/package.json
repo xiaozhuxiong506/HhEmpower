@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "type": "module",
   "private": true,
-  "description": "TSB browser MCP tools for read-only Torna API docs and Zentao task collection.",
+  "description": "t-browser-mcp tools for read-only Torna API docs and Zentao task collection.",
   "scripts": {
     "build": "node scripts/build.mjs",
     "pretest": "npm run build",

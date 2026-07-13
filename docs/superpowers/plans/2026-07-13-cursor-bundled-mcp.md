@@ -47,7 +47,7 @@ Create:
     "t-browser-mcp": {
       "command": "node",
       "args": ["${CURSOR_PLUGIN_ROOT}/mcp/dist/server.mjs"],
-      "env": { "TSB_MCP_BROWSER_CHANNEL": "chrome" }
+      "env": { "T_MCP_BROWSER_CHANNEL": "chrome" }
     }
   }
 }
