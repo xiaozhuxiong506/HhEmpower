@@ -18,6 +18,48 @@ function readText(relativePath) {
   return fs.readFileSync(path.join(repoRoot, relativePath), "utf8");
 }
 
+function findLegacyTechnicalIdentifiers() {
+  const legacyLower = String.fromCharCode(116, 115, 98);
+  const legacyUpper = legacyLower.toUpperCase();
+  const legacyTitle = `${legacyUpper[0]}${legacyLower.slice(1)}`;
+  const allowedDashedNames = new Set(["tsb-erp", "tsb-hall-user"]);
+  const patterns = [
+    new RegExp(`\\b${legacyLower}-[a-z0-9-]+\\b`, "gi"),
+    new RegExp(`\\b${legacyLower}_[a-z0-9_]+\\b`, "gi"),
+    new RegExp(`\\b${legacyUpper}_MCP_[A-Z0-9_]+\\b`, "g"),
+    new RegExp(`\\b${legacyTitle}BrowserMcp\\b`, "g")
+  ];
+  const trackedFiles = execFileSync("git", ["ls-files", "-z"], {
+    cwd: repoRoot,
+    encoding: "utf8"
+  }).split("\0").filter(Boolean);
+  const matches = [];
+  const seen = new Set();
+
+  for (const file of trackedFiles) {
+    if (file.startsWith("mcp/dist/")) continue;
+
+    const content = fs.readFileSync(path.join(repoRoot, file));
+    if (content.includes(0)) continue;
+
+    for (const [index, line] of content.toString("utf8").split(/\r?\n/).entries()) {
+      for (const pattern of patterns) {
+        pattern.lastIndex = 0;
+        for (const match of line.matchAll(pattern)) {
+          const normalized = match[0].toLowerCase();
+          if (allowedDashedNames.has(normalized)) continue;
+          const key = `${file}:${index + 1}:${match.index}:${normalized}`;
+          if (seen.has(key)) continue;
+          seen.add(key);
+          matches.push({ file, line: index + 1, value: match[0] });
+        }
+      }
+    }
+  }
+
+  return matches;
+}
+
 function runExport(exportDir, pluginRoot = repoRoot) {
   return spawnSync(
     process.platform === "win32" ? "powershell.exe" : "pwsh",
@@ -35,6 +77,13 @@ function runExport(exportDir, pluginRoot = repoRoot) {
     { cwd: repoRoot, encoding: "utf8" }
   );
 }
+
+test("tracked source and docs contain no legacy plugin identifiers", () => {
+  const matches = findLegacyTechnicalIdentifiers();
+  const details = matches.map(item => `${item.file}:${item.line} ${item.value}`).join("\n");
+
+  assert.equal(matches.length, 0, details);
+});
 
 test("Cursor plugin declares its bundled MCP without developer-specific paths", () => {
   const manifest = readJson(".cursor-plugin/plugin.json");
