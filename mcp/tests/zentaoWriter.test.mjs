@@ -3,8 +3,12 @@ import test from "node:test";
 import { chromium } from "playwright";
 import { closeAllZentaoSessions } from "../src/zentaoSession.mjs";
 import {
+  fillBugResolution,
   fillTaskBatchEdit,
+  formatZentaoResolvedAt,
+  normalizeResolveBugs,
   normalizeScheduleGroups,
+  resolveZentaoBugs,
   scheduleZentaoTasks,
   selectExactWorkItemIds
 } from "../src/zentaoWriter.mjs";
@@ -151,4 +155,115 @@ test("fills only the five Task scheduling fields", async () => {
   } finally {
     await browser.close();
   }
+});
+
+test("normalizes only completed and verified Bug resolution inputs", () => {
+  assert.deepEqual(normalizeResolveBugs([{
+    kind: "bug",
+    id: "9328",
+    url: "http://example.test/zentao/bug-view-9328.html",
+    title: "打印错误",
+    completed: true,
+    verified: true
+  }]), [{
+    kind: "bug",
+    id: "9328",
+    url: "http://example.test/zentao/bug-view-9328.html",
+    title: "打印错误"
+  }]);
+
+  assert.throws(() => normalizeResolveBugs([{
+    kind: "task", id: "100", completed: true, verified: true
+  }]), /only accepts Zentao Bugs/);
+  assert.throws(() => normalizeResolveBugs([{
+    kind: "bug", id: "9328", completed: true, verified: false
+  }]), /completed and verified/);
+  assert.throws(() => normalizeResolveBugs([
+    { kind: "bug", id: "9328", completed: true, verified: true },
+    { kind: "bug", id: "9328", completed: true, verified: true }
+  ]), /duplicate Bug ID 9328/);
+});
+
+test("formats the Bug resolution date as Asia Shanghai now minus thirty minutes", () => {
+  assert.equal(
+    formatZentaoResolvedAt(new Date("2026-08-31T02:00:00.000Z")),
+    "2026-08-31 09:30"
+  );
+  assert.equal(
+    formatZentaoResolvedAt(new Date("2026-08-30T16:15:00.000Z")),
+    "2026-08-30 23:45"
+  );
+});
+
+test("fills only resolved build and resolved date on the Bug form", async () => {
+  const browser = await chromium.launch({ headless: true });
+  const page = await browser.newPage();
+  try {
+    await page.setContent(`
+      <select name="resolvedBuild"><option value="release">发布版</option><option value="trunk">主干</option></select>
+      <input name="resolvedDate" value="2026-08-01 08:00">
+      <select name="resolution"><option value="fixed" selected>已解决</option></select>
+      <input name="assignedTo" value="原处理人">
+      <textarea name="comment">原备注</textarea>
+    `);
+    const before = await page.locator("select[name='resolution'],input[name='assignedTo'],textarea[name='comment']")
+      .evaluateAll(elements => elements.map(element => element.value));
+
+    await fillBugResolution(page, { resolvedAt: "2026-08-31 09:30" });
+
+    assert.equal(await page.locator("select[name='resolvedBuild']").inputValue(), "trunk");
+    assert.equal(await page.locator("input[name='resolvedDate']").inputValue(), "2026-08-31 09:30");
+    assert.deepEqual(
+      await page.locator("select[name='resolution'],input[name='assignedTo'],textarea[name='comment']")
+        .evaluateAll(elements => elements.map(element => element.value)),
+      before
+    );
+  } finally {
+    await browser.close();
+  }
+});
+
+test("resolves Bugs directly with trunk and now minus thirty minutes", async () => {
+  const log = [];
+  const adapter = {
+    async openBug(item) { log.push(`open:${item.id}`); },
+    async clickResolve() { log.push("click-resolve"); },
+    async fillResolution(values) {
+      log.push(`resolved-build:${values.resolvedBuild}`);
+      log.push(`resolved-date:${values.resolvedAt}`);
+    },
+    async submit() { log.push("submit"); },
+    async verifyResolved(item) { log.push(`verify:${item.id}`); return true; }
+  };
+  const result = await resolveZentaoBugs({
+    sessionKey: "resolve-order",
+    keepBrowserOpen: false,
+    now: new Date("2026-08-31T02:00:00.000Z"),
+    contextFactory: async () => ({ close: async () => {}, on: () => {} }),
+    writerAdapter: adapter,
+    items: [{
+      kind: "bug",
+      id: "9328",
+      title: "打印错误",
+      completed: true,
+      verified: true
+    }]
+  });
+
+  assert.deepEqual(log, [
+    "open:9328",
+    "click-resolve",
+    "resolved-build:主干",
+    "resolved-date:2026-08-31 09:30",
+    "submit",
+    "verify:9328"
+  ]);
+  assert.deepEqual(result.succeeded, [{
+    kind: "bug",
+    id: "9328",
+    status: "resolved",
+    resolvedBuild: "主干",
+    resolvedAt: "2026-08-31 09:30"
+  }]);
+  assert.deepEqual(result.failed, []);
 });
