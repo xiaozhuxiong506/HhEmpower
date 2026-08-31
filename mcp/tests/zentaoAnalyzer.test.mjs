@@ -5,11 +5,89 @@ import {
   analyzeZentaoWorkItems,
   classifyTaskModule,
   groupTasksByModule,
+  groupWorkItemsBySystemAndModule,
   groupWorkItemsByModule,
+  mapZentaoSystem,
   normalizeWorkItem,
   normalizeTaskText,
   toAgentExecutionPlan
 } from "../src/zentaoAnalyzer.mjs";
+
+test("normalizes Zentao scene, ownership facts, and ERP system", () => {
+  const task = normalizeWorkItem({
+    kind: "task",
+    title: "采购单调整",
+    project: "TSBERP一期",
+    product: "TSBERP1.0",
+    creator: "林彦林",
+    assignee: "黄河",
+    deadline: "2026-09-02",
+    status: "未开始",
+    priority: "3"
+  });
+
+  assert.deepEqual(
+    {
+      scene: task.scene,
+      project: task.project,
+      product: task.product,
+      system: task.system,
+      creator: task.creator,
+      assignee: task.assignee,
+      deadline: task.deadline,
+      status: task.status,
+      priority: task.priority
+    },
+    {
+      scene: "禅道需求",
+      project: "TSBERP一期",
+      product: "TSBERP1.0",
+      system: "贸易系统",
+      creator: "林彦林",
+      assignee: "黄河",
+      deadline: "2026-09-02",
+      status: "未开始",
+      priority: "3"
+    }
+  );
+
+  const bug = normalizeWorkItem({ kind: "bug", title: "展厅页面错误", project: "HALLERP二期" });
+  assert.equal(bug.scene, "禅道Bug");
+  assert.equal(bug.system, "展厅系统");
+});
+
+test("does not guess a system when project and product conflict", () => {
+  assert.equal(mapZentaoSystem({ project: "HALLERP", product: "TSBERP1.0" }), "待确认");
+  assert.equal(mapZentaoSystem({ project: "其他项目", product: "" }), "待确认");
+});
+
+test("groups normalized work items by system and module", () => {
+  const groups = groupWorkItemsBySystemAndModule([
+    { kind: "task", title: "采购订单新增", product: "TSBERP1.0", module: "采购模块" },
+    { kind: "bug", title: "采购订单报错", product: "TSBERP1.0", module: "采购模块" },
+    { kind: "bug", title: "展厅订单报错", product: "HALLERP1.0", module: "销售模块" }
+  ]);
+
+  assert.deepEqual(
+    groups.map(systemGroup => ({
+      system: systemGroup.system,
+      modules: systemGroup.modules.map(moduleGroup => ({
+        module: moduleGroup.module,
+        ids: moduleGroup.workItems.map(item => item.title)
+      }))
+    })),
+    [
+      {
+        system: "贸易系统",
+        modules: [{ module: "采购模块", ids: ["采购订单新增", "采购订单报错"] }]
+      },
+      {
+        system: "展厅系统",
+        modules: [{ module: "销售模块", ids: ["展厅订单报错"] }]
+      }
+    ]
+  );
+});
 
 test("classifies common ERP module keywords", () => {
   assert.equal(

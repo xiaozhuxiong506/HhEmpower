@@ -101,6 +101,25 @@ export function normalizeTaskText(value) {
   return text;
 }
 
+function systemFromName(value) {
+  const name = normalizeTaskText(value).toUpperCase();
+  if (name.startsWith("TSBERP")) return "贸易系统";
+  if (name.startsWith("HALLERP")) return "展厅系统";
+  return "";
+}
+
+export function mapZentaoSystem({ project, product } = {}) {
+  const productSystem = systemFromName(product);
+  const projectSystem = systemFromName(project);
+  if (productSystem && projectSystem && productSystem !== projectSystem) return "待确认";
+  return productSystem || projectSystem || "待确认";
+}
+
+function normalizeTextArray(value) {
+  if (!Array.isArray(value)) return [];
+  return value.map(normalizeTaskText).filter(Boolean);
+}
+
 export function taskSearchText(task) {
   return [
     task?.title,
@@ -137,6 +156,9 @@ export function classifyTaskModule(task) {
 }
 
 export function normalizeWorkItem(item) {
+  const kind = item?.kind === "bug" ? "bug" : "task";
+  const project = normalizeTaskText(item?.project);
+  const product = normalizeTaskText(item?.product);
   const workItem = {
     id: normalizeTaskText(item?.id),
     url: normalizeTaskText(item?.url),
@@ -144,10 +166,50 @@ export function normalizeWorkItem(item) {
     content: normalizeTaskText(item?.content),
     remarks: normalizeTaskText(item?.remarks),
     description: normalizeTaskText(item?.description),
-    kind: item?.kind === "bug" ? "bug" : "task"
+    kind,
+    scene: kind === "bug" ? "禅道Bug" : "禅道需求",
+    project,
+    product,
+    system: mapZentaoSystem({ project, product }),
+    creator: normalizeTaskText(item?.creator),
+    assignee: normalizeTaskText(item?.assignee),
+    deadline: normalizeTaskText(item?.deadline),
+    status: normalizeTaskText(item?.status),
+    priority: normalizeTaskText(item?.priority),
+    severity: normalizeTaskText(item?.severity),
+    moduleEvidence: normalizeTaskText(item?.moduleEvidence),
+    codeLocations: normalizeTextArray(item?.codeLocations),
+    sharedImpact: normalizeTextArray(item?.sharedImpact),
+    pendingQuestions: normalizeTextArray(item?.pendingQuestions),
+    handlingPlan: normalizeTaskText(item?.handlingPlan)
   };
   workItem.module = item?.module || classifyTaskModule(item);
   return workItem;
+}
+
+export function groupWorkItemsBySystemAndModule(workItems) {
+  const normalized = (workItems || []).map(normalizeWorkItem).filter(item => item.title);
+  const bySystem = new Map();
+
+  for (const workItem of normalized) {
+    if (!bySystem.has(workItem.system)) bySystem.set(workItem.system, []);
+    bySystem.get(workItem.system).push(workItem);
+  }
+
+  const systemOrder = new Map([
+    ["贸易系统", 0],
+    ["展厅系统", 1],
+    ["待确认", 2]
+  ]);
+
+  return Array.from(bySystem, ([system, systemItems]) => ({
+    system,
+    modules: groupWorkItemsByModule(systemItems)
+  })).sort((a, b) => {
+    const aOrder = systemOrder.get(a.system) ?? Number.MAX_SAFE_INTEGER;
+    const bOrder = systemOrder.get(b.system) ?? Number.MAX_SAFE_INTEGER;
+    return aOrder - bOrder || a.system.localeCompare(b.system, "zh-Hans-CN");
+  });
 }
 
 export function normalizeTask(task) {
@@ -261,6 +323,7 @@ export function analyzeZentaoWorkItems(workItems) {
     taskCount: normalizedWorkItems.filter(item => item.kind === "task").length,
     bugCount: normalizedWorkItems.filter(item => item.kind === "bug").length,
     groups,
+    systemGroups: groupWorkItemsBySystemAndModule(normalizedWorkItems),
     agentPlan: toAgentExecutionPlan(groups)
   };
 }

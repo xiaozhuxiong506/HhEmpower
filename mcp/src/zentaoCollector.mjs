@@ -6,6 +6,9 @@ import {
   analyzeZentaoWorkItems,
   normalizeTaskText
 } from "./zentaoAnalyzer.mjs";
+import { formatZentaoWorkItemAnalysisMarkdown } from "./zentaoReporter.mjs";
+
+export { formatZentaoWorkItemAnalysisMarkdown } from "./zentaoReporter.mjs";
 
 const DEFAULT_ZENTAO_URL = "http://hallzd.internal.tsb.com/zentao/my.html";
 const DEFAULT_MAX_TASKS = 2000;
@@ -652,44 +655,6 @@ export function formatZentaoAnalysisMarkdown(result) {
   lines.push("## 多 Agent 执行包");
   for (const item of result.agentPlan) {
     lines.push(`- ${item.agentName}：${item.taskCount} 个任务`);
-  }
-
-  return lines.join("\n").trim();
-}
-
-export function formatZentaoWorkItemAnalysisMarkdown(result) {
-  const groups = result.groups || [];
-  const lines = [
-    "# 禅道指派给我工作项分析",
-    "",
-    `- 工作项数：${result.workItemCount}`,
-    `- 任务数：${result.taskCount}`,
-    `- Bug 数：${result.bugCount}`,
-    `- 分组数：${groups.length}`,
-    ""
-  ];
-
-  for (const group of groups) {
-    const workItems = group.workItems || group.tasks || [];
-    const workItemCount = group.workItemCount ?? workItems.length;
-    lines.push(`## ${group.module}（${workItemCount}）`);
-    for (const workItem of workItems) {
-      const kindLabel = workItem.kind === "bug" ? "Bug" : "任务";
-      lines.push(`- ${kindLabel}：${workItem.title}${workItem.id ? `（#${workItem.id}）` : ""}`);
-      if (workItem.url) lines.push(`  - 链接：${workItem.url}`);
-      if (workItem.content) lines.push(`  - 内容：${workItem.content}`);
-      if (workItem.remarks) lines.push(`  - 备注：${workItem.remarks}`);
-      if (workItem.description) lines.push(`  - ${kindLabel}描述：${workItem.description}`);
-    }
-    lines.push("");
-  }
-
-  lines.push("## 多 Agent 执行包");
-  for (const item of result.agentPlan || []) {
-    lines.push(
-      `- ${item.agentName}：${item.workItemCount} 个工作项` +
-      `（任务 ${item.taskCount}，Bug ${item.bugCount}）`
-    );
   }
 
   return lines.join("\n").trim();
