@@ -1,12 +1,10 @@
-import os from "node:os";
-import path from "node:path";
-import { chromium } from "playwright";
 import {
   analyzeZentaoTasks,
   analyzeZentaoWorkItems,
   normalizeTaskText
 } from "./zentaoAnalyzer.mjs";
 import { formatZentaoWorkItemAnalysisMarkdown } from "./zentaoReporter.mjs";
+import { runZentaoSingleFlight } from "./zentaoSession.mjs";
 
 export { formatZentaoWorkItemAnalysisMarkdown } from "./zentaoReporter.mjs";
 
@@ -55,34 +53,12 @@ function stripKind(item) {
   return legacyItem;
 }
 
-function defaultProfileDir() {
-  const base = process.env.LOCALAPPDATA || os.tmpdir();
-  return path.join(base, "TBrowserMcp", "playwright-profile");
-}
-
 function toAbsoluteUrl(baseUrl, href) {
   try {
     return new URL(href, baseUrl).toString();
   } catch {
     return href || "";
   }
-}
-
-async function launchPersistentChrome(options = {}) {
-  const profileDir = options.profileDir || process.env.T_MCP_PROFILE_DIR || defaultProfileDir();
-  const headless = Boolean(options.headless);
-  const channel = options.browserChannel || process.env.T_MCP_BROWSER_CHANNEL || "chrome";
-  const launchOptions = {
-    headless,
-    viewport: null,
-    ignoreHTTPSErrors: true,
-    args: ["--start-maximized"]
-  };
-
-  return chromium.launchPersistentContext(profileDir, {
-    ...launchOptions,
-    channel
-  });
 }
 
 async function waitForPageReady(page) {
@@ -701,17 +677,13 @@ export function formatZentaoAnalysisMarkdown(result) {
   return lines.join("\n").trim();
 }
 
-export async function collectAssignedZentaoWorkItems(options = {}) {
+async function collectAssignedZentaoWorkItemsInContext(context, options = {}) {
   const startUrl = options.url || DEFAULT_ZENTAO_URL;
   const maxTasks = Number(options.maxTasks || DEFAULT_MAX_TASKS);
   const maxBugs = Number(options.maxBugs || maxTasks);
   const pageSize = Number(options.pageSize || DEFAULT_MAX_TASKS);
   const loginWaitMs = Number(options.loginWaitMs || DEFAULT_LOGIN_WAIT_MS);
-  const keepBrowserOpen = options.keepBrowserOpen !== false;
   const includeRawText = Boolean(options.includeRawText);
-
-  const contextFactory = options.contextFactory || launchPersistentChrome;
-  const context = await contextFactory(options);
   const page = context.pages()[0] || await context.newPage();
 
   const state = {
@@ -720,8 +692,7 @@ export async function collectAssignedZentaoWorkItems(options = {}) {
   };
   const collectionErrors = [];
 
-  try {
-    await page.goto(startUrl, { waitUntil: "domcontentloaded" });
+  await page.goto(startUrl, { waitUntil: "domcontentloaded" });
     await waitForPageReady(page);
     await waitForLoginIfNeeded(page, loginWaitMs);
 
@@ -784,58 +755,40 @@ export async function collectAssignedZentaoWorkItems(options = {}) {
       collectionErrors
     };
 
-    return {
-      ...result,
-      markdown: formatZentaoWorkItemAnalysisMarkdown(result)
-    };
-  } finally {
-    if (!keepBrowserOpen) await context.close().catch(() => {});
-  }
+  return {
+    ...result,
+    markdown: formatZentaoWorkItemAnalysisMarkdown(result)
+  };
+}
+
+export async function collectAssignedZentaoWorkItems(options = {}) {
+  const flightKey = JSON.stringify({
+    url: options.url || DEFAULT_ZENTAO_URL,
+    maxTasks: Number(options.maxTasks || DEFAULT_MAX_TASKS),
+    maxBugs: Number(options.maxBugs || options.maxTasks || DEFAULT_MAX_TASKS),
+    pageSize: Number(options.pageSize || DEFAULT_MAX_TASKS),
+    includeRawText: Boolean(options.includeRawText)
+  });
+  return runZentaoSingleFlight(options, `collect:${flightKey}`, context =>
+    collectAssignedZentaoWorkItemsInContext(context, options)
+  );
 }
 
 export async function collectAssignedZentaoTasks(options = {}) {
-  const startUrl = options.url || DEFAULT_ZENTAO_URL;
-  const maxTasks = Number(options.maxTasks || DEFAULT_MAX_TASKS);
-  const pageSize = Number(options.pageSize || DEFAULT_MAX_TASKS);
-  const loginWaitMs = Number(options.loginWaitMs || DEFAULT_LOGIN_WAIT_MS);
-  const keepBrowserOpen = options.keepBrowserOpen !== false;
-  const includeRawText = Boolean(options.includeRawText);
-
-  const context = await launchPersistentChrome(options);
-  let page = context.pages()[0] || await context.newPage();
-
-  try {
-    await page.goto(startUrl, { waitUntil: "domcontentloaded" });
-    await waitForPageReady(page);
-    await waitForLoginIfNeeded(page, loginWaitMs);
-    const taskListScope = await openAssignedTaskList(page, startUrl);
-    await setZentaoPageSize(taskListScope, pageSize);
-
-    const taskLinkResult = await extractPaginatedTaskLinks(page, taskListScope, maxTasks);
-    const taskLinks = taskLinkResult.links;
-    const tasks = [];
-    for (const taskLink of taskLinks.slice(0, maxTasks)) {
-      const task = await extractTaskDetail(context, taskLink);
-      if (!includeRawText) delete task.rawText;
-      tasks.push(task);
-    }
-
-    const analysis = analyzeZentaoTasks(tasks);
-    const result = {
-      sourceUrl: startUrl,
-      listUrl: taskListScope.url(),
-      listPagesVisited: taskLinkResult.pagesVisited,
-      collectedAt: new Date().toISOString(),
-      pageSizeRequested: pageSize,
-      taskLinksFound: taskLinks.length,
-      ...analysis
-    };
-
-    return {
-      ...result,
-      markdown: formatZentaoAnalysisMarkdown(result)
-    };
-  } finally {
-    if (!keepBrowserOpen) await context.close().catch(() => {});
-  }
+  const result = await collectAssignedZentaoWorkItems(options);
+  const tasks = result.workItems.filter(item => item.kind === "task").map(stripKind);
+  const analysis = analyzeZentaoTasks(tasks);
+  const legacyResult = {
+    sourceUrl: result.sourceUrl,
+    listUrl: result.taskListUrl,
+    listPagesVisited: result.taskPagesVisited,
+    collectedAt: result.collectedAt,
+    pageSizeRequested: result.pageSizeRequested,
+    taskLinksFound: result.taskLinksFound,
+    ...analysis
+  };
+  return {
+    ...legacyResult,
+    markdown: formatZentaoAnalysisMarkdown(legacyResult)
+  };
 }

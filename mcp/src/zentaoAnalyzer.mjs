@@ -319,6 +319,7 @@ export function analyzeZentaoWorkItems(workItems) {
     .filter(workItem => workItem.title);
   const groups = groupWorkItemsByModule(normalizedWorkItems);
   return {
+    workItems: normalizedWorkItems,
     workItemCount: normalizedWorkItems.length,
     taskCount: normalizedWorkItems.filter(item => item.kind === "task").length,
     bugCount: normalizedWorkItems.filter(item => item.kind === "bug").length,

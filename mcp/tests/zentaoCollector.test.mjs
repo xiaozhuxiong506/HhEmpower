@@ -1,8 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { chromium } from "playwright";
+import { closeAllZentaoSessions } from "../src/zentaoSession.mjs";
 import {
   collectAssignedZentaoWorkItems,
+  collectAssignedZentaoTasks,
   extractPaginatedWorkItemLinks,
   extractPaginatedTaskLinks,
   extractWorkItemDetail,
@@ -792,6 +794,60 @@ test("collects task and Bug metadata through one context and closes it", async (
     assert.equal(result.workItemCount, 2);
     assert.deepEqual(result.collectionErrors, []);
   } finally {
+    await fixture.browser.close();
+  }
+});
+
+test("shares one collection across identical concurrent requests", async () => {
+  const fixture = await createCollectorFixture();
+  const options = {
+    url: fixture.startUrl,
+    maxTasks: 10,
+    maxBugs: 10,
+    pageSize: 100,
+    keepBrowserOpen: true,
+    sessionKey: "collector-single-flight",
+    contextFactory: fixture.contextFactory
+  };
+
+  try {
+    const [first, second] = await Promise.all([
+      collectAssignedZentaoWorkItems(options),
+      collectAssignedZentaoWorkItems(options)
+    ]);
+
+    assert.equal(fixture.stats().contextFactoryCalls, 1);
+    assert.equal(fixture.stats().startPageRequests, 2);
+    assert.deepEqual(first, second);
+  } finally {
+    await closeAllZentaoSessions();
+    await fixture.playwrightContext.close().catch(() => {});
+    await fixture.browser.close();
+  }
+});
+
+test("legacy task collection delegates once and excludes Bug work items", async () => {
+  const fixture = await createCollectorFixture();
+  try {
+    const result = await collectAssignedZentaoTasks({
+      url: fixture.startUrl,
+      maxTasks: 10,
+      maxBugs: 10,
+      pageSize: 100,
+      keepBrowserOpen: false,
+      sessionKey: "legacy-task-collection",
+      contextFactory: fixture.contextFactory
+    });
+
+    assert.equal(fixture.stats().contextFactoryCalls, 1);
+    assert.equal(result.taskCount, 1);
+    assert.equal(result.taskLinksFound, 1);
+    assert.equal(result.groups.flatMap(group => group.workItems).length, 1);
+    assert.ok(result.groups.flatMap(group => group.workItems).every(item => item.kind === "task"));
+    assert.match(result.markdown, /采购订单增加审批详情/);
+    assert.doesNotMatch(result.markdown, /销售出货生成应收单报错/);
+  } finally {
+    await fixture.playwrightContext.close().catch(() => {});
     await fixture.browser.close();
   }
 });
