@@ -15,10 +15,7 @@ export function getZentaoSessionKey(options = {}) {
   if (options.sessionKey) return String(options.sessionKey);
   const profileDir = options.profileDir || process.env.T_MCP_PROFILE_DIR || defaultZentaoProfileDir();
   const normalizedProfile = path.resolve(profileDir).replace(/\\/g, "/").toLowerCase();
-  const channel = String(
-    options.browserChannel || process.env.T_MCP_BROWSER_CHANNEL || "chrome"
-  ).toLowerCase();
-  let key = `${normalizedProfile}\u0000${channel}\u0000${Boolean(options.headless)}`;
+  let key = normalizedProfile;
   if (typeof options.contextFactory === "function") {
     if (!contextFactoryIds.has(options.contextFactory)) {
       contextFactoryIds.set(options.contextFactory, nextContextFactoryId);

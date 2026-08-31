@@ -24,7 +24,7 @@ test.afterEach(async () => {
   await closeAllZentaoSessions();
 });
 
-test("session key distinguishes browser channel and headless mode", () => {
+test("session key uses only the normalized profile across browser options", () => {
   const base = getZentaoSessionKey({
     profileDir: "D:/profiles/zentao",
     browserChannel: "chrome",
@@ -35,9 +35,9 @@ test("session key distinguishes browser channel and headless mode", () => {
     browserChannel: "CHROME",
     headless: false
   }));
-  assert.notEqual(base, getZentaoSessionKey({
+  assert.equal(base, getZentaoSessionKey({
     profileDir: "D:/profiles/zentao",
-    browserChannel: "chrome",
+    browserChannel: "msedge",
     headless: true
   }));
 });
