@@ -30,6 +30,10 @@ test("MCP server exposes Zentao, Torna, and read-only DingTalk tools", async () 
 
     assert.ok(names.includes("zentao_collect_assigned_tasks"));
     assert.ok(names.includes("zentao_analyze_tasks"));
+    assert.ok(names.includes("zentao_collect_assigned_work_items"));
+    assert.ok(names.includes("zentao_analyze_work_items"));
+    assert.ok(names.includes("zentao_schedule_tasks"));
+    assert.ok(names.includes("zentao_resolve_bugs"));
     assert.ok(names.includes("torna_search_api"));
     assert.ok(names.includes("torna_get_api_detail"));
 
@@ -63,6 +67,27 @@ test("MCP server exposes Zentao, Torna, and read-only DingTalk tools", async () 
     const text = callResult.content.map(item => item.text || "").join("\n");
     assert.match(text, /采购模块/);
     assert.match(text, /t-mod-采购模块/);
+
+    const workItemResult = await client.callTool({
+      name: "zentao_analyze_work_items",
+      arguments: {
+        workItems: [
+          {
+            id: "9328",
+            kind: "bug",
+            title: "订单出库打印导出资料",
+            creator: "林彦林",
+            product: "TSBERP1.0",
+            deadline: "2026-09-02",
+            description: "查询模板没有传 pageId"
+          }
+        ]
+      }
+    });
+    const workItemText = workItemResult.content.map(item => item.text || "").join("\n");
+    assert.match(workItemText, /禅道Bug/);
+    assert.match(workItemText, /贸易系统/);
+    assert.match(workItemText, /详细处理方案与对应位置/);
   } finally {
     await client.close();
   }

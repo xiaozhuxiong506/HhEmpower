@@ -4,11 +4,14 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema
 } from "@modelcontextprotocol/sdk/types.js";
-import { analyzeZentaoTasks } from "./zentaoAnalyzer.mjs";
+import { analyzeZentaoTasks, analyzeZentaoWorkItems } from "./zentaoAnalyzer.mjs";
 import {
   collectAssignedZentaoTasks,
+  collectAssignedZentaoWorkItems,
   formatZentaoAnalysisMarkdown
 } from "./zentaoCollector.mjs";
+import { formatZentaoWorkItemAnalysisMarkdown } from "./zentaoReporter.mjs";
+import { resolveZentaoBugs, scheduleZentaoTasks } from "./zentaoWriter.mjs";
 import {
   getDingTalkAuthStatus,
   listAllDingTalkMessages,
@@ -354,6 +357,143 @@ const tools = [
       },
       required: ["tasks"]
     }
+  },
+  {
+    name: "zentao_collect_assigned_work_items",
+    description:
+      "使用一个共享禅道登录会话采集指派给我的 Task 和 Bug，列表页每页固定尝试 2000 条；识别[禅道需求]/[禅道Bug]、贸易/展厅系统、代码模块、共享影响和待确认项，并输出开发者标准表格。",
+    inputSchema: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        url: { type: "string", description: "禅道入口 URL。" },
+        maxTasks: { type: "integer", minimum: 1, maximum: 2000, default: 2000 },
+        maxBugs: { type: "integer", minimum: 1, maximum: 2000, default: 2000 },
+        pageSize: { type: "integer", const: 2000, default: 2000 },
+        loginWaitMs: { type: "integer", minimum: 0, default: 120000 },
+        keepBrowserOpen: { type: "boolean", default: true },
+        headless: { type: "boolean", default: false },
+        profileDir: { type: "string", description: "持久化浏览器 profile；相同 profile 自动共用会话。" },
+        browserChannel: { type: "string", default: "chrome" },
+        includeRawText: { type: "boolean", default: false }
+      }
+    }
+  },
+  {
+    name: "zentao_analyze_work_items",
+    description:
+      "不打开浏览器，分析已采集的禅道 Task/Bug JSON；按系统和代码模块分组，以固定列标准表格输出处理方案、代码位置、共享影响与待确认项。",
+    inputSchema: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        workItems: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              id: { type: ["string", "number"] },
+              kind: { type: "string", enum: ["task", "bug"] },
+              url: { type: "string" },
+              title: { type: "string" },
+              content: { type: "string" },
+              remarks: { type: "string" },
+              description: { type: "string" },
+              project: { type: "string" },
+              product: { type: "string" },
+              creator: { type: "string" },
+              assignee: { type: "string" },
+              deadline: { type: "string" },
+              status: { type: "string" },
+              priority: { type: "string" },
+              severity: { type: "string" }
+            },
+            required: ["kind", "title"]
+          }
+        }
+      },
+      required: ["workItems"]
+    }
+  },
+  {
+    name: "zentao_schedule_tasks",
+    description:
+      "按用户已给出的模块日期直接批量排期禅道 Task。严格按 ID 勾选，pageSize=2000，设置状态=进行中，截止日期，以及预计/消耗/剩余工时为每项指定的 1h 或 2h；拒绝 Bug。",
+    inputSchema: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        groups: {
+          type: "array",
+          minItems: 1,
+          items: {
+            type: "object",
+            additionalProperties: false,
+            properties: {
+              module: { type: "string" },
+              deadline: { type: "string", pattern: "^\\d{4}-\\d{2}-\\d{2}$" },
+              tasks: {
+                type: "array",
+                minItems: 1,
+                items: {
+                  type: "object",
+                  additionalProperties: false,
+                  properties: {
+                    id: { type: ["string", "number"] },
+                    kind: { type: "string", const: "task" },
+                    hours: { type: "number", enum: [1, 2] }
+                  },
+                  required: ["id", "hours"]
+                }
+              }
+            },
+            required: ["module", "deadline", "tasks"]
+          }
+        },
+        url: { type: "string" },
+        loginWaitMs: { type: "integer", minimum: 0, default: 120000 },
+        keepBrowserOpen: { type: "boolean", default: true },
+        headless: { type: "boolean", default: false },
+        profileDir: { type: "string" },
+        browserChannel: { type: "string", default: "chrome" }
+      },
+      required: ["groups"]
+    }
+  },
+  {
+    name: "zentao_resolve_bugs",
+    description:
+      "在用户已确认解决后，逐个处理已完成且已验证的禅道 Bug：点击解决，仅把解决版本设为主干、解决日期设为执行时 Asia/Shanghai 当前时间前 30 分钟，其他字段保持不变。",
+    inputSchema: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        items: {
+          type: "array",
+          minItems: 1,
+          items: {
+            type: "object",
+            additionalProperties: false,
+            properties: {
+              id: { type: ["string", "number"] },
+              kind: { type: "string", const: "bug" },
+              completed: { type: "boolean", const: true },
+              verified: { type: "boolean", const: true },
+              url: { type: "string" },
+              title: { type: "string" }
+            },
+            required: ["id", "kind", "completed", "verified"]
+          }
+        },
+        url: { type: "string" },
+        loginWaitMs: { type: "integer", minimum: 0, default: 120000 },
+        keepBrowserOpen: { type: "boolean", default: true },
+        headless: { type: "boolean", default: false },
+        profileDir: { type: "string" },
+        browserChannel: { type: "string", default: "chrome" }
+      },
+      required: ["items"]
+    }
   }
 ];
 
@@ -441,6 +581,50 @@ server.setRequestHandler(CallToolRequestSchema, async request => {
           type: "text",
           text: JSON.stringify(result, null, 2)
         }
+      ]
+    };
+  }
+
+  if (name === "zentao_collect_assigned_work_items") {
+    const result = await collectAssignedZentaoWorkItems({ ...args, pageSize: 2000 });
+    return {
+      content: [
+        { type: "text", text: result.markdown },
+        { type: "text", text: JSON.stringify(result, null, 2) }
+      ]
+    };
+  }
+
+  if (name === "zentao_analyze_work_items") {
+    const analysis = analyzeZentaoWorkItems(args.workItems || []);
+    const result = {
+      ...analysis,
+      markdown: formatZentaoWorkItemAnalysisMarkdown(analysis)
+    };
+    return {
+      content: [
+        { type: "text", text: result.markdown },
+        { type: "text", text: JSON.stringify(result, null, 2) }
+      ]
+    };
+  }
+
+  if (name === "zentao_schedule_tasks") {
+    const result = await scheduleZentaoTasks(args);
+    return {
+      content: [
+        { type: "text", text: `禅道 Task 排期完成：成功 ${result.succeeded.length}，失败 ${result.failed.length}。` },
+        { type: "text", text: JSON.stringify(result, null, 2) }
+      ]
+    };
+  }
+
+  if (name === "zentao_resolve_bugs") {
+    const result = await resolveZentaoBugs(args);
+    return {
+      content: [
+        { type: "text", text: `禅道 Bug 解决完成：成功 ${result.succeeded.length}，失败 ${result.failed.length}。` },
+        { type: "text", text: JSON.stringify(result, null, 2) }
       ]
     };
   }
