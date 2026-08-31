@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build a single-login Zentao workflow that collects assigned Tasks and Bugs together, emits normalized developer-facing tables, supports direct task scheduling and post-completion closing, and teaches `t-zentao` to analyze code modules while only reminding the user of the current Git branch.
+**Goal:** Build a single-login Zentao workflow that collects assigned Tasks and Bugs together, emits normalized developer-facing tables, supports direct task scheduling and post-completion Bug resolution, and teaches `t-zentao` to analyze code modules while only reminding the user of the current Git branch.
 
-**Architecture:** A process-local session manager owns one persistent Playwright context per normalized profile/channel/headless key and serializes browser work; identical concurrent collection calls share one promise. The collector extracts unified facts, the analyzer/reporter groups by scene/system/module, and a dedicated writer performs exact-ID scheduling and closing through the same context. MCP schemas expose four new tools while legacy task-only tools delegate to the new path.
+**Architecture:** A process-local session manager owns one persistent Playwright context per normalized profile/channel/headless key and serializes browser work; identical concurrent collection calls share one promise. The collector extracts unified facts, the analyzer/reporter groups by scene/system/module, and a dedicated writer performs exact-ID scheduling and Bug resolution through the same context. MCP schemas expose four new tools while legacy task-only tools delegate to the new path.
 
 **Tech Stack:** Node.js ESM, Playwright 1.61, MCP SDK 1.17, `node:test`, `@vercel/ncc`, Markdown skill/command contracts.
 
@@ -21,14 +21,15 @@
 - Shared components used by two or more modules require a user scope question before implementation.
 - Scheduling accepts Tasks only. Once dates are supplied, execute without a second confirmation and set status, deadline, estimate, consumed, and remaining.
 - Convert relative dates such as `后天` using `Asia/Shanghai`, show the resolved `YYYY-MM-DD`, then execute directly.
-- After verified implementation, ask once which work items to close, then execute the selected exact IDs without a second confirmation.
+- After verified implementation, ask once which Bugs to resolve, then execute the selected exact IDs without a second confirmation.
+- Bug resolution clicks `解决`, sets only `解决版本=主干` and `解决日期=Asia/Shanghai now - 30 minutes`, and leaves every other field unchanged.
 - Keep `zentao_collect_assigned_tasks` and `zentao_analyze_tasks` backward compatible.
 
 ## File Map
 
 - Create `mcp/src/zentaoSession.mjs`: context keying, lifecycle, exclusive queue, collection single-flight.
 - Create `mcp/src/zentaoReporter.mjs`: normalized summary and developer-table Markdown.
-- Create `mcp/src/zentaoWriter.mjs`: exact-ID scheduling and closing UI operations.
+- Create `mcp/src/zentaoWriter.mjs`: exact-ID scheduling and Bug resolution UI operations.
 - Create `mcp/tests/zentaoSession.test.mjs`, `mcp/tests/zentaoWriter.test.mjs`, `mcp/tests/zentaoWorkflowPolicy.test.mjs`.
 - Modify `mcp/src/zentaoAnalyzer.mjs`, `mcp/src/zentaoCollector.mjs`, `mcp/src/server.mjs`.
 - Modify Zentao analyzer/collector/server/distribution tests.
@@ -324,51 +325,51 @@ git commit -m "feat: schedule zentao tasks by exact ids"
 
 ---
 
-### Task 5: Verified work-item closing
+### Task 5: Verified Bug resolution
 
 **Files:**
 - Modify: `mcp/src/zentaoWriter.mjs`
 - Modify: `mcp/tests/zentaoWriter.test.mjs`
 
 **Interfaces:**
-- Produces: `normalizeCloseItems(items)`.
-- Produces: `closeZentaoWorkItems(options)` returning requested/succeeded/blocked/failed.
+- Produces: `normalizeResolveBugs(items)`.
+- Produces: `resolveZentaoBugs(options)` returning requested/succeeded/failed.
 - No preview/apply/confirmed mode exists.
 
-- [ ] **Step 1: Add failing close tests**
+- [ ] **Step 1: Add failing Bug resolution tests**
 
 ```js
-assert.deepEqual(normalizeCloseItems([{
+assert.deepEqual(normalizeResolveBugs([{
   kind: "bug", id: "9328", title: "打印错误", completed: true, verified: true
 }]), [{ kind: "bug", id: "9328", url: "", title: "打印错误" }]);
-assert.throws(() => normalizeCloseItems([{
-  kind: "task", id: "100", completed: true, verified: false
-}]), /completed and verified/);
+assert.throws(() => normalizeResolveBugs([{
+  kind: "task", id: "100", completed: true, verified: true
+}]), /only accepts Zentao Bugs/);
 ```
 
-Also reject duplicate IDs and kinds outside `task|bug`.
+Also reject duplicate IDs and Bugs that are not both completed and verified.
 
-- [ ] **Step 2: Run close-pattern writer tests**
+- [ ] **Step 2: Run resolve-pattern writer tests**
 
-Run: `node --test --test-name-pattern="close" mcp/tests/zentaoWriter.test.mjs`
+Run: `node --test --test-name-pattern="resolve" mcp/tests/zentaoWriter.test.mjs`
 
-Expected: FAIL because close functions are absent.
+Expected: FAIL because Bug resolution functions are absent.
 
-- [ ] **Step 3: Implement close navigation**
+- [ ] **Step 3: Implement exact Bug resolution navigation**
 
-Inside the shared exclusive session, open each detail URL, click exact visible `关闭`, inspect required controls, and submit only if all visible required fields already have values. Reopen the detail and require `已关闭|closed` status.
+Inside the shared exclusive session, open each Bug detail URL and click exact visible `解决`. Compute `resolvedAt` from an injected/default clock as `new Date(now.getTime() - 30 * 60 * 1000)` and format it in `Asia/Shanghai` for the page control. Select the `解决版本` option whose visible text/value matches `主干`, fill `解决日期`, and do not call `fill`, `selectOption`, or `check` on any other field. Submit using the existing visible action and reopen the detail page; require status `已解决|resolved`.
 
-For an empty required Bug field, return exactly:
+The execution result for one success is:
 
 ```js
-{ kind: "bug", id: "9328", status: "blocked", missingFields: ["解决方案"], message: "关闭页面需要额外字段，未自动编造值" }
+{ kind: "bug", id: "9328", status: "resolved", resolvedBuild: "主干", resolvedAt: "2026-08-31 09:30" }
 ```
 
-Process items independently into `succeeded`, `blocked`, and `failed`.
+Process items independently into `succeeded` and `failed`; never overwrite unrelated form fields even when they are empty.
 
 - [ ] **Step 4: Add DOM tests**
 
-The Task fixture records `close -> submit -> verify`. The Bug fixture has an empty required `解决方案` select; assert submit never fires and the item is blocked.
+Use a fixed clock of `2026-08-31T02:00:00.000Z` (Asia/Shanghai 10:00). The Bug fixture must record `click-resolve -> resolved-build:主干 -> resolved-date:2026-08-31 09:30 -> submit -> verify`. Snapshot every unrelated control value before and after, including `解决方案`, `指派给`, and `备注`, and assert they are identical. A Task input must be rejected before browser navigation.
 
 - [ ] **Step 5: Run `node --test mcp/tests/zentaoWriter.test.mjs`**
 
@@ -378,7 +379,7 @@ Expected: PASS.
 
 ```powershell
 git add -- mcp/src/zentaoWriter.mjs mcp/tests/zentaoWriter.test.mjs
-git commit -m "feat: close verified zentao work items"
+git commit -m "feat: resolve verified zentao bugs"
 ```
 
 ---
@@ -391,7 +392,7 @@ git commit -m "feat: close verified zentao work items"
 - Modify: `mcp/tests/cursorPluginDistribution.test.mjs`
 
 **Interfaces:**
-- Adds `zentao_collect_assigned_work_items`, `zentao_analyze_work_items`, `zentao_schedule_tasks`, `zentao_close_work_items`.
+- Adds `zentao_collect_assigned_work_items`, `zentao_analyze_work_items`, `zentao_schedule_tasks`, `zentao_resolve_bugs`.
 - Preserves both legacy tool names.
 
 - [ ] **Step 1: Extend smoke test to expect all six tools**
@@ -404,11 +405,11 @@ Expected: FAIL because four tools are not registered.
 
 - [ ] **Step 3: Add exact schemas**
 
-Collect accepts browser options plus `maxTasks|maxBugs|pageSize`. Analyze accepts complete `workItems[]`. Schedule requires grouped module/deadline/tasks with `id`, `kind`, and `hours`. Close requires items with `kind`, `id`, `completed`, `verified`, plus optional URL/title. Do not add preview/apply/confirmed fields.
+Collect accepts browser options plus `maxTasks|maxBugs|pageSize`. Analyze accepts complete `workItems[]`. Schedule requires grouped module/deadline/tasks with `id`, `kind`, and `hours`. Resolve requires Bug items with `kind`, `id`, `completed`, `verified`, plus optional URL/title. Do not add preview/apply/confirmed fields; server time is supplied internally, not by the public MCP schema.
 
 - [ ] **Step 4: Route calls and return Markdown plus JSON**
 
-Use the existing two-content-block convention for collect/analyze. Schedule/close return a readable result Markdown block plus the exact JSON result.
+Use the existing two-content-block convention for collect/analyze. Schedule/resolve return a readable result Markdown block plus the exact JSON result.
 
 - [ ] **Step 5: Run source tests**
 
@@ -434,7 +435,7 @@ git commit -m "feat: expose unified zentao workflow tools"
 - Modify: `mcp/tests/zentaoWorkflowPolicy.test.mjs`
 
 **Interfaces:**
-- The main agent collects once, prints current branch, performs module analysis, asks only shared scope questions, directly schedules complete instructions, and asks once before closing.
+- The main agent collects once, prints current branch, performs module analysis, asks only shared scope questions, directly schedules complete instructions, and asks once before resolving completed Bugs.
 
 - [ ] **Step 1: Add failing policy assertions**
 
@@ -451,7 +452,7 @@ for (const text of [skill, command]) {
 }
 ```
 
-Also require that module execution never recollects/logs in, Bugs never enter scheduling, complete schedules execute without a second confirmation, and closing asks once.
+Also require that module execution never recollects/logs in, Bugs never enter scheduling, complete schedules execute without a second confirmation, and Bug resolution asks once then changes only `解决版本` and `解决日期`.
 
 - [ ] **Step 2: Run `node --test mcp/tests/zentaoWorkflowPolicy.test.mjs`**
 
@@ -459,11 +460,11 @@ Expected: FAIL against task-only docs.
 
 - [ ] **Step 3: Rewrite `t-zentao` in eight phases**
 
-Use sections: single login/collection; scene/system; current branch; code module analysis; normalized output; shared component question; Task scheduling; completion conclusion and closing. Include the exact 12-column table and keep the detailed plan last. In scheduling, resolve `后天`, `大后天`, and other relative dates against `Asia/Shanghai`, show the resulting `YYYY-MM-DD`, and call the writer immediately once every module has a date.
+Use sections: single login/collection; scene/system; current branch; code module analysis; normalized output; shared component question; Task scheduling; completion conclusion and Bug resolution. Include the exact 12-column table and keep the detailed plan last. In scheduling, resolve `后天`, `大后天`, and other relative dates against `Asia/Shanghai`, show the resulting `YYYY-MM-DD`, and call the writer immediately once every module has a date. In Bug resolution, click `解决`, set `解决版本=主干`, set `解决日期` to `Asia/Shanghai` current time minus 30 minutes, and leave every other field unchanged.
 
 - [ ] **Step 4: Update command and README**
 
-Default the command to the unified tool with `maxTasks`, `maxBugs`, and `pageSize` equal to `2000`. Document four new and two legacy tools, single-session behavior, direct scheduling, and one-question closing.
+Default the command to the unified tool with `maxTasks`, `maxBugs`, and `pageSize` equal to `2000`. Document four new and two legacy tools, single-session behavior, direct scheduling, and one-question Bug resolution.
 
 - [ ] **Step 5: Validate**
 
