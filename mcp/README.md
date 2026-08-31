@@ -30,6 +30,22 @@ MCP 随 `t-erp-page` 插件自动安装。普通用户无需运行 `install-mcp.
 
   对已有任务 JSON 做模块分类和多 agent 执行包生成，不打开浏览器。输入 JSON 必须保留原始任务字段；不能只给压缩摘要。
 
+- `zentao_collect_assigned_work_items`
+
+  统一采集“指派给我”的 Task 与 Bug。同一次工作流只采集一次并复用一个持久化浏览器登录会话；Task 标记为 `[禅道需求]`，Bug 标记为 `[禅道Bug]`，`TSBERP*` 归贸易系统，`HALLERP*` 归展厅系统。列表固定尝试 `pageSize=2000`，结果按系统和代码模块输出开发者标准表格。
+
+- `zentao_analyze_work_items`
+
+  不打开浏览器，对已有 Task/Bug JSON 按系统和代码模块分组，输出创建者、截止日期、共享影响、待确认项，以及最后一列“详细处理方案与对应位置”。
+
+- `zentao_schedule_tasks`
+
+  仅排期 Task。用户明确模块日期和每项 `1h`/`2h` 后，工具按精确 ID 批量编辑，设置状态=进行中，并设置截止日期、预计、消耗、剩余；拒绝 Bug 和不完整指令。
+
+- `zentao_resolve_bugs`
+
+  仅处理用户已确认、且已完成并验证通过的 Bug。点击“解决”后，只设置解决版本=主干、解决日期=`Asia/Shanghai` 执行时当前时间前 30 分钟，其他字段不改；不执行关闭操作。
+
 - `dingtalk_auth_status` / `dingtalk_auth_login`
 
   检查官方 DWS 与 OAuth 状态；未登录时打开钉钉官方授权流程。禁止传入密码、Cookie 或固定 Token。
@@ -48,7 +64,7 @@ MCP 随 `t-erp-page` 插件自动安装。普通用户无需运行 `install-mcp.
 
 ## 首次登录
 
-`zentao_collect_assigned_tasks` 默认使用持久化浏览器 profile。首次运行如果出现禅道登录页，请在弹出的浏览器中登录，然后重新运行同一个工具。
+`zentao_collect_assigned_work_items`（以及兼容入口 `zentao_collect_assigned_tasks`）默认使用持久化浏览器 profile。同一 profile 的采集、排期和解决操作复用一个登录会话并串行执行。首次运行如果出现禅道登录页，请在弹出的浏览器中登录，然后重新运行同一个工具。
 
 Torna 工具使用非持久化浏览器 context。MCP 进程首次查询或 token 失效时，请在弹出的浏览器中完成登录；token 只保留在当前 MCP 进程内存中，浏览器关闭后不落盘。工具不保存账号密码，不生成 Torna/Swagger JSON 文件。
 
