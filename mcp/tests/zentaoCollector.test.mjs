@@ -11,8 +11,32 @@ import {
   extractTaskLinks,
   findZentaoContentFrame,
   formatZentaoWorkItemAnalysisMarkdown,
-  openAssignedWorkItemList
+  openAssignedWorkItemList,
+  setZentaoPageSize
 } from "../src/zentaoCollector.mjs";
+
+test("sets the visible Zentao list page size to 2000", async () => {
+  const browser = await chromium.launch({ headless: true });
+  const page = await browser.newPage();
+  try {
+    await page.setContent(`
+      <select id="recPerPage">
+        <option value="20">20</option>
+        <option value="2000">2000</option>
+      </select>
+      <script>
+        document.querySelector('#recPerPage').addEventListener('change', event => {
+          document.body.dataset.selectedSize = event.target.value;
+        });
+      </script>
+    `);
+
+    assert.equal(await setZentaoPageSize(page, 2000), true);
+    assert.equal(await page.locator("body").getAttribute("data-selected-size"), "2000");
+  } finally {
+    await browser.close();
+  }
+});
 
 async function createCollectorFixture({ failBugDetail = false } = {}) {
   const browser = await chromium.launch({ headless: true });
@@ -185,7 +209,18 @@ test("extracts complete Zentao task rows from DTable state", async () => {
             $: {
               state: {
                 data: [
-                  { id: "4641", name: "展厅管理 / 产品出展-删除" },
+                  {
+                    id: "4641",
+                    name: "展厅管理 / 产品出展-删除",
+                    projectName: "HALLERP二期",
+                    productName: "HALLERP1.0",
+                    openedBy: "林彦林",
+                    assignedTo: "黄河",
+                    deadline: "2026-09-02",
+                    status: "wait",
+                    pri: "3",
+                    severity: "2"
+                  },
                   { id: "4640", name: "展厅管理 / 产品出展-通用按钮" }
                 ]
               }
@@ -200,7 +235,15 @@ test("extracts complete Zentao task rows from DTable state", async () => {
       {
         id: "4641",
         title: "展厅管理 / 产品出展-删除",
-        url: "http://example.test/zentao/task-view-4641.html"
+        url: "http://example.test/zentao/task-view-4641.html",
+        project: "HALLERP二期",
+        product: "HALLERP1.0",
+        creator: "林彦林",
+        assignee: "黄河",
+        deadline: "2026-09-02",
+        status: "wait",
+        priority: "3",
+        severity: "2"
       },
       {
         id: "4640",
@@ -537,6 +580,14 @@ test("extracts and cleans Bug detail fields from the Zentao app iframe", async (
                       <tr><th>重现步骤</th><td><div class='steps'>打开采购订单并点击保存</div></td></tr>
                       <tr><th>描述</th><td><div class='description'>保存失败且页面没有错误提示</div></td></tr>
                       <tr><th>备注</th><td><div class='remarks'><button>添加备注</button><p>仅在审批开启时复现</p><p>暂无描述</p></div></td></tr>
+                      <tr><th>所属项目</th><td>TSBERP二期</td></tr>
+                      <tr><th>所属产品</th><td>TSBERP1.0</td></tr>
+                      <tr><th>创建者</th><td>林彦林</td></tr>
+                      <tr><th>指派给</th><td>黄河</td></tr>
+                      <tr><th>截止日期</th><td>2026-09-02</td></tr>
+                      <tr><th>状态</th><td>激活</td></tr>
+                      <tr><th>优先级</th><td>3</td></tr>
+                      <tr><th>严重程度</th><td>2</td></tr>
                     </table>
                   </div>
                 "
@@ -561,7 +612,15 @@ test("extracts and cleans Bug detail fields from the Zentao app iframe", async (
       title: "采购订单保存失败",
       content: "打开采购订单并点击保存",
       remarks: "仅在审批开启时复现",
-      description: "保存失败且页面没有错误提示"
+      description: "保存失败且页面没有错误提示",
+      project: "TSBERP二期",
+      product: "TSBERP1.0",
+      creator: "林彦林",
+      assignee: "黄河",
+      deadline: "2026-09-02",
+      status: "激活",
+      priority: "3",
+      severity: "2"
     });
   } finally {
     await context.close();

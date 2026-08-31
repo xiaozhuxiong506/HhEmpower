@@ -235,7 +235,7 @@ async function countTaskLinks(page) {
   return countWorkItemLinks(page, "task");
 }
 
-async function setPageSize(page, pageSize = DEFAULT_MAX_TASKS) {
+export async function setZentaoPageSize(page, pageSize = DEFAULT_MAX_TASKS) {
   const changedSelect = await page.evaluate(size => {
     const selects = Array.from(document.querySelectorAll("select"));
     for (const select of selects) {
@@ -291,7 +291,21 @@ export async function extractWorkItemLinks(page, kind, maxItems = DEFAULT_MAX_TA
       const key = id ? `${itemKind}:${id}` : `${itemKind}:${url.replace(/#.*$/, "")}`;
       if (seen.has(key)) return false;
       seen.add(key);
-      result.push({ id, kind: itemKind, title, url, useViewPath: Boolean(item.useViewPath) });
+      const metadata = {};
+      for (const field of [
+        "project", "product", "creator", "assignee", "deadline", "status", "priority", "severity"
+      ]) {
+        const value = normalize(item[field]);
+        if (value) metadata[field] = value;
+      }
+      result.push({
+        id,
+        kind: itemKind,
+        title,
+        url,
+        useViewPath: Boolean(item.useViewPath),
+        ...metadata
+      });
       return result.length >= limit;
     };
 
@@ -322,7 +336,15 @@ export async function extractWorkItemLinks(page, kind, maxItems = DEFAULT_MAX_TA
         id,
         title,
         url: "",
-        useViewPath: true
+        useViewPath: true,
+        project: data.projectName || data.project,
+        product: data.productName || data.product,
+        creator: data.openedBy || data.createdBy || data.creator,
+        assignee: data.assignedTo || data.assignee,
+        deadline: data.deadline || data.end,
+        status: data.statusName || data.status,
+        priority: data.pri || data.priority,
+        severity: data.severity
       })) break;
     }
 
@@ -612,6 +634,24 @@ export async function extractWorkItemDetail(context, workItemLink) {
       ? detailTitle
       : normalizeTaskText(workItemLink.title);
 
+    const metadataLabels = {
+      project: ["所属项目", "项目"],
+      product: ["所属产品", "产品"],
+      creator: ["创建者", "由谁创建"],
+      assignee: ["指派给", "当前处理人"],
+      deadline: ["截止日期", "截止"],
+      status: ["状态"],
+      priority: ["优先级"],
+      severity: ["严重程度"]
+    };
+    const metadata = {};
+    for (const [field, labels] of Object.entries(metadataLabels)) {
+      const value = normalizeTaskText(
+        labels.map(label => pairs[label]).find(Boolean) || workItemLink[field]
+      );
+      if (value) metadata[field] = value;
+    }
+
     return {
       id: workItemLink.id,
       kind: config.kind,
@@ -619,7 +659,8 @@ export async function extractWorkItemDetail(context, workItemLink) {
       title,
       content,
       remarks,
-      description
+      description,
+      ...metadata
     };
   } finally {
     await page.close().catch(() => {});
@@ -694,7 +735,7 @@ export async function collectAssignedZentaoWorkItems(options = {}) {
 
         const listScope = await openAssignedWorkItemList(page, startUrl, kind);
         kindState.listUrl = listScope.url();
-        await setPageSize(listScope, pageSize);
+        await setZentaoPageSize(listScope, pageSize);
 
         const linkResult = await extractPaginatedWorkItemLinks(
           page,
@@ -768,7 +809,7 @@ export async function collectAssignedZentaoTasks(options = {}) {
     await waitForPageReady(page);
     await waitForLoginIfNeeded(page, loginWaitMs);
     const taskListScope = await openAssignedTaskList(page, startUrl);
-    await setPageSize(taskListScope, pageSize);
+    await setZentaoPageSize(taskListScope, pageSize);
 
     const taskLinkResult = await extractPaginatedTaskLinks(page, taskListScope, maxTasks);
     const taskLinks = taskLinkResult.links;
