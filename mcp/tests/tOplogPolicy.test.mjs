@@ -57,6 +57,18 @@ test("t-oplog makes admin configuration primary and keeps Console conditional", 
   assert.match(skill, /保存.*确认|确认.*保存/s);
 });
 
+test("t-oplog requires current real inputs and successful global case-insensitive regex testing before save", () => {
+  const skill = readRepoFile("skills/t-oplog/SKILL.md");
+
+  assert.match(skill, /旧.*正则|既有.*正则/s);
+  assert.match(skill, /当前系统.*(?:真实|实际).*入参/s);
+  assert.match(skill, /忽略大小写/);
+  assert.match(skill, /全局/);
+  assert.match(skill, /[`\"](?:ig|gi)[`\"]/);
+  assert.match(skill, /匹配测试.*(?:命中|匹配成功)|(?:命中|匹配成功).*匹配测试/s);
+  assert.match(skill, /(?:未命中|不能匹配).*(?:不得|禁止).*保存/s);
+});
+
 test("page and workflow entry points route log synonyms to t-oplog", () => {
   const page = readRepoFile("skills/t-page/SKILL.md");
   const workflow = readRepoFile("skills/t-workflow/SKILL.md");
