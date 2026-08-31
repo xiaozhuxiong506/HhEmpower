@@ -11,7 +11,7 @@ description: Use when Codex works on a TSB ERP business page, route, module, lis
 2. 读 [profiles.md](profiles.md)，确认当前页面画像是 `ts`、`th`，或仍需继续探测。
 3. 读 [anchors.md](anchors.md)，只引用其中的全局关卡、范围、共享影响、归因和标准源。
 4. 只有当前任务涉及必问单选、改动决策或“是否可以直接改”的判断时，才读 [t-workflow](../t-workflow/SKILL.md)。
-5. 按下方路由表读取具体子 skill；`t-page` 本身不进入代码实现步骤。
+5. 输出下方“页面任务概览”；概览完成后再按下方路由表读取具体子 skill。`t-page` 本身不进入代码实现步骤。
 
 ## 必读材料
 
@@ -56,4 +56,22 @@ description: Use when Codex works on a TSB ERP business page, route, module, lis
 
 ## 输出契约
 
-`t-page` 只负责选择需要读取的 skill 和 support docs，并说明读取顺序。它不写代码、不生成实现方案、不替代子 skill 的规则，也不复制 support docs 的长规则正文。
+任何触发 `t-page` 的页面、路由、模块、列表、详情、弹窗、字段、权限或操作日志请求，都必须先输出一次固定的“页面任务概览”，再进入子 skill 路由。概览只报告当前页面/业务模块范围，不扩展为仓库级状态报告。
+
+```text
+【理解用户需求】：<用一句话复述用户要解决的问题、目标和边界>
+归属系统：<贸易系统 / 展厅系统 / 待确认；写明 TSBERP 或 HALLERP 证据>
+归属模块：<一级菜单-具体业务模块，例如 采购管理-采购订货模块>
+参与当前模块 Git 修改人：<当前 git identity；相关模块文件的 author/committer；无法确认则写待确认>
+预计改动文件/行数：<预计文件数；约 +N/-M 行，未开始实现时为估算>
+现成可复用能力：
+  - utils：<文件/导出名，或无>
+  - hook：<文件/导出名，或无>
+  - fieldMapping（项目现有命名可能为 filedMapping）：<文件/导出名，或无>
+```
+
+概览字段必须基于证据填写：先读 `profiles.md` 和 `anchors.md`，再检查当前模块的路径、同模块页面、相关 imports/调用方以及 Git 归因，然后再输出。系统、模块、Git 修改人、改动范围或可复用能力无法唯一确定时明确写“待确认”，不得猜测。预计行数是实现前估算，完成后由实际 diff 校正。
+
+“参与当前模块 Git 修改人”只包含与本次页面改动直接相关的当前模块文件及其必要共享文件的 author/committer；不固定输出仓库路径、HEAD、工作区状态或文件级 Git 最近修改者清单。若触达共享组件、公共 hook/util、字段映射或跨模块文件，仍须遵守 `anchors.md` 的共享影响和 Git 归因关卡，并在概览中注明其复用位置。
+
+现成能力检查必须先搜索并列出可直接复用的 `utils`、`hook`、`fieldMapping/filedMapping`；存在可复用项时优先复用，只有确认不存在或不适配时才提出新增。概览完成后，继续执行对应子 skill 的规则；概览不替代子 skill 的蓝图、权限、字段、日志或验证要求。
