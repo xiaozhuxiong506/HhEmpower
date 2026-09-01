@@ -9,7 +9,7 @@ Tsb ERP 业务页 Agent 开发规范插件。**同时覆盖两个项目**，并�
 
 ## 内容
 
-- **16 个 Skills** — `t-page` 内核（profiles/anchors/orchestration/naming）+ `t-clarify`（需求澄清关卡）+ workflow + 列表/详情/弹窗等子 Skill + `t-api-docs` + `t-dingtalk`（钉钉聊天只读查询）
+- **17 个 Skills** — `t-requirement`（产品需求与前后端责任拆分）+ `t-page` 内核（profiles/anchors/orchestration/naming）+ `t-clarify`（剩余需求澄清关卡）+ workflow + 列表/详情/弹窗等子 Skill + `t-api-docs` + `t-dingtalk`（钉钉聊天只读查询）
 - **22 个 Subagent** — 原 ERP 侦察/实现/审查/验证体系 + `t-dingtalk` 只读检索员，多 agent 编排继续遵守**禁脚本**
 - **2 条 Rule** — ERP 页面改动指引 + 钉钉聊天隐私边界
 - **5 个 Command** — `/t-start` · `/t-new-module` · `/t-review` · `/t-zentao-collect` · `/t-dingtalk-read`
@@ -106,6 +106,7 @@ HhEmpower/
 ├── rules/                   ← ERP 页面指引 + 钉钉聊天隐私边界
 ├── scripts/                 ← install-local · sync-skills · export-github-repo
 ├── skills/
+│   ├── t-requirement/     ← 产品文档拆解 + 前端改动点 + 十节标准报告
 │   ├── t-page/            ← 内核（SKILL + anchors + profiles + orchestration + naming）
 │   ├── t-workflow/   ← 改动工作流 + 必问单选题
 │   ├── t-dingtalk/   ← 钉钉聊天记录只读查询

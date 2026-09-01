@@ -2,6 +2,7 @@
 
 ## 入口
 
+- 产品需求、需求文档、原型说明、前后端混写或前端改动点分析，从 [t-requirement](t-requirement/SKILL.md) 开始；先输出规范化报告，再澄清剩余问题。
 - 页面、路由、主单、详情、弹窗、抽屉、字段、权限、操作日志、业务闭环、责任归属或页面级路由工作，从 [t-page](t-page/SKILL.md) 开始。
 - 接口文档、API 文档、Torna 或 Swagger/OpenAPI 来源判定，从 [t-api-docs](t-api-docs/SKILL.md) 开始。
 - Zentao 任务收集、分析、分组或派发，从 [t-zentao](t-zentao/SKILL.md) 开始。
@@ -13,6 +14,7 @@
 
 | 任务 | Skill |
 |------|-------|
+| 产品需求分析与前后端责任拆分 | `t-requirement` |
 | 需求澄清 | `t-clarify` |
 | 页面级入口路由 | `t-page` |
 | 改动决策、必问单选 | `t-workflow` |
@@ -38,7 +40,7 @@
 
 | 分组 | 内容 |
 |------|------|
-| 入口与调度 | `t-page`、`t-clarify`、`t-workflow`、`t-zentao`、`t-dingtalk`、`t-page/orchestration.md` |
+| 入口与调度 | `t-requirement`、`t-page`、`t-clarify`、`t-workflow`、`t-zentao`、`t-dingtalk`、`t-page/orchestration.md` |
 | 页面结构 | `t-module`、`t-list`、`t-detail`、`t-dialog`、`t-registry` |
 | 能力规则 | `t-standards`、`t-auth`、`t-field`、`t-tab`、`t-oplog`、`t-api-docs` |
 | 支持文档 | `t-page/profiles.md`、`t-page/anchors.md`、`t-page/naming.md`、各 skill 的 `reference.md` 或 `examples.md` |
@@ -49,6 +51,7 @@
 - [t-page/anchors.md](t-page/anchors.md)
 - [t-page/naming.md](t-page/naming.md)
 - [t-page/orchestration.md](t-page/orchestration.md)
+- [t-requirement/reference.md](t-requirement/reference.md)
 - [t-standards/reference.md](t-standards/reference.md)
 - [t-module/reference.md](t-module/reference.md)
 - [t-registry/examples.md](t-registry/examples.md)

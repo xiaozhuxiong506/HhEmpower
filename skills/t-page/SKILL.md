@@ -1,17 +1,18 @@
 ---
 name: t-page
-description: Use when Codex works on a TSB ERP business page, route, module, list, detail, popup, drawer, tab, field, auth, operation log, instrumentation, log dictionary, log verification, route registry, business closed loop, cross-module impact, accountability, or page-level skill routing；触发词包括 页面、路由、主单、详情、明细、弹窗、抽屉、字段、权限、操作日志、埋点日志、日志埋点、埋点、日志词库、日志核对、日志核对管理系统、业务闭环、全局感知、责任归属、vxe-grid、hasAuth、AUTH_CODES、OP_HEADERS、staticRoutes、setField、sysRoleFiledCode、ts/th。
+description: Use when Codex works on a TSB ERP product requirement, business page, route, module, list, detail, popup, drawer, tab, field, auth, operation log, instrumentation, log dictionary, log verification, route registry, business closed loop, cross-module impact, accountability, or page-level skill routing；触发词包括 产品需求、前后端混写、页面、路由、主单、详情、明细、弹窗、抽屉、字段、权限、操作日志、埋点日志、日志埋点、埋点、日志词库、日志核对、日志核对管理系统、业务闭环、全局感知、责任归属、vxe-grid、hasAuth、AUTH_CODES、OP_HEADERS、staticRoutes、setField、sysRoleFiledCode、ts/th。
 ---
 
 # t-page
 
 ## 入口顺序
 
-1. 如果需求含模糊信号、反绕过表达，或要求跳过确认，先读 [t-clarify](../t-clarify/SKILL.md)，由澄清结果决定是否继续。
-2. 读 [profiles.md](profiles.md)，确认当前页面画像是 `ts`、`th`，或仍需继续探测。
-3. 读 [anchors.md](anchors.md)，只引用其中的全局关卡、范围、共享影响、归因和标准源。
-4. 只有当前任务涉及必问单选、改动决策或“是否可以直接改”的判断时，才读 [t-workflow](../t-workflow/SKILL.md)。
-5. 输出下方“页面任务概览”；概览完成后再按下方路由表读取具体子 skill。`t-page` 本身不进入代码实现步骤。
+1. 如果输入是产品需求、需求文档、原型说明或前后端混写描述，先读 [t-requirement](../t-requirement/SKILL.md)，完成规范化《前端需求分析报告》，不得直接把原文当作前端任务。
+2. 报告完成后，如果仍含会改变前端方案的歧义、反绕过表达，或要求跳过确认，再读 [t-clarify](../t-clarify/SKILL.md)，由澄清结果决定是否继续。
+3. 读 [profiles.md](profiles.md)，确认当前页面画像是 `ts`、`th`，或仍需继续探测。
+4. 读 [anchors.md](anchors.md)，只引用其中的全局关卡、范围、共享影响、归因和标准源。
+5. 只有当前任务涉及必问单选、改动决策或“是否可以直接改”的判断时，才读 [t-workflow](../t-workflow/SKILL.md)。
+6. 输出下方“页面任务概览”；概览完成后再按下方路由表读取具体子 skill。`t-page` 本身不进入代码实现步骤。
 
 ## 必读材料
 
@@ -26,6 +27,7 @@ description: Use when Codex works on a TSB ERP business page, route, module, lis
 
 | 任务信号 | 读取 skill |
 |----------|------------|
+| 产品需求、需求文档、原型说明、前后端混写、分析前端改动点 | [t-requirement](../t-requirement/SKILL.md) |
 | 新建模块、新页面骨架、模块级补齐 | [t-module](../t-module/SKILL.md) |
 | 主单、列表页、查询区、表格、`vxe-grid` | [t-list](../t-list/SKILL.md) |
 | 详情、明细、主单详情映射 | [t-detail](../t-detail/SKILL.md) |
