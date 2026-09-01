@@ -107,9 +107,9 @@ HhEmpower/
 | `D:\company\HhEmpower\` | 插件源码与分发仓库 |
 | `rules/t-agent-guidance.mdc` | 编辑 `src/views/{ts,th}*/**` 时自动加载的全局规则 |
 
-## 命名与兼容
+## 命名规范
 
-技术标识统一为 `t-*`；`tsb-erp` 与 `tsb-hall-user` 是 ERP 项目的探测值，不属于插件命名。旧标识按 `ts-page-X → t-X`、`/ts-page-X → /t-X` 规则迁移（如 `ts-page-list` → `t-list`），`trade-erp-ts-page` → `t-erp-page`。旧版安装先 `-Uninstall` 再重装。
+技术标识统一使用 `t-*`；`tsb-erp` 与 `tsb-hall-user` 是 ERP 项目的探测值，不属于插件命名。
 
 ## 延伸阅读
 

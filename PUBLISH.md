@@ -55,4 +55,4 @@ git push -u origin main
 
 - GitHub 仓里**不要**放 `src/`、`.env` 等业务代码
 - 私有仓即可，不必公开
-- 插件名现为 `t-erp-page`（原 `trade-erp-ts-page`，v2.0.0 更名）
+- 插件名为 `t-erp-page`

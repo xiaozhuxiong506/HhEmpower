@@ -39,7 +39,3 @@
 ## 单一事实源
 
 [profiles](t-page/profiles.md) · [anchors](t-page/anchors.md) · [naming](t-page/naming.md) · [orchestration](t-page/orchestration.md) · [t-requirement/reference](t-requirement/reference.md) · [t-standards/reference](t-standards/reference.md) · [t-module/reference](t-module/reference.md) · [t-registry/examples](t-registry/examples.md)
-
-## 旧名映射
-
-`ts-page-X → t-X`、`/ts-page-X → /t-X`（如 `ts-page-list` → `t-list`）；`trade-erp-ts-page` → `t-erp-page`。
