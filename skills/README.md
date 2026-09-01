@@ -1,78 +1,45 @@
-# TSB ERP 技能
+# TSB ERP 技能索引
 
-## 入口
+17 个 Skills，按任务直达。任务类型明确时直接读对应 skill，不经过索引。
 
-- 产品需求、需求文档、原型说明、前后端混写或前端改动点分析，从 [t-requirement](t-requirement/SKILL.md) 开始；先输出规范化报告，再澄清剩余问题。
-- 页面、路由、主单、详情、弹窗、抽屉、字段、权限、操作日志、业务闭环、责任归属或页面级路由工作，从 [t-page](t-page/SKILL.md) 开始。
-- 接口文档、API 文档、Torna 或 Swagger/OpenAPI 来源判定，从 [t-api-docs](t-api-docs/SKILL.md) 开始。
-- Zentao 任务收集、分析、分组或派发，从 [t-zentao](t-zentao/SKILL.md) 开始。
-- 钉钉群聊、单聊、聊天记录或关键词消息只读查询，从 [t-dingtalk](t-dingtalk/SKILL.md) 开始。
-
-## 快捷命令
-
-专家已明确任务类型时，可以直接读对应 skill；不要在索引里复制它们的工作流。
+## 技能总览
 
 | 任务 | Skill |
-|------|-------|
-| 产品需求分析与前后端责任拆分 | `t-requirement` |
-| 需求澄清 | `t-clarify` |
-| 页面级入口路由 | `t-page` |
-| 改动决策、必问单选 | `t-workflow` |
-| 新建模块 | `t-module` |
-| 主单列表 | `t-list` |
-| 详情明细 | `t-detail` |
-| 弹窗抽屉 | `t-dialog` |
-| 页面标准 | `t-standards` |
-| 权限 | `t-auth` |
-| 字段设置 | `t-field` |
-| Tab 与保存编辑态 | `t-tab` |
-| 操作日志 | `t-oplog` |
-| 路由与 Tab 发现 | `t-registry` |
-| API 文档与 Torna/Swagger 分流 | `t-api-docs` |
-| Zentao | `t-zentao` |
-| 钉钉聊天只读查询 | `t-dingtalk` |
+| --- | --- |
+| 产品需求分析 · 前后端责任拆分 | [t-requirement](t-requirement/SKILL.md) |
+| 页面级入口路由 | [t-page](t-page/SKILL.md) |
+| 需求澄清 | [t-clarify](t-clarify/SKILL.md) |
+| 改动决策 · 必问单选 | [t-workflow](t-workflow/SKILL.md) |
+| 新建模块 | [t-module](t-module/SKILL.md) |
+| 主单列表 | [t-list](t-list/SKILL.md) |
+| 详情明细 | [t-detail](t-detail/SKILL.md) |
+| 弹窗抽屉 | [t-dialog](t-dialog/SKILL.md) |
+| 页面标准 · 复杂度门禁 | [t-standards](t-standards/SKILL.md) |
+| 权限边界 | [t-auth](t-auth/SKILL.md) |
+| 字段设置 | [t-field](t-field/SKILL.md) |
+| Tab 与保存编辑态 | [t-tab](t-tab/SKILL.md) |
+| 操作日志 | [t-oplog](t-oplog/SKILL.md) |
+| 路由与 Tab 发现 | [t-registry](t-registry/SKILL.md) |
+| API 文档 · Torna/Swagger 分流 | [t-api-docs](t-api-docs/SKILL.md) |
+| 禅道任务收集与分析 | [t-zentao](t-zentao/SKILL.md) |
+| 钉钉聊天只读查询 | [t-dingtalk](t-dingtalk/SKILL.md) |
 
 ## 全局红线
 
-所有页面类 skill 默认继承 [t-page/anchors.md](t-page/anchors.md)：范围、脚本禁令、业务闭环、责任审计、共享影响、Git 归因、权限等同用户、反绕过和临时产物清理。子 skill 没有重复写明时，仍以 anchors 为准。
+所有页面类 skill 默认继承 [t-page/anchors.md](t-page/anchors.md)：范围、脚本禁令、业务闭环、责任审计、共享影响、Git 归因、权限等同用户、反绕过与临时产物清理。子 skill 未重复写明时，仍以 anchors 为准。
 
-## 技能分组
+## 分组
 
-| 分组 | 内容 |
-|------|------|
-| 入口与调度 | `t-requirement`、`t-page`、`t-clarify`、`t-workflow`、`t-zentao`、`t-dingtalk`、`t-page/orchestration.md` |
-| 页面结构 | `t-module`、`t-list`、`t-detail`、`t-dialog`、`t-registry` |
-| 能力规则 | `t-standards`、`t-auth`、`t-field`、`t-tab`、`t-oplog`、`t-api-docs` |
-| 支持文档 | `t-page/profiles.md`、`t-page/anchors.md`、`t-page/naming.md`、各 skill 的 `reference.md` 或 `examples.md` |
+| 分组 | Skills |
+| --- | --- |
+| 入口与调度 | `t-requirement` `t-page` `t-clarify` `t-workflow` `t-zentao` `t-dingtalk` |
+| 页面结构 | `t-module` `t-list` `t-detail` `t-dialog` `t-registry` |
+| 能力规则 | `t-standards` `t-auth` `t-field` `t-tab` `t-oplog` `t-api-docs` |
 
 ## 单一事实源
 
-- [t-page/profiles.md](t-page/profiles.md)
-- [t-page/anchors.md](t-page/anchors.md)
-- [t-page/naming.md](t-page/naming.md)
-- [t-page/orchestration.md](t-page/orchestration.md)
-- [t-requirement/reference.md](t-requirement/reference.md)
-- [t-standards/reference.md](t-standards/reference.md)
-- [t-module/reference.md](t-module/reference.md)
-- [t-registry/examples.md](t-registry/examples.md)
+[profiles](t-page/profiles.md) · [anchors](t-page/anchors.md) · [naming](t-page/naming.md) · [orchestration](t-page/orchestration.md) · [t-requirement/reference](t-requirement/reference.md) · [t-standards/reference](t-standards/reference.md) · [t-module/reference](t-module/reference.md) · [t-registry/examples](t-registry/examples.md)
 
 ## 旧名映射
 
-| 旧名 | 新名 |
-|------|------|
-| `trade-erp-ts-page` | `t-erp-page` |
-| `ts-page` | `t-page` |
-| `ts-page-workflow` | `t-workflow` |
-| `ts-page-standards` | `t-standards` |
-| `ts-page-list` | `t-list` |
-| `ts-page-detail` | `t-detail` |
-| `ts-page-dialog` | `t-dialog` |
-| `ts-page-module` | `t-module` |
-| `ts-page-auth` | `t-auth` |
-| `ts-page-operation-log` | `t-oplog` |
-| `ts-page-field-setting` | `t-field` |
-| `ts-page-tab-editability` | `t-tab` |
-| `ts-page-registry` | `t-registry` |
-| `/ts-page-start` | `/t-start` |
-| `/ts-page-new-module` | `/t-new-module` |
-| `/ts-page-review` | `/t-review` |
+`ts-page-X → t-X`、`/ts-page-X → /t-X`（如 `ts-page-list` → `t-list`）；`trade-erp-ts-page` → `t-erp-page`。

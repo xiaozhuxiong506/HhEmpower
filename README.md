@@ -1,139 +1,120 @@
-# Tsb ERP（Cursor Plugin）
+<div align="center">
+  <img src="assets/logo.png" alt="TSB ERP" width="96">
+  <h1>TSB ERP 页面开发规范插件</h1>
+  <p>需求分析 · 前端拆分 · 页面实现 · 交付审查，一条可追溯链路走完。</p>
+  <p><code>t-erp-page</code> · <code>Cursor Plugin</code> · <code>v2.8.0</code> · <code>MIT</code></p>
+</div>
 
-Tsb ERP 业务页 Agent 开发规范插件。**同时覆盖两个项目**，并统一约束业务闭环、责任审计、权限等同用户、接口字段零偏差和禁脚本红线：
+## 项目定位
 
-- **Tsb.TradeErp.PC**（`src/views/ts*` — 采购/物料/跟单等）
-- **Tsb.HallErpTenant.PC**（`src/views/th*` — 客户/择样/摊位/CRM 等）
+面向 TSB ERP 业务页面的 Cursor 插件，把页面开发中最容易失控的环节固化为可执行规则：
 
-插件目录：`D:\company\HhEmpower`（Marketplace 名：`t-erp-page`）
+- **先分析后动手** —— 从前后端混写文档中拆出前端改动点，才进入实现
+- **事实优先** —— 字段、类型、值域以接口与现有代码为准，不凭命名猜测
+- **最小充分实现** —— 不为小功能引入多余文件、依赖和抽象
+- **交付可对账** —— 需求、代码、权限、业务闭环与验证结果构成完整记录
 
-## 内容
+## 能力版图
 
-- **17 个 Skills** — `t-requirement`（产品需求与前后端责任拆分）+ `t-page` 内核（profiles/anchors/orchestration/naming）+ `t-clarify`（剩余需求澄清关卡）+ workflow + 列表/详情/弹窗等子 Skill + `t-api-docs` + `t-dingtalk`（钉钉聊天只读查询）
-- **22 个 Subagent** — 原 ERP 侦察/实现/审查/验证体系 + `t-dingtalk` 只读检索员，多 agent 编排继续遵守**禁脚本**
-- **2 条 Rule** — ERP 页面改动指引 + 钉钉聊天隐私边界
-- **5 个 Command** — `/t-start` · `/t-new-module` · `/t-review` · `/t-zentao-collect` · `/t-dingtalk-read`
-- **1 个插件内置 MCP** — Torna 接口文档、禅道任务和钉钉聊天记录只读能力
+| 能力 | 数量 | 说明 |
+| --- | ---: | --- |
+| Skills | 17 | 需求分析、页面开发、接口核验、权限、字段、弹窗、列表、详情 |
+| Subagents | 22 | 侦察、实现、审查、影响分析与验证，按任务规模编排 |
+| Rules | 2 | 页面开发通用指引与钉钉聊天隐私边界 |
+| Commands | 5 | `/t-start` `/t-new-module` `/t-review` `/t-zentao-collect` `/t-dingtalk-read` |
+| 内置 MCP | 1 | Torna 接口文档、禅道任务、钉钉聊天记录只读能力 |
 
-## 核心特性
+## 工作流
 
-### 双项目自动适配
+| 阶段 | 入口 | 交付 |
+| --- | --- | --- |
+| 需求分析 | `t-requirement` | 从混写文档拆出前端责任、改动点与阻塞项，输出十节规范化报告 |
+| 页面规划 | `t-page` · `t-workflow` | 确认项目画像、主单与详情边界、权限、字段、路由与复杂度预算 |
+| 局部实现 | `t-list` · `t-detail` · `t-dialog` · `t-auth` 等 | 沿用既有结构，优先复用，只改已确认范围 |
+| 审查验证 | `t-review` · `t-code` · `t-build` | 对账需求与 diff，清理纠错残留，验证闭环、契约与构建 |
 
-插件不硬编码任何项目特定路径。Agent 进入任务时**自动探测**当前项目（读 package.json / 扫 views 前缀），按 [skills/t-page/profiles.md](skills/t-page/profiles.md) 的画像表套用对应列（标准页、OP_HEADERS 形态、API 文件、locales 命名空间）。
+需求分析只理解、不写码。用户纠正 AI 时，流程恢复到正向需求基线，不把被否决内容写进注释、命名、测试或 PR 文案。
 
-- TradeErp：标准页 `tsMaterialOrdering`，OP_HEADERS 形态 `OP_HEADERS[页名][动作]`
-- HallErp：标准页 `thCustomerInfo`，OP_HEADERS 形态 `OP_HEADERS[PAGE{N}][AUTH{N}]`
+## 工程原则
 
-### ERP 治理红线
+**需求范围可对账** —— diff 的每一处修改，都对应已确认需求或其直接依赖。范围外问题只记录，不扩散修改。
 
-所有 Skills、Commands、Rules、MCP、Scripts、Agents 统一继承 [skills/t-page/anchors.md](skills/t-page/anchors.md)：业务操作按存在跨模块闭环风险处理；AI 不替用户做业务/权限/上线批准；AI、MCP、接口工具和调试账号不得绕过人类用户权限；接口字段、输入值域和长度规则零偏差；禁止脚本批量改 ERP 业务代码。
+**复杂度匹配问题规模** —— 小改动在现有职责内完成；只有真实复用点才新增文件、依赖或抽象。存在更简单方案时，采用更简单方案。允许局部完整的适度重复，不为 DRY 强行引入状态机、策略表或转发层。
 
-### 多 Subagent 编排
+**事实优先于猜测** —— 字段与规则取自用户确认、Torna 文档、接口类型和现有模块代码，事实冲突时暂停确认。外部数据只在边界归一化一次，业务分支直接使用领域类型。
 
-主 Agent 读 [skills/t-page/orchestration.md](skills/t-page/orchestration.md) 学会调度，按任务规模选 subagent 子集（小改 3-4 个、大改全链路 11-12 个，非每次全用 21 个）：
+**权限与责任不可绕过** —— AI 不代做业务、权限、数据或上线批准；工具与脚本遵守当前用户权限。
 
-| 组 | Agent | 职责 |
-|----|-------|------|
-| 侦察 | `t-scout` · `t-survey` | 探测项目、定位范围、测绘标准页（只读） |
-| 模块并行 | `t-mod`（模板，运行时实例化） | 批量/跨模块任务：按大菜单扫描，每模块派一个实例并行，禁脚本 |
-| 实现 | `t-api` · `t-col` · `t-type` · `t-view` · `t-dialog` · `t-style` · `t-route` · `t-oplog` · `t-auth` · `t-scaffold` · `t-i18n` | 按代码层并行写（各写各文件）；i18n-author 是 locales 唯一写入者 |
-| 共享/修复 | `t-shared` | 改跨模块共享组件/utils/hook 时单点手术 + 同步所有引用方 |
-| 审查 | `t-spec` · `t-i18n-check` · `t-code` | 两阶段守门（规范符合含六处一致 → 代码质量） |
-| 验证 | `t-impact` · `t-registry` · `t-build` | Bug 后查漏改 / 新模块后登记 / 实跑 vue-tsc+eslint+冒烟 |
+**规则可被验证** —— 多条件共同决定行为时，先整理行为矩阵，再用重叠条件、未知状态与返回顺序测试固定规则。
 
-## 本地安装
+## 双项目自适应
+
+不写死项目路径。进入任务后读取 `package.json`、扫描 `src/views` 前缀，按[项目画像](skills/t-page/profiles.md)选择标准页、API 文件、`OP_HEADERS` 形态与 locales 命名空间。
+
+| 项目 | 页面目录 | 标准页 | `OP_HEADERS` 形态 |
+| --- | --- | --- | --- |
+| TradeErp | `src/views/ts*` | `tsMaterialOrdering` | `OP_HEADERS[页名][动作]` |
+| HallErp | `src/views/th*` | `thCustomerInfo` | `OP_HEADERS[PAGE{N}][AUTH{N}]` |
+
+## 快速开始
 
 ```powershell
 cd D:\company\HhEmpower
 .\scripts\install-local.ps1
 ```
 
-脚本会在 `%USERPROFILE%\.cursor\plugins\local\t-erp-page` 创建符号链接。完成后：
+默认符号链接模式，源码改动即时生效；无符号链接权限时使用 `-Copy`。卸载：`.\scripts\install-local.ps1 -Uninstall`。
 
-1. 重启 Cursor（或重新打开窗口）
-2. **Settings → Customize → Plugins**，确认 **t-erp-page** 已启用
-3. 输入 `/t-start` 测试
+安装后三步启用：
 
-### 插件内置 MCP
+1. 重启 Cursor
+2. **Settings → Customize → Plugins** 确认 `t-erp-page` 已启用
+3. 输入 `/t-start` 验证响应
 
-`t-browser-mcp` 随 `t-erp-page` 一起安装，自动提供 Torna、禅道和钉钉只读工具。普通用户无需拥有 `D:\company\HhEmpower`，无需运行 `install-mcp.ps1`，也无需修改用户级 `~/.cursor/mcp.json` 或执行 `npm install`。
-
-钉钉能力内置官方 DWS `v1.0.51` 的 Windows/macOS/Linux 运行时。首次使用先调用 `dingtalk_auth_status`，未登录时调用 `dingtalk_auth_login` 并在钉钉官方页面完成 OAuth；企业管理员需要开启对应 CLI 访问权限。插件不接收密码、Cookie 或 Token，只读取当前授权用户有权访问的会话，且不把聊天记录写入项目或临时文件。
-
-从旧版本升级且曾运行过 `install-mcp.ps1` 时，应先删除全局 `t-browser-mcp` 注册，避免与插件内置 MCP 重复启动。插件安装后在 **Settings -> Tools & MCP** 中确认只存在一个 `t-browser-mcp`。
-
-### 手动安装
-
-```powershell
-$target = "D:\company\HhEmpower"
-$link   = "$env:USERPROFILE\.cursor\plugins\local\t-erp-page"
-New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.cursor\plugins\local" | Out-Null
-if (Test-Path $link) { Remove-Item $link -Force -Recurse }
-New-Item -ItemType SymbolicLink -Path $link -Target $target
-```
+内置 MCP `t-browser-mcp` 随插件自动安装，开箱即用，详见 [mcp/README.md](mcp/README.md)。
 
 ## 团队分发
 
-### 方式 A：符号链接（开发机）
+| 方式 | 适用场景 | 操作 |
+| --- | --- | --- |
+| 本地开发机 | 个人开发调试 | Clone 后运行 `install-local.ps1` |
+| Team Marketplace | 团队统一安装 | `export-github-repo.ps1` 导出后导入私有仓库 |
+| ERP 主仓维护 | 规范与业务仓同步 | 从 ERP 主仓 `.cursor` 目录运行 `sync-skills.ps1` |
 
-每人 clone 本仓库后执行一次 `install-local.ps1`。
+导出与发布详见 [PUBLISH.md](PUBLISH.md)。插件仓库只分发 Skills、Commands、Rules、Agents 与 MCP，不含 ERP 业务代码。
 
-### 方式 B：独立 Git + Team Marketplace
+## 仓库结构
 
-```powershell
-.\scripts\export-github-repo.ps1
-# 在导出目录 push 到 GitHub 私有仓，挂到 Cursor Team Marketplace
-```
-
-详见 [PUBLISH.md](PUBLISH.md)。
-
-### 方式 C：随 ERP 主仓维护
-
-源文件可在 `Tsb.TradeErp.PC\.cursor\` 或 `Tsb.HallErpTenant.PC\.cursor\`，改完后同步插件资料：
-
-```powershell
-.\scripts\sync-skills.ps1 -SourceRoot "D:\company\Tsb.TradeErp.PC\.cursor"
-```
-
-## 插件结构
-
-```
+```text
 HhEmpower/
-├── .cursor-plugin/plugin.json
-├── agents/                  ← 22 个 subagent（ERP 六组 + 钉钉只读检索）
-├── commands/                ← /t-start · /t-new-module · /t-review · /t-zentao-collect · /t-dingtalk-read
-├── mcp/                     ← Torna + 禅道 + 钉钉只读能力的插件内置 MCP
-├── rules/                   ← ERP 页面指引 + 钉钉聊天隐私边界
-├── scripts/                 ← install-local · sync-skills · export-github-repo
-├── skills/
-│   ├── t-requirement/     ← 产品文档拆解 + 前端改动点 + 十节标准报告
-│   ├── t-page/            ← 内核（SKILL + anchors + profiles + orchestration + naming）
-│   ├── t-workflow/   ← 改动工作流 + 必问单选题
-│   ├── t-dingtalk/   ← 钉钉聊天记录只读查询
-│   ├── t-{list,detail,dialog,module,standards}/
-│   ├── t-{auth,oplog,field,tab,registry}/
-│   └── README.md
-├── CHANGELOG.md
-└── README.md
+├── .cursor-plugin/plugin.json       插件清单
+├── agents/                          22 个专业 subagent
+├── commands/                        5 个快捷命令
+├── mcp/                             内置只读 MCP 与构建产物
+├── rules/                           页面指引与隐私边界
+├── scripts/                         安装、同步、导出脚本
+├── skills/                          17 个专业 skill（见 skills/README.md）
+├── assets/logo.png                  插件图标
+├── CHANGELOG.md                     版本记录
+└── PUBLISH.md                       发布说明
 ```
 
-## 与项目 `.cursor` 的关系
+## 与 ERP 项目的关系
 
 | 位置 | 用途 |
-|------|------|
-| `Tsb.TradeErp.PC\.cursor\` 或 `Tsb.HallErpTenant.PC\.cursor\` | 可选：项目内 Skills/Commands/Rules/Agents/MCP/Scripts 源 |
-| `HhEmpower\` | 插件分发副本（本仓库） |
-| `rules/t-agent-guidance.mdc` | 编辑 ts/th 页时自动加载 |
+| --- | --- |
+| ERP 项目内 `.cursor\` | 可选的项目级 Skills、Commands、Rules、Agents 源 |
+| `D:\company\HhEmpower\` | 插件源码与分发仓库 |
+| `rules/t-agent-guidance.mdc` | 编辑 `src/views/{ts,th}*/**` 时自动加载的全局规则 |
 
-启用插件后 Skills 随 Cursor 用户级加载；Rule 仅在匹配 `src/views/{ts,th}*/**` 时生效。
+## 命名与兼容
 
-## 命名与项目探测
+技术标识统一为 `t-*`；`tsb-erp` 与 `tsb-hall-user` 是 ERP 项目的探测值，不属于插件命名。旧标识按 `ts-page-X → t-X`、`/ts-page-X → /t-X` 规则迁移（如 `ts-page-list` → `t-list`），`trade-erp-ts-page` → `t-erp-page`。旧版安装先 `-Uninstall` 再重装。
 
-- 插件、Skill、Command、Agent、Rule 与 MCP 技术标识统一使用 `t-*`。
-- 插件同时支持 **TradeErp(ts*)** 和 **HallErp(th*)**，按 [profiles.md](skills/t-page/profiles.md) 自动探测。
-- `tsb-erp` 与 `tsb-hall-user` 是 ERP 项目自身的 `package.json` 探测值，不属于插件技术命名。
-- 旧版本安装可先运行 `.\scripts\install-local.ps1 -Uninstall`，再运行 `.\scripts\install-local.ps1` 安装当前插件。
+## 延伸阅读
 
-## 版本
+[技能索引](skills/README.md) · [项目画像](skills/t-page/profiles.md) · [全局边界与红线](skills/t-page/anchors.md) · [多 Agent 编排](skills/t-page/orchestration.md) · [发布指南](PUBLISH.md) · [版本记录](CHANGELOG.md)
 
-见 [CHANGELOG.md](CHANGELOG.md) — 当前 **2.8.0**
+---
+
+v2.8.0 · [MIT License](LICENSE) · [CHANGELOG](CHANGELOG.md)
