@@ -1,6 +1,6 @@
 ---
 name: t-page
-description: Use when Codex works on a TSB ERP product requirement, business page, route, module, list, detail, popup, drawer, tab, field, auth, operation log, instrumentation, log dictionary, log verification, route registry, business closed loop, cross-module impact, accountability, or page-level skill routing；触发词包括 产品需求、前后端混写、页面、路由、主单、详情、明细、弹窗、抽屉、字段、权限、操作日志、埋点日志、日志埋点、埋点、日志词库、日志核对、日志核对管理系统、业务闭环、全局感知、责任归属、vxe-grid、hasAuth、AUTH_CODES、OP_HEADERS、staticRoutes、setField、sysRoleFiledCode、ts/th。
+description: TSB ERP 页面任务统一入口与路由器。Use when 不确定用哪个 TSB ERP skill、任务涉及 ts*/th* 业务页面、或需要页面级责任归属与全局边界；触发词：页面、路由、模块、业务闭环、全局感知、责任归属、vxe-grid、OP_HEADERS。不适用于：非 TSB ERP 仓库、纯后端接口开发、禅道/钉钉独立查询（直达对应 skill）。
 ---
 
 # t-page
@@ -11,7 +11,7 @@ description: Use when Codex works on a TSB ERP product requirement, business pag
 2. 报告完成后，如果仍含会改变前端方案的歧义、反绕过表达，或要求跳过确认，再读 [t-clarify](../t-clarify/SKILL.md)，由澄清结果决定是否继续。
 3. 读 [profiles.md](profiles.md)，确认当前页面画像是 `ts`、`th`，或仍需继续探测。
 4. 读 [anchors.md](anchors.md)，只引用其中的全局关卡、范围、共享影响、归因和标准源。
-5. 只有当前任务涉及必问单选、改动决策或“是否可以直接改”的判断时，才读 [t-workflow](../t-workflow/SKILL.md)。
+5. 改代码任务读 [t-workflow](../t-workflow/SKILL.md)（蓝图、必问单选、最简代码、纠错复原）；纯分析、查询类任务可跳过。非页面类改代码也可直接使用 t-workflow。
 6. 输出下方“页面任务概览”；概览完成后再按下方路由表读取具体子 skill。`t-page` 本身不进入代码实现步骤。
 
 ## 必读材料
@@ -32,7 +32,7 @@ description: Use when Codex works on a TSB ERP product requirement, business pag
 | 主单、列表页、查询区、表格、`vxe-grid` | [t-list](../t-list/SKILL.md) |
 | 详情、明细、主单详情映射 | [t-detail](../t-detail/SKILL.md) |
 | 弹窗、抽屉、对话框、批量操作面板 | [t-dialog](../t-dialog/SKILL.md) |
-| 命名、列宽、import、通用页面标准 | [t-standards](../t-standards/SKILL.md) |
+| 列宽、import、编码克制、通用页面标准（命名红线读 naming.md） | [t-standards](../t-standards/SKILL.md) |
 | 权限按钮、`hasAuth`、`v-auth`、`AUTH_CODES` | [t-auth](../t-auth/SKILL.md) |
 | 字段设置、字段对齐、`setField`、`sysRoleFiledCode` | [t-field](../t-field/SKILL.md) |
 | Tab、保存、编辑态、只读态 | [t-tab](../t-tab/SKILL.md) |

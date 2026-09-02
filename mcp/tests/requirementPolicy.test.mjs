@@ -84,6 +84,6 @@ test("ERP entry points route mixed product documents to t-requirement before t-c
   }
 
   assert.match(read("skills/README.md"), /t-requirement/);
-  assert.match(read("README.md"), /17 个 Skills/);
+  assert.match(read("README.md"), /\| Skills \| 18 \|/);
   assert.match(read("README.md"), /t-requirement/);
 });

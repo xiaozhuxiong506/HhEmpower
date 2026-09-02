@@ -16,11 +16,11 @@ description: Tsb ERP（ts*/th*）规范符合审查（第一阶段）。对照 s
 
 实现 agent 产出后的**第一阶段审查**（先于 [t-code](t-code.md)）。对照 skill 规范审 diff，**只审查不直接改**（除非用户明确要求）。
 
-> 第二阶段（运行时正确性：virtualYConfig/列宽/import/lint）由 code-reviewer 负责，**本 agent 不审机器可判定项**。
+> 第二阶段（运行时正确性：virtualYConfig/列宽/import/lint）由 t-code 负责，**本 agent 不审机器可判定项**。
 
 ## 输入
 
-主 Agent 提供：用户原始需求、后续纠正（如有）、本次改动 git diff / 文件清单、提交或 PR 文案（如有）、scout 范围报告、impact-surveyor 影响清单（可选）。
+主 Agent 提供：用户原始需求、后续纠正（如有）、本次改动 git diff / 文件清单、提交或 PR 文案（如有）、scout 范围报告、t-impact 影响清单（可选）。
 
 ## 审查清单
 
@@ -42,12 +42,12 @@ description: Tsb ERP（ts*/th*）规范符合审查（第一阶段）。对照 s
 - [ ] **columns 的每个 `field` 在 type.ts 有对应字段**（小驼峰一致；seq/checkBox/operation 等元列除外）
 - [ ] **type.ts 新增字段是否已反映到 columns / 表单 prop / setField fieldName**
 
-> 前 5 项是"命名样式一致"（非字符串相等），第 6 项是 columns↔type 的字段对齐——这是新需求高发的静态对照，spec 阶段就能审，不用等 Bug 后 impact-surveyor。
+> 前 5 项是"命名样式一致"（非字符串相等），第 6 项是 columns↔type 的字段对齐——这是新需求高发的静态对照，spec 阶段就能审，不用等 Bug 后 t-impact。
 
 ### 文件职责（Warning）
 - [ ] columns.ts 只写列；auth.ts 只写权限码；type.ts 只写类型；i18n yaml 只由 [t-i18n](t-i18n.md) 写
-- [ ] 无职责串味（auth 里写列、columns 里写 API、view-assembler 抢写 locales 等）
-- [ ] 共享组件（Th*/utils/hook）改动是否由 [t-shared](t-shared.md) 处理（而非散在 module-agent 实例）
+- [ ] 无职责串味（auth 里写列、columns 里写 API、t-view 抢写 locales 等）
+- [ ] 共享组件（Th*/utils/hook）改动是否由 [t-shared](t-shared.md) 处理（而非散在 t-mod 实例）
 
 ### 最简代码（Warning）
 - [ ] 是否顺手重构/抽离未确认的公共代码（违反总表 #7 默认不抽离）
@@ -73,12 +73,12 @@ description: Tsb ERP（ts*/th*）规范符合审查（第一阶段）。对照 s
 
 - **Critical** — 范围错、纠错未复原、需求-diff 无法对应、被否决内容残留、六处不一致、columns↔type 字段错位、职责串味导致线上问题、**违反最小改动原则（范围外顺手改）**
 - **Warning** — 规范偏离、过度封装
-- **Pass** — 若全过，明确写「规范符合，进入 code-reviewer」
+- **Pass** — 若全过，明确写「规范符合，进入 t-code」
 
 ## 禁止
 
 - 直接改代码（只出报告）
 - 跳过范围核对（最易出 Critical）
 - 跳过 columns↔type 字段一致性（新需求高发）
-- 审查运行时正确性（virtualYConfig/列宽/import 顺序/lint）—— 那是 code-reviewer 的事
-- 真跑构建（那是 build-validator 的事）
+- 审查运行时正确性（virtualYConfig/列宽/import 顺序/lint）—— 那是 t-code 的事
+- 真跑构建（那是 t-build 的事）

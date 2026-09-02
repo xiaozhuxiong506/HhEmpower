@@ -6,7 +6,7 @@ description: 审查刚改完的所有代码：代码规范、文案核查、代�
 # Tsb ERP 页面改动审查
 
 1. 获取用户原始需求、后续纠正（如有）、本次改动的 `git diff` 或用户指定的文件列表，以及提交或 PR 文案（如有）
-2. **需求澄清（硬卡停关卡）** — 扫描用户原始需求，命中模糊信号词（那个改动/那次/那个模块/处理一下 等）→ Read [skills/t-clarify/SKILL.md](../skills/t-clarify/SKILL.md) 按其规则发起澄清三问，**用户答完前不得进入下一步**
+2. **需求澄清（硬卡停关卡）** — 扫描用户原始需求，命中模糊信号词（那个改动/那次/那个模块/处理一下 等）→ Read [skills/t-clarify/SKILL.md](../skills/t-clarify/SKILL.md) 按其规则发起澄清（一次 1~3 问），**用户答完前不得进入下一步**
 3. **探测项目** — 读 [skills/t-page/profiles.md](../skills/t-page/profiles.md)
 4. 两阶段审查（两个阶段必做，可选择由 subagent 执行）：
    - 第一阶段：`t-spec`（规范符合）∥ `t-i18n-check`（文案核查）

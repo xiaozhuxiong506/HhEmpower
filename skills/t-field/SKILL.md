@@ -13,6 +13,8 @@ description: Use when adding or changing TSB ERP 字段设置、setField、setti
 
 每个维度取值遵循后端字段配置：`0=不设置`、`1=设置不显示`、`2=设置显示`。
 
+> 注意：下方必问门禁中的 `setField` 第二参是**维度序号**（如编辑可见=4、可编辑=2），与本表“字段取值 0/1/2”是两套编码，不得混用。`setField` 具体入参以当前页面同维度现有调用为准；发现与本表冲突时暂停确认，不得凭记忆硬编码。
+
 | 维度 | 含义 | 页面常见用途 |
 | --- | --- | --- |
 | `showList` | 列表可见 | 主单 grid 列 |
@@ -55,10 +57,11 @@ description: Use when adding or changing TSB ERP 字段设置、setField、setti
 - **A. 编辑可见**：`setField(..., 4)` 控制 `v-if`。
 - **B. 可编辑**：`setField(..., 2)` 控制 `:disabled`。
 - **C. 详情可见**：详情头或详情信息区使用 `setField(..., 1)`。
-- **D. 列表可见**：列表列接 `showList` / `showField`。
+- **D. 列表可见**：列表列接 `showList`；如现页使用 `showField` 等别名，以现有页面写法为准。
 - **E. 批量编辑可见**：`setField(..., 5)`。
 - **F. 批量编辑可编辑**：`setField(..., 3)`。
 - **G. 暂不接字段设置**：必须由用户明确选择，并记录原因。
+- `audit` / `trace` 两维度当前无前端门禁选项，由后端字段配置控制；涉及审核/留痕字段时在交付说明中标注，不自行发明取值。
 
 用户未选定前，不写对应字段设置代码。
 

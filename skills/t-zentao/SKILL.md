@@ -1,6 +1,6 @@
 ---
 name: t-zentao
-description: Use when collecting, analyzing, grouping, scheduling, resolving, dispatching, or summarizing Zentao Tasks and Bugs assigned to the current user through t-browser-mcp; triggers include 禅道, Zentao, assigned-to-me, 我的任务, Bug, 需求, 排期, 解决, 分组, 派发, MCP, 登录, 日志.
+description: Use when collecting, analyzing, grouping, scheduling, resolving, or dispatching Zentao Tasks and Bugs assigned to the current user through t-browser-mcp; triggers include 禅道, Zentao, assigned-to-me, 我的任务, 禅道需求, 禅道Bug, TSBERP, HALLERP, 排期, 解决, 分组, 派发. 不适用于普通 bug 修复与需求开发（走 t-workflow / t-page）。
 ---
 
 # t-zentao
@@ -9,7 +9,7 @@ description: Use when collecting, analyzing, grouping, scheduling, resolving, di
 
 收集“指派给我”的工作项必须先调用 `zentao_collect_assigned_work_items`。同一次工作流只调用一次统一采集；Task、Bug、不同模块和并行执行者都复用该结果。模块执行者不得重新采集、不得重新登录禅道。底层会按同一浏览器 profile 串行化操作并复用一个登录会话。
 
-首次登录或会话失效时，让用户在打开的浏览器中完成登录，然后重试同一个统一采集工具。未登录、采集失败或缺少原文时，不得伪造工作项、分组或完成状态。
+首次登录或会话失效时，让用户在打开的浏览器中完成登录，然后重试同一个统一采集工具。未登录、采集失败或缺少原文时，不得伪造工作项、分组或完成状态。`t-browser-mcp` 或浏览器不可用时，停止采集并向用户说明安装/登录问题，不得伪造工作项或分组。
 
 工具参数固定以 `pageSize: 2000` 采集当前用户的 Task 和 Bug。原始 ID、URL、标题、正文、描述、备注、日志、项目、产品、创建者、处理人、截止日期、状态、优先级和严重程度是事实源；摘要不能替代原文。
 
@@ -33,12 +33,22 @@ description: Use when collecting, analyzing, grouping, scheduling, resolving, di
 
 先提醒用户当前分支。不要固定输出仓库路径、HEAD、工作区状态、文件级 Git 最近修改者；仅在异常或用户追问时补充相关信息。
 
-按“系统 -> 代码模块”分组，先给 Task/Bug 数量摘要，再为每组输出标准 Markdown 表格。列顺序固定为：
+按“系统 -> 代码模块”分组，先给 Task/Bug 数量摘要，再为每组输出两级内容：
 
-| 场景 | 所属项目 | 所属产品 | ID/链接 | 标题 | 创建者 | 当前处理人 | 截止日期 | 代码模块 | 共享影响 | 待确认项 | 详细处理方案与对应位置 |
-|---|---|---|---|---|---|---|---|---|---|---|---|
+1. **紧凑总览表**（固定 6 列，只放短字段，禁止把处理方案等长文本放进单元格）：
 
-最后一列必须写可执行方案：问题判断、关联模块/组件、精确代码位置、拟改内容和验证方法。尚未完成代码分析时写“待分析”，不得编造位置。
+    | ID/链接 | 标题 | 场景 | 代码模块 | 共享影响 | 当前处理人/截止日期 |
+    |---|---|---|---|---|---|
+
+2. **逐条明细**：总览表下方按条目输出，**详细处理方案与对应位置写在对应代码块上方**，代码紧随其下：
+
+    > ### #9413 标题（禅道Bug）
+    > - 详细处理方案与对应位置：问题判断、关联模块/组件、精确代码位置、拟改内容、验证方法
+    > - 待确认项：无或逐条列出
+    > - 所属项目/产品：TSBERP / TSBERP1.0 · 创建者：姓名
+    > （此处紧跟该条对应的代码块）
+
+表格单元格禁止出现处理方案、根因分析等长文本；长文本只允许出现在明细小节里。尚未完成代码分析时方案写“待分析”，不得编造位置。
 
 ## Task 排期
 

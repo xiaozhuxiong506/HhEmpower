@@ -123,14 +123,7 @@ AI 的访问和操作必须受到与人类用户同样严格的权限控制。�
 
 ## 标准源码
 
-| 用途 | `ts` 项目：TradeErp | `th` 项目：HallErp |
-|------|---------------------|--------------------|
-| 新页默认模板 | `src/views/tsProcurementManagement/tsMaterialOrdering/` | `src/views/thCustomerManagement/thCustomerInfo/` |
-| 复杂功能参考 | `src/views/tsProcurementManagement/tsProcurementOrdering/` | `src/views/thSampleSelectionManagement/thSampleSManagement/` |
-| 详情模板 | `src/views/tsProcurementManagement/tsMaterialOrderingDetail/` | `thCustomerInfo/components/Detail.vue`；独立详情见 `thOpenToPublicDetail` |
-| 多 Tab 子页 | `src/views/tsDocumentaryManagement/tsOrderTracking/` | 扫描当前模块已有多 Tab 页 |
-
-新页复制当前画像的标准模板；复杂弹窗、抽屉、批量操作参考复杂功能页；多 Tab 先找当前模块同类页面。
+标准列表页、复杂参考页、详情模板等路径唯一见 [profiles.md](profiles.md) 画像表；多 Tab 场景先找当前模块同类页面，找不到再询问用户。新页复制当前画像标准模板，复杂弹窗、抽屉、批量操作参考复杂参考页。
 
 ## 主单与详情映射
 

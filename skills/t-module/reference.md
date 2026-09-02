@@ -11,7 +11,7 @@
 - 主单 `OP_HEADERS` key：`${标准页}` -> `${views前缀}Xxx`；`th` 项目如果使用 `PAGE{N}`，按现有注释和 [t-oplog](../t-oplog/SKILL.md) 规则确认。
 - 独立详情目录：`${标准页}Detail` -> `${views前缀}XxxDetail`；`th` 内嵌详情通常是 `components/Detail.vue`，以画像和兄弟文件为准。
 - 详情路由、详情 `OP_HEADERS`、详情 `sysRoleFiledCode` 只在详情形态确认后替换。
-- 自检六处一致：`path`、`name`、`defineOptions.name`、`OP_HEADERS` key、`sysRoleFiledCode`、`columns.field` 与 `type` 字段。
+- 自检六处一致：以 [../t-page/naming.md](../t-page/naming.md) 定义的六处为准（路由/菜单、组件文件名、组件名、API/类型名、i18n key、权限/日志/pageId）；字段对齐（`columns.field` ↔ `type` ↔ 接口字段）另行核对。
 
 ## 文件清单
 
@@ -34,7 +34,7 @@
 
 - 新增 `AUTH_CODES` 前先确认权限码；详情默认复用主单 `auth.ts`，除非当前项目证据显示详情有独立权限文件。
 - 所有按钮显隐、`hasAuth` 和工具栏操作使用当前项目已有模式，不引入另一套权限结构。
-- 新增 locale key 前先确认 i18n namespace；常见命名空间包括 `menus.`、`l.`、`g.`、`label.`、`buttons.`，`th` 项目还可能有 `cm`、`tg`、`psv` 等。
+- 新增 locale key 前先确认 i18n namespace；命名空间清单唯一见 [../t-page/profiles.md](../t-page/profiles.md) 画像表 i18n 行，不得凭记忆硬编码。
 - 参考其他模块的 `t('key')` 前必须查 locales，不能只复制调用点。
 - 已有翻译不因新模块顺手改写；只追加本次需要的 key。
 

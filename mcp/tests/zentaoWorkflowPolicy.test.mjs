@@ -45,27 +45,23 @@ test("developer report groups by system and module with handling plan last", () 
   const markdown = formatZentaoWorkItemAnalysisMarkdown(analysis);
 
   assert.deepEqual(DEVELOPER_TABLE_COLUMNS, [
-    "场景",
-    "所属项目",
-    "所属产品",
     "ID/链接",
     "标题",
-    "创建者",
-    "当前处理人",
-    "截止日期",
+    "场景",
     "代码模块",
     "共享影响",
-    "待确认项",
-    "详细处理方案与对应位置"
+    "处理人/截止"
   ]);
   assert.match(markdown, /\| 禅道需求 \| 1 \| 0 \| 0 \| 1 \|/);
   assert.match(markdown, /\| 禅道Bug \| 1 \| 0 \| 0 \| 1 \|/);
   assert.match(markdown, /## 贸易系统 · 采购模块/);
   assert.match(markdown, /## 贸易系统 · 库存仓储模块/);
   assert.match(markdown, /\[9328\]\(http:\/\/example\/bug-view-9328\.html\)/);
-  const header = markdown.split("\n").find(line => line.includes("| 所属项目 |"));
-  assert.ok(header.endsWith("| 详细处理方案与对应位置 |"));
-  assert.doesNotMatch(header, /HEAD|工作区|Git 最近修改者/);
+  const header = markdown.split("\n").find(line => line.includes("| 标题 |"));
+  assert.ok(header.endsWith("| 处理人/截止 |"));
+  assert.doesNotMatch(header, /HEAD|工作区|Git 最近修改者|详细处理方案/);
+  assert.match(markdown, /### #9328 .*（禅道Bug）/);
+  assert.match(markdown, /- 详细处理方案与对应位置：/);
 });
 
 test("developer report escapes table-breaking source text", () => {

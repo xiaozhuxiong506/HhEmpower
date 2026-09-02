@@ -25,6 +25,7 @@
 | 路由形态 | `src/router/modules/ts{模块}Management.ts`；详情/静态页进 `src/router/modules/staticRoutes.ts` | `src/router/modules/th{模块}.ts`；详情/静态页进 `src/router/modules/staticRoutes.ts` |
 | 列表/详情模式 | 列表与详情常分目录；新详情优先用单数 `Detail`，保留既有 legacy 目录名 | 详情多数内嵌在主单 `components/Detail.vue` 或 `MaiDetail.vue`；仅有证据时使用独立详情目录 |
 | 详情模板 | `src/views/tsProcurementManagement/tsMaterialOrderingDetail/` | `thCustomerInfo/components/Detail.vue`；独立详情参考 `thOpenToPublicDetail` / `thSampleSelectionDetail` |
+| 多 Tab 子页 | `src/views/tsDocumentaryManagement/tsOrderTracking/` | 扫描当前模块已有多 Tab 页 |
 | 共享组件前缀 | `Th*`、`Re*` | `Th*`、`Re*` |
 | i18n | `locales/zh-CN.yaml`、`locales/en.yaml`；常见命名空间含 `projectTitle`、`m`、`z`、`buttons`、`search`、`panel`、`menus`、`form`、`placeholder`、`label` | 同目录；额外常见命名空间含 `cm`、`tg`、`psv`、`product`、`so` |
 | 权限 | `hasAuth(value, path?)`、`v-auth`、页内 `auth.ts` 导出 `AUTH_CODES` | `hasAuth(value, path?)`、`v-auth`、页内 `auth.ts` 或 `constants/` 导出权限码 |
@@ -50,7 +51,7 @@
 
 ## API 文档画像
 
-接口文档来源和检索规则统一读取 [t-api-docs](../t-api-docs/SKILL.md)。源码画像唯一命中 `ts` 时对应 Torna 贸易系统，唯一命中 `th` 时对应 Torna 展厅系统；商城与平台系统必须有用户明确指定或仓库唯一证据。普通“接口/API 文档”默认 Torna，不能仅因代码中存在 Swagger 配置就改走 Swagger。
+接口文档来源与分流门禁唯一见 [t-api-docs](../t-api-docs/SKILL.md)。本文件只提供系统归属映射：源码画像唯一命中 `ts` 对应 Torna 贸易系统，唯一命中 `th` 对应 Torna 展厅系统；商城与平台系统必须有用户明确指定或仓库唯一证据。
 
 ## 新增第三画像
 

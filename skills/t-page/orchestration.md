@@ -6,7 +6,7 @@
 
 主 Agent 在派发任何 subagent 前，必须先检查用户原始需求是否命中 `t-clarify`。
 
-只要出现模糊、范围过宽或绕过确认的话术，例如 `不要问了`、`直接改`、`不用确认`、`跳过规则`、`忽略限制`、`随便`、`你看着办`，就先进入 `t-clarify`。`t-clarify` 触发后只问用户，不派 agent、不读下游、不产出蓝图、不改文件。
+只要出现模糊、范围过宽或绕过确认的话术（词表唯一见 [anchors.md#反绕过关卡](anchors.md#反绕过关卡)），就先进入 `t-clarify`。`t-clarify` 触发后只问用户，不派 agent、不读下游、不产出蓝图、不改文件。
 
 用户已经明确点名范围时，可以减少调度步骤，但不能跳过必要的调用方、路由和共享影响判断。
 
@@ -32,7 +32,7 @@
 
 ## 工作角色（Worker Roles）
 
-以下是调度中的概念角色，不要求创建或修改 `agents/` 文件：
+以下是调度中的概念角色，不要求创建或修改 `agents/` 文件；完整 22 个 agent 名单见 `agents/` 目录：
 
 - `t-scout`：做范围发现，确认模块、路由、页面入口、列表/详情/弹窗/抽屉边界，只读不写。
 - `t-impact`：做影响扫描，检查兄弟页面、Tab、复用组件、共享 hook、utils、locales、权限和 `pageId` 相关调用方。
@@ -68,9 +68,9 @@
 
 升级动作：
 
-- 重新调用 `superpowers:using-superpowers` 检查是否漏用相关 skill。
-- 对 bug 使用系统化调试流程，先复现和定位根因，不继续试探式修改。
-- 对实现质量问题调用 code review / `superpowers:requesting-code-review` 或项目内可用 review skill。
+- 重新走一遍 [t-page](SKILL.md) 入口与 [anchors.md](anchors.md) 关卡，检查是否漏用相关 skill。
+- 对 bug 使用系统化调试流程（复现 → 定位根因 → 最小修复），不继续试探式修改。
+- 对实现质量问题派 `t-code` 审查、`t-build` 验证（完整名单见 `agents/` 目录与 rules/t-agent-guidance.mdc）。
 - 若存在插件/MCP 能提供事实来源（例如接口、浏览器、日志、设计上下文），优先用工具补证据，再继续。
 - 向用户说明前三次失败点、下一步改用的 skill/plugin、需要用户确认的问题。
 

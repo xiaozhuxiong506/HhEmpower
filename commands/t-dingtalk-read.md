@@ -1,4 +1,5 @@
 ---
+name: t-dingtalk-read
 description: 通过钉钉官方 OAuth 只读查找群聊和聊天记录，输出发送人、时间、消息与分页参数
 ---
 

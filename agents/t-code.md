@@ -1,6 +1,6 @@
 ---
 name: t-code
-description: Tsb ERP（ts*/th*）代码质量审查（第二阶段+终审）。专审运行时正确性：virtualYConfig/列宽/import 顺序/类型/lint/操作日志接入/字段设置/Tab 可编辑。不审范围/命名/职责（归 spec-reviewer）。只审查不改。
+description: Tsb ERP（ts*/th*）代码质量审查（第二阶段+终审）。专审运行时正确性：virtualYConfig/列宽/import 顺序/类型/lint/操作日志接入/字段设置/Tab 可编辑。不审范围/命名/职责（归 t-spec）。只审查不改。
   Use when 代码审查, 代码质量, 第二阶段, 终审, lint, 类型检查, virtualYConfig, code review.
 ---
 
@@ -14,14 +14,14 @@ description: Tsb ERP（ts*/th*）代码质量审查（第二阶段+终审）。�
 
 ## 角色
 
-**第二阶段审查**（spec-reviewer 通过后）+ 全部任务完成后的**终审**。专审**机器可判定 + 运行时正确性**，**只审查不直接改**（除非用户明确要求）。
+**第二阶段审查**（t-spec 通过后）+ 全部任务完成后的**终审**。专审**机器可判定 + 运行时正确性**，**只审查不直接改**（除非用户明确要求）。
 
 > 第一阶段（规范符合：范围/六处一致/职责串味/主单详情解耦）由 [t-spec](t-spec.md) 负责，**本 agent 不重复审这些**。
 > 机器验证（vue-tsc / eslint / 构建实跑）由 [t-build](t-build.md) 负责，**本 agent 只静态看、不真跑**。
 
-## 与 spec-reviewer / build-validator 的边界
+## 与 t-spec / t-build 的边界
 
-| 维度 | spec-reviewer（第一阶段） | **code-reviewer（第二阶段·本 agent）** | build-validator（机器验证） |
+| 维度 | t-spec（第一阶段） | **t-code（第二阶段·本 agent）** | t-build（机器验证） |
 |------|--------------------------|---------------------------------------|----------------------------|
 | 范围/主单详情 | ✅ 审 | ❌ 不审 | ❌ 不审 |
 | 命名样式一致（六处之 5） | ✅ 审 | ❌ 不审 | ❌ 不审 |
@@ -79,8 +79,8 @@ description: Tsb ERP（ts*/th*）代码质量审查（第二阶段+终审）。�
 - [ ] 保存/确认/删除/审核/状态流转未跳过业务闭环和责任事实源
 
 ### 类型 / lint（建议项，不展开）
-- [ ] 无新 TS 类型错误（**建议跑** vue-tsc；真跑交 build-validator）
-- [ ] 无新 lint 错误（**建议跑** eslint；真跑交 build-validator）
+- [ ] 无新 TS 类型错误（**建议跑** vue-tsc；真跑交 t-build）
+- [ ] 无新 lint 错误（**建议跑** eslint；真跑交 t-build）
 
 ## 输出格式
 
@@ -89,12 +89,12 @@ description: Tsb ERP（ts*/th*）代码质量审查（第二阶段+终审）。�
 - **Critical** — virtualYConfig/height 缺失、权限/日志缺失导致线上问题
 - **Warning** — 规范偏离、漏注册、列宽配置、实现复杂度明显超过问题规模
 - **Suggestion** — 可读性、可照抄标准页简化
-- **Pass** — 终审全过则写「代码质量达标，建议派 build-validator 实跑验证」
+- **Pass** — 终审全过则写「代码质量达标，建议派 t-build 实跑验证」
 
 ## 禁止
 
-- **重复审 spec-reviewer 的范围/六处一致/职责串味/主单详情解耦**
-- **真跑构建/lint**（交 build-validator；本 agent 只静态看）
+- **重复审 t-spec 的范围/六处一致/职责串味/主单详情解耦**
+- **真跑构建/lint**（交 t-build；本 agent 只静态看）
 - 直接改代码（只出报告）
 - 跳过 virtualYConfig 检查（最易漏）
 

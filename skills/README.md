@@ -1,6 +1,6 @@
 # TSB ERP 技能索引
 
-17 个 Skills，按任务直达。任务类型明确时直接读对应 skill，不经过索引。
+18 个 Skills，按任务直达。任务类型明确时直接读对应 skill，不经过索引。
 
 ## 技能总览
 
@@ -21,6 +21,7 @@
 | 操作日志 | [t-oplog](t-oplog/SKILL.md) |
 | 路由与 Tab 发现 | [t-registry](t-registry/SKILL.md) |
 | API 文档 · Torna/Swagger 分流 | [t-api-docs](t-api-docs/SKILL.md) |
+| 防御性编程 · 边界校验 · 吞异常 | [t-defense](t-defense/SKILL.md) |
 | 禅道任务收集与分析 | [t-zentao](t-zentao/SKILL.md) |
 | 钉钉聊天只读查询 | [t-dingtalk](t-dingtalk/SKILL.md) |
 
@@ -34,7 +35,7 @@
 | --- | --- |
 | 入口与调度 | `t-requirement` `t-page` `t-clarify` `t-workflow` `t-zentao` `t-dingtalk` |
 | 页面结构 | `t-module` `t-list` `t-detail` `t-dialog` `t-registry` |
-| 能力规则 | `t-standards` `t-auth` `t-field` `t-tab` `t-oplog` `t-api-docs` |
+| 能力规则 | `t-standards` `t-auth` `t-field` `t-tab` `t-oplog` `t-api-docs` `t-defense` |
 
 ## 单一事实源
 

@@ -14,7 +14,7 @@ description: >-
 
 ## 角色
 
-**i18n 唯一写入者**。所有新增 zh-CN + en 的 key 一律经本 agent 落盘，避免散落到 view-assembler / dialog-builder / scaffolder 多手写入。与 [t-i18n-check](t-i18n-check.md)（审）构成"一写一审"。
+**i18n 唯一写入者**。所有新增 zh-CN + en 的 key 一律经本 agent 落盘，避免散落到 t-view / t-dialog / t-scaffold 多手写入。与 [t-i18n-check](t-i18n-check.md)（审）构成"一写一审"。
 
 ## 输入
 
@@ -22,7 +22,7 @@ description: >-
 
 - AskQuestion **#4** 决策（新增 key 还是复用现有 key）
 - AskQuestion **#5** 决策（zh/en 文案内容；两中文 或 中英文区分）
-- 涉及的命名空间（按 profiles 探测结果）：ts→`m/g/menus/buttons/z/...`；th→`cm/m/g/menus/tg/psv/product/so/...`
+- 涉及的命名空间：唯一见 `skills/t-page/profiles.md` 画像表 i18n 行，按当前画像探测结果套用
 - key 用途（哪个页 / 哪个按钮 / 哪条提示）
 
 ## 产出文件
@@ -71,16 +71,16 @@ g:
 
 ## 禁止
 
-- **只写一个文件**（zh/en 必同步，单文件写是 i18n-checker 的 Critical 项）
+- **只写一个文件**（zh/en 必同步，单文件写是 t-i18n-check 的 Critical 项）
 - 改已有 key 的翻译（波及原模块；要改 → 报告主 Agent，由用户决策）
 - 自造命名空间（不在 profiles 列表内的顶层 key）
 - 跳号、重号（同命名空间内序号唯一递增）
-- 复用他模块业务 key（如采购页用了 `m.mNN` 实际文案是"销售订单"）—— i18n-checker 会判 Critical
+- 复用他模块业务 key（如采购页用了 `m.mNN` 实际文案是"销售订单"）—— t-i18n-check 会判 Critical
 - 未问 #4#5 就写
-- 与 view-assembler / dialog-builder / scaffolder **抢写 locales**（那些 agent 只能调用 key，不得自写 yaml）
+- 与 t-view / t-dialog / t-scaffold **抢写 locales**（那些 agent 只能调用 key，不得自写 yaml）
 
 ## 与其它 agent 的关系
 
 - **对称**：[t-i18n-check](t-i18n-check.md) 在第一阶段审查本 agent 产出
-- **下游**：view-assembler / dialog-builder / scaffolder 在代码里 `t('key')` 引用本 agent 写入的 key
+- **下游**：t-view / t-dialog / t-scaffold 在代码里 `t('key')` 引用本 agent 写入的 key
 - **决策**：所有"新增还是复用""中英还是两中"由主 Agent AskQuestion，本 agent 不决策

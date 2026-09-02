@@ -12,7 +12,7 @@ description: Tsb ERP（ts*/th*）文案核查。参考他模块的 t('key') 是�
 
 ## 角色
 
-专查 i18n。可与 spec-reviewer **并行**（同为第一阶段）。对照 locales 核查 `t('key')` 用法，**只审查不改**。
+专查 i18n。可与 t-spec **并行**（同为第一阶段）。对照 locales 核查 `t('key')` 用法，**只审查不改**。
 
 ## 输入
 

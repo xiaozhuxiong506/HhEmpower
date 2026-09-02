@@ -1,6 +1,6 @@
 ---
 name: t-oplog
-description: Use when a TSB ERP task adds, checks, or changes 操作日志、埋点日志、日志埋点、埋点、日志、行为日志、日志词库、日志核对、日志核对管理系统、操作日志词库管理、OP_HEADERS、operationLog、pageId、new page、新增页面、页面迁移、写操作、打印或导出。
+description: Use when a TSB ERP task adds, checks, or changes 操作日志、埋点日志、日志埋点、埋点、行为日志、日志词库、日志核对、日志核对管理系统、操作日志词库管理、OP_HEADERS、operationLog、pageId、新增页面、页面迁移、写操作、打印或导出。不适用于控制台日志、接口调试日志等运行日志（直接看代码/浏览器即可）。
 ---
 
 # t-oplog
@@ -11,7 +11,7 @@ description: Use when a TSB ERP task adds, checks, or changes 操作日志、埋
 
 涉及“操作日志、埋点日志、日志埋点、埋点、日志核对或日志核对管理系统”时，默认先通过管理后台核对和配置日志词库；只有用户明确要求生成 Console 脚本时，才使用后文的 Console 兼容流程。
 
-1. 打开 [http://admin.tsbsoft.com/](http://admin.tsbsoft.com/)。如果出现登录页面或登录弹窗，暂停当前流程，请用户完成登录后再继续；不得代填或索取用户密码。
+1. 打开 [http://admin.tsbsoft.com/](http://admin.tsbsoft.com/)。如果出现登录页面或登录弹窗，暂停当前流程，请用户完成登录后再继续；不得代填或索取用户密码。后台站点或浏览器工具不可用时，停止本流程并向用户说明，不得凭记忆生成词库配置。
 2. 登录后打开 [http://admin.tsbsoft.com/thAppManagement](http://admin.tsbsoft.com/thAppManagement)，根据已经确认的页面归属系统选择对应应用。贸易系统选择“外贸系统”；展厅系统选择后台实际对应的展厅应用；系统不明确时先询问，不得猜测。
 3. 在应用的“操作”列打开“更多”，进入“操作日志词库管理”，再选择“PC端”。不得误选移动端或其他平台。
 4. 先检索当前页面、当前模块以及同类新增/编辑/删除/查询功能的既有日志，记录其“操作页面、操作功能、常用标题、正则匹配”和四个单选项的实际配置。新增或核对时必须参照已有的增删改查日志并仿照其格式，不得自行设计匹配规则。
@@ -69,7 +69,7 @@ description: Use when a TSB ERP task adds, checks, or changes 操作日志、埋
 
 - 必须由用户在当前任务中提供；禁止复用示例、历史对话、代码、日志、环境变量、浏览器缓存或本地文件中的 token。
 - 不得把示例 token 当作默认值，不得猜测或补全 token。
-- token 缺失时只继续询问，不输出带 token 占位符的脚本。
+- token 缺失时只继续询问一次，不输出带 token 占位符的脚本；用户再次拒绝提供时，停止 Console 流程，只输出后台词库核对结论，不得反复索取。
 - 除最终 Console 代码中的 `token` 常量外，不在说明、日志、临时文件、测试、diff 或提交中重复 token。
 
 ## Console 输出契约（仅用户明确要求脚本时）

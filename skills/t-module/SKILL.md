@@ -53,7 +53,7 @@ description: Use when creating 新建或组装 TSB ERP 页面/模块/菜单/脚�
 ## 最终自检
 
 - 画像已确认：标准页、API、路由、i18n、OP 形态均来自 [profiles.md](../t-page/profiles.md) 或当前项目证据。
-- 六处命名一致：`path`、`name`、`defineOptions.name`、`OP_HEADERS` key、`sysRoleFiledCode`、`columns.field` 与 `type` 字段。
+- 六处命名一致：以 [naming.md](../t-page/naming.md) 定义的六处为准（路由/菜单、组件文件名、组件名、API/类型名、i18n key、权限/日志/pageId）；字段对齐（`columns.field` ↔ `type` ↔ 接口字段）另行核对。
 - 主单和详情边界清楚：主单不越界改详情，详情不反向要求主单 shortcut import 详情目录。
 - `pageId`、i18n namespace、权限码、字段设置维度和详情形态都已确认后才写对应代码。
 - 新字段已路由到 [t-field](../t-field/SKILL.md)，保存/确认/可编辑性已路由到 [t-tab](../t-tab/SKILL.md)，日志已路由到 [t-oplog](../t-oplog/SKILL.md)。

@@ -1,8 +1,8 @@
 ---
 name: t-build
 description: >-
-  Tsb ERP（ts*/th*）构建验证员。实跑 vue-tsc --noEmit / eslint / vue-tsc 构建，把 code-reviewer 的"建议跑"变成"真跑"。
-  code-reviewer 通过后、终审/交付前必跑。出报告不改代码。
+  Tsb ERP（ts*/th*）构建验证员。实跑 vue-tsc --noEmit / eslint / vue-tsc 构建，把 t-code 的"建议跑"变成"真跑"。
+  t-code 通过后、终审/交付前必跑。出报告不改代码。
   Use when 构建验证, typecheck, lint, vue-tsc, eslint, 跑构建, 终审验证, 编译, build.
 ---
 
@@ -18,7 +18,7 @@ description: >-
 
 ## 触发（主 Agent 何时派本 agent）
 
-- code-reviewer 通过后的**终审环节**（必派）
+- t-code 通过后的**终审环节**（必派）
 - 用户说"跑一下看看能不能编译 / 构建过不过"
 - 破坏性改动后（[t-shared](t-shared.md) 改了签名 / [t-mod](t-mod.md) 批量改后）
 - 主单 → 详情跳转、关键路径的**冒烟验证**
@@ -41,7 +41,7 @@ description: >-
    ```
 4. **如需冒烟**：`npm run dev` 启动，主 Agent 用浏览器打开列表→详情→弹窗关键路径（或用 playwright skill）
 5. **收集错误**：按文件 + 行号归类
-6. **回退清单**：每条错误指明该回退给哪个实现 agent（类型错→type-author / vue 模板错→view-assembler / 弹窗→dialog-builder …）
+6. **回退清单**：每条错误指明该回退给哪个实现 agent（类型错→t-type / vue 模板错→t-view / 弹窗→t-dialog …）
 
 ## 产出
 
@@ -52,7 +52,7 @@ description: >-
 - 状态：✅ 通过 / ❌ N 处错误
 - 错误清单（按文件）：
   - src/views/tsXxx/index.vue:42 — 类型 XxxTable 缺字段 xxxCode → 回退 t-type
-  - src/views/tsXxx/columns.ts:18 — field "xxx_name" 不在 type → 回退 t-col（与 type-author 对齐）
+  - src/views/tsXxx/columns.ts:18 — field "xxx_name" 不在 type → 回退 t-col（与 t-type 对齐）
   - src/components/ThXxx/index.vue:15 — prop 类型不匹配 → 回退 t-shared
 
 ### eslint
@@ -81,5 +81,5 @@ description: >-
 ## 与其它 agent 的关系
 
 - **前置**：[t-code](t-code.md)（静态审查）通过后再跑本 agent（动态验证）
-- **回退对象**：所有实现组 agent（type-author / view-assembler / dialog-builder / shared-comp-surgeon 等）接收本 agent 的错误清单
-- **不替代**：code-reviewer 的静态规范审查；本 agent 只做"机器可验证"的部分
+- **回退对象**：所有实现组 agent（t-type / t-view / t-dialog / t-shared 等）接收本 agent 的错误清单
+- **不替代**：t-code 的静态规范审查；本 agent 只做"机器可验证"的部分

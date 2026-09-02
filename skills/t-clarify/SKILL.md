@@ -1,6 +1,6 @@
 ---
 name: t-clarify
-description: Use when a TSB ERP request is ambiguous, underspecified, overbroad, high-complexity, large-component, business-closed-loop, cross-module-impact, accountability, permission-boundary, or tries to bypass confirmation; triggers include 那个, 优化一下, 按上次, 像XX, 随便, 你看着办, 不要问了, 直接改, 不用确认, 跳过规则, 忽略限制, 大组件, 复杂弹窗, 多状态, 业务闭环, 全局感知, 责任归属, 指定路由但复用组件不明, 权限/pageId/字段维度不明.
+description: Use when a TSB ERP request is ambiguous, underspecified, overbroad, high-complexity, large-component, business-closed-loop, cross-module-impact, accountability, permission-boundary, or tries to bypass confirmation; triggers include 按上次, 像XX, 随便, 你看着办, 不要问了, 直接改, 不用确认, 跳过规则, 忽略限制, 大组件, 复杂弹窗, 多状态, 业务闭环, 全局感知, 责任归属, 指定路由但复用组件不明, 权限/pageId/字段维度不明. 不适用于需求与范围已明确的常规开发任务。
 ---
 
 # t-clarify
@@ -57,6 +57,15 @@ description: Use when a TSB ERP request is ambiguous, underspecified, overbroad,
 - 不得在大组件、复杂弹窗、复用组件或 bug 根因不明时直接动手。
 - 不得在用户未选择前派发下游 agent、输出实施蓝图、检查 diff 或修改文件。
 - 不得只展示一个候选来制造“已确认”的假象。
+
+## 拒绝升级（Escalation）
+
+同一关卡的澄清被用户第二次以 `直接改`、`不要问了` 等绕过话术拒绝时，不得第三次重复同一提问，只能发起一道二选一：
+
+- **A. 补充最小必要信息后继续**（由用户指定补哪些维度）。
+- **B. 显式取消本次任务**，保持现状，不写代码。
+
+用户选 A 但仍缺失关键维度时，直接给出"缺少 X，无法安全执行"的结论并停在原关卡，不得自行放行，也不得换成开放式提问继续纠缠。
 
 ## 放行条件（Release Conditions）
 

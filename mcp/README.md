@@ -25,7 +25,7 @@ MCP 只提供事实源与执行包，不做业务、权限或上线批准。采�
 
 | 工具 | 说明 |
 | --- | --- |
-| `zentao_collect_assigned_work_items` | 统一采集"指派给我"的 Task 与 Bug，一次登录会话内完成并复用。`TSBERP*` 归贸易系统，`HALLERP*` 归展厅系统；Task 标记 `[禅道需求]`，Bug 标记 `[禅道Bug]`，按系统和模块输出标准表格 |
+| `zentao_collect_assigned_work_items` | 统一采集"指派给我"的 Task 与 Bug，一次登录会话内完成并复用。`TSBERP*` 归贸易系统，`HALLERP*` 归展厅系统；Task 标记 `[禅道需求]`，Bug 标记 `[禅道Bug]`，按系统和模块输出紧凑总览表 + 逐条处理方案（方案在对应代码上方） |
 | `zentao_collect_assigned_tasks` | 兼容入口：采集任务 ID、URL、标题、内容、备注，按模块分类并生成 `agentPlan`，要求后续 agent 从 `t-page` 进入并继承全部红线关卡 |
 | `zentao_analyze_work_items` | 不开浏览器，对已有 Task/Bug JSON 按系统与模块分组，输出创建者、截止日期、共享影响与处理方案 |
 | `zentao_analyze_tasks` | 不开浏览器，对已有任务 JSON 做模块分类与多 agent 执行包生成。输入必须保留原始字段，不能只有摘要 |

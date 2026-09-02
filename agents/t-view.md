@@ -12,7 +12,7 @@ description: Tsb ERP（ts*/th*）页面主文件实现。写 index.vue：组装 
 
 ## 角色
 
-写 `${views前缀}Xxx/index.vue`（列表主文件，组装各层）。依赖 column-crafter 的 columns、type-author 的 type、api-builder 的 API、auth-registrar 的 auth。
+写 `${views前缀}Xxx/index.vue`（列表主文件，组装各层）。依赖 column-crafter 的 columns、t-type 的 type、api-builder 的 API、auth-registrar 的 auth。
 
 ## 输入
 

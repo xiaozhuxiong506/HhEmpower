@@ -1,6 +1,6 @@
 ---
 name: t-dialog
-description: Use when building or changing 构建或修改 TSB ERP 弹窗、抽屉、AEDrawer、AEDialog、XxxModal、el-dialog、el-drawer、modal forms、save/confirm flows 或 popup/drawer field settings。
+description: Use when 新建或修改 TSB ERP 弹窗、抽屉（AEDrawer、AEDialog、XxxModal、el-dialog、el-drawer、modal forms）的容器选型、结构与调用接线，或处理 popup/drawer field settings。保存/确认按钮与可编辑性规则归 t-tab；字段设置维度归 t-field。
 ---
 
 # t-dialog
@@ -9,9 +9,8 @@ description: Use when building or changing 构建或修改 TSB ERP 弹窗、抽�
 
 - 弹窗/抽屉内的保存、确认、删除、审核、提交、状态流转或批量操作先按 [anchors.md#erp-闭环感知关卡](../t-page/anchors.md#erp-闭环感知关卡) 判断业务闭环、责任和权限边界。
 - 用户明确指定 popup、dialog、drawer、route 或组件名时，按指定位置处理，不重新选型。
-- 用户未明确弹窗还是抽屉时，先走 [t-clarify](../t-clarify/SKILL.md)，确认后再新建或改组件。
-- 复杂表单、步骤多、内容动态或需要较大操作区时，优先沿用项目 `AEDrawer`、`el-drawer` 或 `XxxDrawer` 形态。
-- 选择型、小表单、确认型或轻量内容时，优先沿用项目 `AEDialog`、`el-dialog`、`XxxModal` 或既有 modal 形态。
+- 改造既有弹窗/抽屉时沿用现状形态，不擅自切换 Dialog/Drawer。
+- 新建且用户未明确形态时，先按复杂度给推荐并走 [t-clarify](../t-clarify/SKILL.md) 单选确认：复杂表单、步骤多、内容动态或需要较大操作区推荐 `AEDrawer`、`el-drawer`、`XxxDrawer`；选择型、小表单、确认型或轻量内容推荐 `AEDialog`、`el-dialog`、`XxxModal`。确认前不新建组件。
 - 当前页面已有同类 `AEDrawer`、`AEDialog`、`XxxModal` 时，先照同目录兄弟组件，不跨项目套模板。
 
 ## 指定位置边界

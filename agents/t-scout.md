@@ -46,7 +46,7 @@ description: Tsb ERP（ts*/th*）范围定位员。任务前置第一棒：探�
 1. 读 `package.json` name / 扫 `src/views/` 前缀 → 判定 ts/th → 套 profiles 对应列
 2. 按用户表述定位目标页目录（主单 or 详情，模糊则标记"需 AskQuestion"，**不自作主张**）
 3. 标记 legacy 命名 / 范围歧义点
-4. **不扫兄弟页、不扫 Tab 子组件、不扫共享组件引用**——这些归 impact-surveyor（任务后或 Bug 后）
+4. **不扫兄弟页、不扫 Tab 子组件、不扫共享组件引用**——这些归 t-impact（任务后或 Bug 后）
 5. 输出范围报告
 
 ## 不做的事（已移交）
@@ -65,4 +65,4 @@ description: Tsb ERP（ts*/th*）范围定位员。任务前置第一棒：探�
 - 写任何代码（你是只读定位）
 - 替用户做范围决策（模糊就标记"需 AskQuestion"，不猜）
 - 跳过项目探测直接套 ts 假设
-- **主动扫影响范围**（移交 impact-surveyor；本 agent 只在报告里"标记建议后续派谁"，不替 impact 干活）
+- **主动扫影响范围**（移交 t-impact；本 agent 只在报告里"标记建议后续派谁"，不替 impact 干活）

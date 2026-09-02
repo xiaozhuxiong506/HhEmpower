@@ -361,7 +361,7 @@ const tools = [
   {
     name: "zentao_collect_assigned_work_items",
     description:
-      "使用一个共享禅道登录会话采集指派给我的 Task 和 Bug，列表页每页固定尝试 2000 条；识别[禅道需求]/[禅道Bug]、贸易/展厅系统、代码模块、共享影响和待确认项，并输出开发者标准表格。",
+      "使用一个共享禅道登录会话采集指派给我的 Task 和 Bug，列表页每页固定尝试 2000 条；识别[禅道需求]/[禅道Bug]、贸易/展厅系统、代码模块、共享影响和待确认项，输出紧凑总览表与逐条详细处理方案（方案在对应代码上方，不进表格）。",
     inputSchema: {
       type: "object",
       additionalProperties: false,
@@ -382,7 +382,7 @@ const tools = [
   {
     name: "zentao_analyze_work_items",
     description:
-      "不打开浏览器，分析已采集的禅道 Task/Bug JSON；按系统和代码模块分组，以固定列标准表格输出处理方案、代码位置、共享影响与待确认项。",
+      "不打开浏览器，分析已采集的禅道 Task/Bug JSON；按系统和代码模块分组，输出紧凑总览表与逐条详细处理方案小节（方案在对应代码上方），含代码位置、共享影响与待确认项。",
     inputSchema: {
       type: "object",
       additionalProperties: false,

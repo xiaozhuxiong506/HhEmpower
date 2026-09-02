@@ -28,7 +28,7 @@ description: Use when applying TSB ERP 代码规范，或评估小功能是否�
 
 ## 何时读参考（Read Reference When）
 
-- 改列宽、`minWidth`、`columns` 属性顺序、formatter、金额/日期列时读 [reference.md#列宽与-minwidth](reference.md#列宽与-minwidth) 和 [reference.md#columns-属性顺序](reference.md#columns-属性顺序)。
+- 改列宽、`minWidth`、`columns` 属性顺序、formatter、金额/日期列时读 [reference.md#列宽与-minwidth](reference.md#列宽与-minwidth) 和 [reference.md#columns-属性顺序](reference.md#columns-属性顺序columns-property-order)。
 - 改接口字段、表单 `prop`、`columns.field`、请求/保存 payload、字段长度、值域或校验规则时读 [reference.md#接口字段与输入规则契约](reference.md#接口字段与输入规则契约) 和 [../t-field/SKILL.md](../t-field/SKILL.md)。
 - 改防抖、节流、日期、金额、表格 formatter 或通用转换时读 [reference.md#现成能力优先](reference.md#现成能力优先)。
 - 改输入框数字范围、小数位、禁止中文、字符限制时读 [reference.md#输入限制与自定义指令](reference.md#输入限制与自定义指令)。

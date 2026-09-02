@@ -2,7 +2,7 @@
 
 本文件只记录查找方法和规范分档；可复制命令见 [examples.md](examples.md)。
 
-## L1 静态搜索（L1 Static Search）
+## S1 静态搜索（Static Search）
 
 菜单页通常位于：
 
@@ -20,7 +20,7 @@
 
 新增菜单页必须保证 route name、目录名、`defineOptions.name`、OP_HEADERS、auth/log/pageId 命名一致。
 
-## L2 运行时搜索（L2 Runtime Search）
+## S2 运行时搜索（Runtime Search）
 
 静态/隐藏页通常位于：
 
@@ -29,7 +29,7 @@
 
 常见用途：详情页、导入页、工具页、隐藏跳转页。业务新增优先检查 `staticRoutes.ts`，`remaining.ts` 一般不新增业务页。
 
-## L3 全模块扫描（L3 Full Module Scan）
+## S3 全模块扫描（Full Module Scan）
 
 全模块扫描用于发现影响范围，不直接批量修改。
 

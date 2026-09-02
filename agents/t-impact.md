@@ -114,4 +114,4 @@ rg "xxx[?]?:" src/views/{模块}/{页}/type.ts
 
 - **承接**：scout 的范围报告（任务前派本 agent 拉影响）
 - **触发**：发现共享件被多模块引用 → 报告主 Agent 改派 t-shared
-- **下游**：漏改项交对应实现 agent 修（type-author 补字段 / view-assembler 补引用 / i18n-author 补 key）
+- **下游**：漏改项交对应实现 agent 修（t-type 补字段 / t-view 补引用 / t-i18n 补 key）

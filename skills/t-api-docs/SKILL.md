@@ -33,7 +33,7 @@ description: Use when TSB ERP work needs 接口文档、API 文档、查接口�
 
 优先调用 `torna_search_api`，入参必须包含 `system` 和 `query`；已知应用或方法时同时传 `moduleName`、`method`。唯一命中会返回详情；多个合理候选必须展示候选表并让用户确认业务目录或路径，不得自行选择。
 
-需要指定文档详情时调用 `torna_get_api_detail`，传入真实 `docId`。MCP 不可用时，使用 Playwright 打开对应项目，在“过滤：支持ID、名称、路径”中检索并打开“预览”。
+需要指定文档详情时调用 `torna_get_api_detail`，传入真实 `docId`。MCP 不可用时，使用 Playwright 打开对应项目，在“过滤：支持ID、名称、路径”中检索并打开“预览”；Playwright 也不可用时，请用户自行打开文档链接粘贴字段信息，或把接口契约标记为“待确认”，不得凭记忆补全。
 
 接口选择必须同时核对：系统、应用模块、业务目录、当前页面/API 调用、HTTP 方法和路径。中文名称相同不代表同一接口。
 

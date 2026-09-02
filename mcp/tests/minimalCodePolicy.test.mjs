@@ -25,10 +25,11 @@ function markdownSection(content, heading) {
 
 test("workflow applies a complexity budget to requirements bugs and plans", () => {
   const workflow = read("skills/t-workflow/SKILL.md");
+  const standards = read("skills/t-standards/reference.md");
   assert.match(workflow, /复杂度预算/);
-  assert.match(workflow, /需求、Bug、方案/);
-  assert.match(workflow, /问题规模.*实现复杂度/);
-  assert.match(workflow, /禁止.*局部问题.*hook.*service.*manager/);
+  assert.match(workflow, /问题规模与实现复杂度成正比/);
+  assert.match(workflow, /t-standards\/reference\.md.*唯一权威/s);
+  assert.match(standards, /不得新建 hook、service、manager/);
 });
 
 test("standards define reuse and abstraction thresholds", () => {
@@ -43,8 +44,8 @@ test("small changes default to a local implementation with an explicit complexit
   const workflow = read("skills/t-workflow/SKILL.md");
   const reference = read("skills/t-workflow/reference.md");
 
-  assert.match(workflow, /小型改动.*默认.*局部实现/s);
-  assert.match(workflow, /功能正确.*不等于.*实现合格/s);
+  assert.match(workflow, /局部问题局部修复.*简单需求最小充分实现/s);
+  assert.match(workflow, /功能正确不等于实现合格/s);
   assert.match(reference, /小型.*中型.*大型/s);
   assert.match(reference, /复杂度档位/);
   assert.match(reference, /最小方案/);

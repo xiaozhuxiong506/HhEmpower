@@ -18,7 +18,7 @@
 
 | 能力 | 数量 | 说明 |
 | --- | ---: | --- |
-| Skills | 17 | 需求分析、页面开发、接口核验、权限、字段、弹窗、列表、详情 |
+| Skills | 18 | 需求分析、页面开发、接口核验、权限、字段、弹窗、列表、详情、防御性编程 |
 | Subagents | 22 | 侦察、实现、审查、影响分析与验证，按任务规模编排 |
 | Rules | 2 | 页面开发通用指引与钉钉聊天隐私边界 |
 | Commands | 5 | `/t-start` `/t-new-module` `/t-review` `/t-zentao-collect` `/t-dingtalk-read` |
@@ -93,7 +93,7 @@ HhEmpower/
 ├── mcp/                             内置只读 MCP 与构建产物
 ├── rules/                           页面指引与隐私边界
 ├── scripts/                         安装、同步、导出脚本
-├── skills/                          17 个专业 skill（见 skills/README.md）
+├── skills/                          18 个专业 skill（见 skills/README.md）
 ├── assets/logo.png                  插件图标
 ├── CHANGELOG.md                     版本记录
 └── PUBLISH.md                       发布说明

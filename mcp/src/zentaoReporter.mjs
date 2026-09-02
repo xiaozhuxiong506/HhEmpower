@@ -1,16 +1,10 @@
 export const DEVELOPER_TABLE_COLUMNS = Object.freeze([
-  "场景",
-  "所属项目",
-  "所属产品",
   "ID/链接",
   "标题",
-  "创建者",
-  "当前处理人",
-  "截止日期",
+  "场景",
   "代码模块",
   "共享影响",
-  "待确认项",
-  "详细处理方案与对应位置"
+  "处理人/截止"
 ]);
 
 function cell(value, fallback = "未设置") {
@@ -51,23 +45,28 @@ function appendDeveloperTable(lines, system, moduleGroup) {
   lines.push(`|${DEVELOPER_TABLE_COLUMNS.map(() => "---").join("|")}|`);
 
   for (const workItem of moduleGroup.workItems || []) {
+    const owner = [workItem.assignee, workItem.deadline].filter(Boolean).join(" / ");
     const row = [
-      cell(workItem.scene, "待确认"),
-      cell(workItem.project),
-      cell(workItem.product),
       workItemLink(workItem),
       cell(workItem.title, "待确认"),
-      cell(workItem.creator),
-      cell(workItem.assignee),
-      cell(workItem.deadline),
+      cell(workItem.scene, "待确认"),
       cell(workItem.module, "待分析"),
       cell(workItem.sharedImpact, "无"),
-      cell(workItem.pendingQuestions, "无"),
-      cell(workItem.handlingPlan, "待分析")
+      cell(owner)
     ];
     lines.push(`| ${row.join(" | ")} |`);
   }
   lines.push("");
+
+  // 详细处理方案是长文本，禁止放进表格单元格（会把行撑得极高）；
+  // 按条目输出小节，方案写在对应代码块上方。
+  for (const workItem of moduleGroup.workItems || []) {
+    lines.push(`### #${cell(workItem.id, workItem.url)} ${cell(workItem.title, "待确认")}（${cell(workItem.scene, "待确认")}）`);
+    lines.push(`- 详细处理方案与对应位置：${cell(workItem.handlingPlan, "待分析")}`);
+    lines.push(`- 待确认项：${cell(workItem.pendingQuestions, "无")}`);
+    lines.push(`- 所属项目/产品：${cell(workItem.project)} / ${cell(workItem.product)}`);
+    lines.push(`- 创建者：${cell(workItem.creator)}`, "");
+  }
 }
 
 function formatLegacyAnalysis(result) {

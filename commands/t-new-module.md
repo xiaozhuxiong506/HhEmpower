@@ -8,7 +8,7 @@ description: 新建 Tsb ERP（ts*/th*）业务页模块：探测项目、复制�
 按以下顺序执行，**必问项选定前不写代码**：
 
 1. **探测项目** — 读 [skills/t-page/profiles.md](../skills/t-page/profiles.md)，判定 ts/th，确定标准页
-2. **需求澄清（硬卡停关卡）** — 扫描用户原始需求，命中模糊信号词（那个/优化下/按上次/加个查询/随便/处理一下/像XX那样 等）→ Read [skills/t-clarify/SKILL.md](../skills/t-clarify/SKILL.md) 按其规则发起澄清三问，**用户答完前不得进入下一步**
+2. **需求澄清（硬卡停关卡）** — 扫描用户原始需求，命中模糊信号词（按上次/加个查询/随便/处理一下/像XX那样 等）→ Read [skills/t-clarify/SKILL.md](../skills/t-clarify/SKILL.md) 按其规则发起澄清（一次 1~3 问），**用户答完前不得进入下一步**
 3. Read Skill `t-module` + `t-page/anchors.md`，先确认新模块范围、业务闭环、责任审计、权限等同用户、共享影响和反绕过关卡
 4. **AskQuestion** 是否做详情页（总表 #9，th 注意详情多内嵌）
 5. 复制当前项目 `${标准页}`（+ 可选详情模板）

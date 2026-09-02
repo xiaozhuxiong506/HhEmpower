@@ -1,6 +1,6 @@
 ---
 name: t-tab
-description: Use when adding or changing TSB ERP Tab 行为、activeTab、只读/编辑态、isEdit、SaveHidden、预览态、保存/确认按钮、footer 按钮、按钮 guard、可编辑矩阵。
+description: Use when adding or changing TSB ERP Tab 行为、activeTab、只读/编辑态、isEdit、SaveHidden、预览态、保存/确认按钮、footer 按钮、按钮 guard、可编辑矩阵；tab visibility, read-only state, save button, footer buttons。Tab 发现与影响面归 t-registry；字段设置归 t-field。
 ---
 
 # t-tab

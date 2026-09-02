@@ -9,11 +9,13 @@ description: Use when discovering, registering, or checking TSB ERP 路由、Tab
 
 路由、菜单、隐藏路由、route registry 和 Tab 登记会影响权限入口、日志入口和业务闭环；修改前同时遵守 [../t-page/anchors.md](../t-page/anchors.md)。
 
-## 发现层级（Discovery Levels）
+## 发现层级与影响级别（Discovery & Impact Levels）
 
 - **L1 菜单路由**：`src/router/modules/*.ts` 的业务菜单 children。
 - **L2 静态/隐藏路由**：`staticRoutes.ts`、`remaining.ts` 中业务详情、导入、工具页。
 - **L3 页内 Tab 面**：同一路由下由 Tab 切出的子组件、弹窗 Tab、抽屉 Tab。
+
+影响级别（reference.md 路由影响级别表）与上述层级一一对应，另有 `Shared` 表示共享组件/公共 hook/route registry。查找方法分档使用 **S1/S2/S3** 编号，不与影响级别混用。
 
 每次查找前先读 [../t-page/profiles.md](../t-page/profiles.md)，确认 ts/th 路由文件和路径前缀。
 

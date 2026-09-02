@@ -61,6 +61,20 @@ function toAbsoluteUrl(baseUrl, href) {
   }
 }
 
+// iframe 可能是 about:blank（无有效基准），此时回退到禅道默认域名，
+// 避免把详情链接解析成相对 URL 导致 page.goto 报"相对 URL 导航错误"。
+function resolveHttpBaseUrl(candidate, fallback = DEFAULT_ZENTAO_URL) {
+  try {
+    const parsed = new URL(candidate || "");
+    if (parsed.protocol === "http:" || parsed.protocol === "https:") {
+      return parsed.toString();
+    }
+  } catch {
+    // fall through to fallback
+  }
+  return fallback;
+}
+
 async function waitForPageReady(page) {
   await page.waitForLoadState("domcontentloaded").catch(() => {});
   await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
@@ -250,7 +264,7 @@ export async function setZentaoPageSize(page, pageSize = DEFAULT_MAX_TASKS) {
   return false;
 }
 
-export async function extractWorkItemLinks(page, kind, maxItems = DEFAULT_MAX_TASKS) {
+export async function extractWorkItemLinks(page, kind, maxItems = DEFAULT_MAX_TASKS, baseUrl = "") {
   const config = getWorkItemConfig(kind);
   const links = await page.evaluate(({ itemKind, limit, hrefPatternSource, idPatternSource }) => {
     const seen = new Set();
@@ -346,11 +360,13 @@ export async function extractWorkItemLinks(page, kind, maxItems = DEFAULT_MAX_TA
     idPatternSource: config.idPattern.source
   });
 
+  // 基准优先取页面自身的合法 http(s) URL；非法（如 about:blank）时回退默认域名。
+  const base = resolveHttpBaseUrl(baseUrl || page.url());
   return links.map(item => {
     const { useViewPath, ...link } = item;
     return {
       ...link,
-      url: toAbsoluteUrl(page.url(), useViewPath ? config.viewPath(item.id) : item.url)
+      url: toAbsoluteUrl(base, useViewPath ? config.viewPath(item.id) : item.url)
     };
   });
 }
@@ -387,11 +403,12 @@ export async function extractPaginatedWorkItemLinks(
   const links = [];
   const seen = new Set();
   const pagesVisited = [];
+  const baseUrl = page.url();
   let scope = initialScope;
 
   for (let pageIndex = 0; pageIndex < 50 && links.length < maxItems; pageIndex += 1) {
     pagesVisited.push(scope.url());
-    const pageLinks = await extractWorkItemLinks(scope, kind, maxItems);
+    const pageLinks = await extractWorkItemLinks(scope, kind, maxItems, baseUrl);
     for (const link of pageLinks) {
       const key = link.id ? `${kind}:${link.id}` : `${kind}:${link.url.replace(/#.*$/, "")}`;
       if (seen.has(key)) continue;
@@ -489,7 +506,10 @@ export async function extractWorkItemDetail(context, workItemLink) {
   const config = getWorkItemConfig(workItemLink?.kind);
   const page = await context.newPage();
   try {
-    await page.goto(workItemLink.url, { waitUntil: "domcontentloaded" });
+    // 兜底绝对化：即使上游传来相对 URL（如 /zentao/bug-view-9427.html）也能导航，
+    // 并加显式超时，避免单个详情默认 30s 卡死整个采集流程。
+    const targetUrl = toAbsoluteUrl(DEFAULT_ZENTAO_URL, workItemLink.url);
+    await page.goto(targetUrl, { waitUntil: "domcontentloaded", timeout: 20000 });
     await waitForPageReady(page);
     const detailFrame = await findZentaoContentFrame(page);
 
@@ -717,16 +737,28 @@ async function collectAssignedZentaoWorkItemsInContext(context, options = {}) {
         kindState.pagesVisited = linkResult.pagesVisited;
         kindState.linksFound = linkResult.links.length;
 
+        let consecutiveDetailFailures = 0;
         for (const link of linkResult.links.slice(0, maxItems)) {
           try {
             const workItem = await extractWorkItemDetail(context, link);
             if (!includeRawText) delete workItem.rawText;
             kindState.workItems.push(workItem);
+            consecutiveDetailFailures = 0;
           } catch (error) {
+            consecutiveDetailFailures += 1;
+            const message = error instanceof Error ? error.message : String(error);
             collectionErrors.push({
               kind,
-              message: error instanceof Error ? error.message : String(error)
+              id: link.id,
+              message: `详情拉取失败 #${link.id || "未知"}：${message}`
             });
+            if (consecutiveDetailFailures >= 3) {
+              collectionErrors.push({
+                kind,
+                message: `连续 ${consecutiveDetailFailures} 个详情拉取失败，提前结束详情采集；已保留列表数据与已成功的详情，不阻塞整体输出。`
+              });
+              break;
+            }
           }
         }
       } catch (error) {
