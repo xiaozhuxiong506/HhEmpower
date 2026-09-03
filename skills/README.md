@@ -1,13 +1,13 @@
 # TSB ERP 技能索引
 
-18 个 Skills，按任务直达。任务类型明确时直接读对应 skill，不经过索引。
+18 个 Skills。页面任务使用 `/t-page + 任务描述`，由主 Agent 按 [全员调度](t-page/orchestration.md) 派发全部 22 个角色并读取所需专业规范；不需要手动组合多个 Skill。单独查询规范、接口、禅道或钉钉时可直达对应 Skill。
 
 ## 技能总览
 
 | 任务 | Skill |
 | --- | --- |
 | 产品需求分析 · 前后端责任拆分 | [t-requirement](t-requirement/SKILL.md) |
-| 页面级入口路由 | [t-page](t-page/SKILL.md) |
+| 页面全员调度入口 | [t-page](t-page/SKILL.md) |
 | 需求澄清 | [t-clarify](t-clarify/SKILL.md) |
 | 改动决策 · 必问单选 | [t-workflow](t-workflow/SKILL.md) |
 | 新建模块 | [t-module](t-module/SKILL.md) |

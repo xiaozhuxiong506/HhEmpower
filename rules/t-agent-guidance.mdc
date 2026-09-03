@@ -1,5 +1,5 @@
 ---
-description: Tsb ERP（ts*/th*）改业务页时必须先读 Skills，并继承业务闭环、责任审计、权限等同用户等全局红线
+description: Tsb ERP（ts*/th*）页面任务经 t-page 全员分阶段执行，必读规范并核验 import、公共表格 Hook 与独立审查
 alwaysApply: false
 globs: "src/views/{ts,th}*/**/*"
 ---
@@ -10,13 +10,10 @@ globs: "src/views/{ts,th}*/**/*"
 
 ## 强制顺序
 
-1. **探测项目** — `skills/t-page/profiles.md`（判定 ts/th，套用画像）
-2. **前端需求分析** — 产品需求、需求文档、原型说明或前后端混写描述 → Read `t-requirement`，结合产品文档、前端源码与必要的 Torna 事实输出十节《前端需求分析报告》；仅有文档时标为“文档初判版”
-3. **剩余需求澄清（硬卡停）** — 分析后仍有会改变前端方案的模糊项或反绕过表达 → Read `t-clarify` 按规则提问，**用户答完前不得进入下一步**
-4. **总入口** — `t-page` Skill（不确定用哪个 Skill 时先读）
-5. **锚点** — `t-page/anchors.md`（范围、脚本禁令、业务闭环、责任审计、共享影响、Git 归因、权限等同用户、反绕过、临时产物清理、标准页路径、主单/详情映射）
-6. **工作流** — `t-workflow` Skill（改代码任务必读：蓝图、必问单选题、最简代码；页面任务经 t-page 进入，非页面类改代码也可直接使用）
-7. **子 Skill** — 按任务只读一个或多个：
+1. **总入口** — 先读 `skills/t-page/SKILL.md` 与 `skills/t-page/orchestration.md`，按其中的需求分析、澄清、画像和任务概览顺序进入全员链路。产品文档先读 `t-requirement` 输出前端需求分析，再由 `t-clarify` 处理仍影响方案的歧义；不能输出概览后就结束任务。
+2. **规范基线** — 必读 `t-standards/SKILL.md` 与 `reference.md`，不等用户点名。`t-survey` 在实现前取证 import 顺序、公共表格 Hook 和现成能力；`t-code` 对最终源码复核。
+3. **边界与工作流** — 继承 `t-page/anchors.md`；开发/修复再读 `t-workflow`。已有确认直接沿用，只询问仍影响实施的缺口。只读分析/审查不转成开发。
+4. **专业 Skill** — 按任务和实际源码补充读取，不改变全部 22 个角色必须派发的要求：
    - 产品需求/前后端责任拆分/前端改动点 → `t-requirement`
    - 列表 → `t-list`
    - 详情 → `t-detail`
@@ -53,8 +50,8 @@ globs: "src/views/{ts,th}*/**/*"
 
 ## 多 subagent 编排
 
-要派 subagent 分头干活 → 读 `skills/t-page/orchestration.md`（22 个 agent：侦察/模块并行/实现/共享/审查/验证六组 + 模块专家模板）
+页面任务必须按 `skills/t-page/orchestration.md` 实际派发全部 22 个角色，由主 Agent 单一调度、按依赖排队、逐角色收取真实实例回执。主 Agent 自检、只读取角色文件或列出名称不能代替子代理参与；工具不支持时报告阻塞，不伪称执行。
 
 批量/跨模块任务 → 按大菜单拆 `t-mod` 实例并行，AI 逐文件改，禁止脚本执行
 
-改完可用 `/t-review` 或审查组 subagent（`t-spec` + `t-i18n-check` + `t-code`）做专项审查，再派 `t-build` 实跑 vue-tsc/eslint 验证。
+开发收口固定为 `t-spec` + `t-i18n-check` → `t-code` → `t-build`。适用规范的 Warning 也须修正、复查；构建通过不能抵消规范缺口。只读审查收齐结论但不自动修复。无关角色由本人核查后返回不适用，不新增需求、文件、依赖或外部访问。

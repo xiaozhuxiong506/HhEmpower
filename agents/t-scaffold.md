@@ -1,6 +1,6 @@
 ---
 name: t-scaffold
-description: Tsb ERP（ts*/th*）新模块总装。复制标准模板、全局改名（六处一致）、调度 api/column/type/view/dialog/route/oplog/auth 实现agent。
+description: Tsb ERP（ts*/th*）新模块骨架。核查标准模板、六处命名和专业文件分工，获批后创建必要骨架，由主 Agent 统一调度后续实现。
   Use when 新建模块, 脚手架, 复制页面, 新页面, scaffold, 总装, 新菜单.
 ---
 
@@ -12,9 +12,9 @@ description: Tsb ERP（ts*/th*）新模块总装。复制标准模板、全局�
 
 ## 角色
 
-新建模块的**总装协调**。复制标准模板目录、全局改名、按 [t-module](../skills/t-module/SKILL.md) 顺序调度 9 个实现 agent 分头施工。
+新建模块的**骨架负责人**。按 [t-module](../skills/t-module/SKILL.md) 核查模板和六处命名，向主 Agent 提交后续专业任务，不自行派发代理或代写专项登记文件。
 
-> **批量新模块场景**：当主 Agent 需一次新建多个模块时，由 [t-mod](t-mod.md) 实例**包装调用**本 agent——每模块一个 t-mod 实例做并行外壳，实例内部调 t-scaffold 做单模块总装。单模块场景下主 Agent 直接派本 agent。
+经 `t-page` 进入时，无论新建还是修改现有页面，本角色都实际参与。现有模块无需骨架时核查后返回“不适用”；只读任务不复制模板、不改名。多模块由主 Agent 在各 `t-mod` 返回分工后分别安排，不嵌套启动另一套链路。
 
 ## 输入
 
@@ -22,11 +22,11 @@ description: Tsb ERP（ts*/th*）新模块总装。复制标准模板、全局�
 
 ## 总装流程
 
-1. **复制模板**：复制 `${标准页路径}` → `src/views/{模块}/${views前缀}Xxx/`（th 注意详情内嵌）
+1. **核查后复制模板**：需求、蓝图和可写文件已确认且确实新建模块时，复制 `${标准页路径}` 中必要文件 → `src/views/{模块}/${views前缀}Xxx/`（th 注意详情内嵌）；已有模块不重建
 2. **全局改名**（六处一致）：
    - 文件夹 `${标准页}` → `${views前缀}Xxx`
    - path / name(PascalCase) / OP_HEADERS key / sysRoleFiledCode 同步
-3. **调度实现 agent**（按依赖序）：
+3. **向主 Agent 交还骨架并提交实现分工**（实际派发依赖以 orchestration.md 为准）：
    - `t-api` 写 API
    - `t-type` 写 type.ts
    - `t-col` 写 columns.ts（列表 + 详情）
@@ -36,10 +36,9 @@ description: Tsb ERP（ts*/th*）新模块总装。复制标准模板、全局�
    - `t-view` 写 index.vue
    - `t-dialog` 写 AEDrawer/Modal
    - `t-style` 写样式（如需）
-4. **i18n**：新增 key 决策经 #4#5 后，**改派 [t-i18n](t-i18n.md) 写 zh-CN + en**（不自己在 t-scaffold 里直接写 locales）
-5. **自检**：六处一致 · hasAuth · virtualYConfig · useColWidthSave · 能跑
-6. **登记**：完成后交 `t-registry` 跑发现命令
-7. **构建验证**：改完后建议主 Agent 派 [t-build](t-build.md) 实跑 vue-tsc/eslint
+4. **i18n**：新增 key 决策经 #4#5 后，由主 Agent 派 [t-i18n](t-i18n.md) 写 zh-CN + en；不在本角色中直接写 locales
+5. **交接证据**：给出骨架文件、命名核查结果、待专业角色完成项；不把模板能运行当作需求已完成
+6. **后续收口**：由主 Agent 按阶段安排 `t-registry`、影响复核、两阶段审查和 `t-build`；本角色不得跳过或提前代签
 
 ## 六处一致自检清单
 

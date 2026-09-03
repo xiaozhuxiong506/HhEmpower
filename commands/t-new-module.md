@@ -1,21 +1,16 @@
 ---
 name: t-new-module
-description: 新建 Tsb ERP（ts*/th*）业务页模块：探测项目、复制标准页、确认业务闭环/责任归属/权限边界，走命名/API/路由/OP_HEADERS/auth/i18n 全流程，可调度 subagent
+description: 经 t-page 全员链路新建 Tsb ERP 页面模块，取证标准页并确认范围后，完成骨架、契约、页面、登记、独立审查与验证。
 ---
 
 # 新建 Tsb ERP 页面模块
 
-按以下顺序执行，**必问项选定前不写代码**：
+读取 [t-page](../skills/t-page/SKILL.md)、[全员调度](../skills/t-page/orchestration.md) 和 [t-module](../skills/t-module/SKILL.md)，按开发模式执行；本命令不另起可选代理链路。
 
-1. **探测项目** — 读 [skills/t-page/profiles.md](../skills/t-page/profiles.md)，判定 ts/th，确定标准页
-2. **需求澄清（硬卡停关卡）** — 扫描用户原始需求，命中模糊信号词（按上次/加个查询/随便/处理一下/像XX那样 等）→ Read [skills/t-clarify/SKILL.md](../skills/t-clarify/SKILL.md) 按其规则发起澄清（一次 1~3 问），**用户答完前不得进入下一步**
-3. Read Skill `t-module` + `t-page/anchors.md`，先确认新模块范围、业务闭环、责任审计、权限等同用户、共享影响和反绕过关卡
-4. **AskQuestion** 是否做详情页（总表 #9，th 注意详情多内嵌）
-5. 复制当前项目 `${标准页}`（+ 可选详情模板）
-6. 输出蓝图：要改文件清单 / 不改范围 / 六处命名对照
-7. 依次：业务闭环/责任/权限 → API（先读 [t-api-docs](../skills/t-api-docs/SKILL.md)，普通接口文档默认 Torna）→ OP_HEADERS（总表 #6 明确系统，按 [t-oplog](../skills/t-oplog/SKILL.md) 默认完成后台日志词库核对；仅用户明确要求时返回 Console 脚本；用户回传真实 pageId 后再注册）→ 路由 → 列表/详情 → i18n（#4→#5）→ auth（#10）→ registry 登记
-8. 用户确认蓝图后再动手
+1. 按入口分析前端需求、探测 ts/th 画像，确认模块归属、主单/详情范围、业务闭环和权限边界。新增文件、依赖、抽象与调用层级写入复杂度预算。
+2. 由 `t-survey` 读取当前项目标准页，给出 import 顺序、公共表格 Hook、API 和复用能力的实际证据。蓝图及必要决策确认前不复制模板或写代码。
+3. 主 Agent 实际派发全部 22 个角色，按全员阶段表安排 `t-mod` 分工、`t-scaffold` 准备必要骨架，再由各专项负责人实现；同一文件只有一个当前写入者。
+4. 命名、API、OP_HEADERS、auth、i18n、字段、路由和详情按对应 Skill 的现行事实源与确认要求处理；不编造接口、pageId 或权限码，不把别的模块值当占位值。
+5. 完成登记和影响复核后，依次收齐 `t-spec` + `t-i18n-check`、`t-code`、`t-build` 回执。所有适用规范及最终版本验证通过后，主 Agent 才能判定可交付。
 
-可派 `t-scaffold` 总装 + 实现 subagent 分头施工 → 读 [skills/t-page/orchestration.md](../skills/t-page/orchestration.md)
-
-标准模板：按当前项目（ts→`tsMaterialOrdering`；th→`thCustomerInfo`）
+非必要角色也要实际核查后说明不适用，不能由主 Agent 预先删减；不存在的详情、弹窗或共享改动不为凑齐角色而创建。

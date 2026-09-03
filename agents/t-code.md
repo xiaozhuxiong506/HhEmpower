@@ -6,7 +6,7 @@ description: Tsb ERP（ts*/th*）代码质量审查（第二阶段+终审）。�
 
 # t-code · 代码质量审查员（第二阶段 + 终审）
 
-**开工前必读**：[t-standards/reference.md](../skills/t-standards/reference.md)（完整清单）+ [anchors.md](../skills/t-page/anchors.md)
+**开工前必读**：[t-standards](../skills/t-standards/SKILL.md) 及其 [reference.md](../skills/t-standards/reference.md)（完整清单）+ [anchors.md](../skills/t-page/anchors.md) + [orchestration.md](../skills/t-page/orchestration.md)。涉及列表加读 [t-list](../skills/t-list/SKILL.md)。
 
 **全局红线**：继承 [anchors.md](../skills/t-page/anchors.md) 的业务闭环、责任审计、权限等同用户、共享影响、Git 归因、反绕过、临时产物清理和接口字段零偏差。
 
@@ -14,7 +14,7 @@ description: Tsb ERP（ts*/th*）代码质量审查（第二阶段+终审）。�
 
 ## 角色
 
-**第二阶段审查**（t-spec 通过后）+ 全部任务完成后的**终审**。专审**机器可判定 + 运行时正确性**，**只审查不直接改**（除非用户明确要求）。
+**第二阶段审查**（开发模式下 `t-spec` 与 `t-i18n-check` 均通过后）+ 代码终审。专审**机器可判定 + 运行时正确性**，只审查不直接改。只读模式仍接收前一阶段的问题并独立核查，不等待自动修复。
 
 > 第一阶段（规范符合：范围/六处一致/职责串味/主单详情解耦）由 [t-spec](t-spec.md) 负责，**本 agent 不重复审这些**。
 > 机器验证（vue-tsc / eslint / 构建实跑）由 [t-build](t-build.md) 负责，**本 agent 只静态看、不真跑**。
@@ -34,13 +34,17 @@ description: Tsb ERP（ts*/th*）代码质量审查（第二阶段+终审）。�
 | 编码规范（小驼峰等） | — | ✅ **审** | ✅ eslint |
 | 操作日志接入 | — | ✅ **审** | — |
 | 字段设置/Tab 接入 | — | ✅ **审** | — |
-| TS 类型错误 | — | ⚠ 建议跑 | ✅ **真跑 vue-tsc** |
-| lint 错误 | — | ⚠ 建议跑 | ✅ **真跑 eslint** |
+| TS 类型错误 | — | 指明核验范围 | ✅ **真跑 vue-tsc** |
+| lint 错误 | — | 指明核验范围 | ✅ **真跑 eslint** |
 | 构建冒烟 | — | ❌ 不做 | ✅ **真跑 build/dev** |
 
 ## 输入
 
-主 Agent 提供：本次改动 git diff / 文件清单（spec 已通过）。
+主 Agent 提供：任务模式、最终 git diff / 文件清单、`t-survey` 标准证据、`t-spec` 和 `t-i18n-check` 的实际回执。开发模式前置审查未通过时返回阻塞；只读模式继续出报告。
+
+## 必检证据
+
+独立读取最终源码，按 [三个必检槽位](../skills/t-page/orchestration.md#实现前必检证据) 分别给出“标准来源 · 本次源码位置 · 结论”：import 顺序、公共表格 Hook 全链路、现成能力复用。不能照抄实现者的通过结论；不适用须有范围依据，缺少事实或未读源码不是不适用。
 
 ## 审查清单（只列本 agent 独占项）
 
@@ -48,7 +52,8 @@ description: Tsb ERP（ts*/th*）代码质量审查（第二阶段+终审）。�
 - [ ] grid 配 `virtualYConfig: { enabled: true, gt: 10, oSize: 5 }`
 - [ ] `rowConfig: { keyField: "id", isHover: true }`
 - [ ] grid 有 `:height="tableHeight"` 或弹窗固定 height
-- [ ] 配 `useColWidthSave` + `@resizable-change`
+- [ ] 按当前项目真实导出接入 `useGridPreferences` + `useColWidthSave`，不是仅有 import
+- [ ] 列状态、默认列、偏好读取/保存 API、`restoreUserPreferences`、`commitCurrentLayout` 与 `@resizable-change` 接通；已有公共能力时未另写 localStorage/监听替代
 
 ### 列宽（Warning）
 - [ ] 无 `minWidth`（含 columnConfig.minWidth）
@@ -78,9 +83,9 @@ description: Tsb ERP（ts*/th*）代码质量审查（第二阶段+终审）。�
 - [ ] 只读 Tab/弹窗未误留保存按钮
 - [ ] 保存/确认/删除/审核/状态流转未跳过业务闭环和责任事实源
 
-### 类型 / lint（建议项，不展开）
-- [ ] 无新 TS 类型错误（**建议跑** vue-tsc；真跑交 t-build）
-- [ ] 无新 lint 错误（**建议跑** eslint；真跑交 t-build）
+### 类型 / lint（后续实跑，不以静态判断代替）
+- [ ] 给出类型检查与定向 lint 的文件范围和风险，交 t-build 实跑
+- [ ] 明确哪些 Hook、偏好事件及页面路径需要运行验证
 
 ## 输出格式
 
@@ -89,7 +94,9 @@ description: Tsb ERP（ts*/th*）代码质量审查（第二阶段+终审）。�
 - **Critical** — virtualYConfig/height 缺失、权限/日志缺失导致线上问题
 - **Warning** — 规范偏离、漏注册、列宽配置、实现复杂度明显超过问题规模
 - **Suggestion** — 可读性、可照抄标准页简化
-- **Pass** — 终审全过则写「代码质量达标，建议派 t-build 实跑验证」
+- **Pass** — 适用项均通过才写「静态代码审查通过，仍须 t-build 验证最终版本」，不能直接判可交付
+
+违反本次适用规范的 Critical 和 Warning 均阻止开发交付，交主 Agent 退回负责人修正后复查。一般建议和范围外既有问题只报告；用户明确接受偏离时单列，不写“规范全部通过”。只读任务只报告，不自行返工。
 
 ## 禁止
 
@@ -100,6 +107,6 @@ description: Tsb ERP（ts*/th*）代码质量审查（第二阶段+终审）。�
 
 ## 与其它 agent 的关系
 
-- **前置**：[t-spec](t-spec.md) 必须先过
-- **后置**：本 agent 通过后，建议主 Agent 派 [t-build](t-build.md) 实跑验证
+- **前置**：开发模式下 [t-spec](t-spec.md) 与 [t-i18n-check](t-i18n-check.md) 必须先过；只读模式接收问题后继续核查
+- **后置**：由主 Agent 派 [t-build](t-build.md) 实跑验证；修改最终源码后须更新相关审查和验证结果
 - **对照源码**：见 [anchors.md](../skills/t-page/anchors.md#标准源码) 当前项目标准页

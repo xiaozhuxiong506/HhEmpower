@@ -6,7 +6,7 @@ description: Tsb ERP（ts*/th*）标准页测绘。新需求/照抄模板时，�
 
 # t-survey · 标准页测绘员
 
-**开工前必读**：[anchors.md](../skills/t-page/anchors.md) + [profiles.md](../skills/t-page/profiles.md)
+**开工前必读**：[anchors.md](../skills/t-page/anchors.md) + [profiles.md](../skills/t-page/profiles.md) + [t-standards](../skills/t-standards/SKILL.md) 及其 [reference.md](../skills/t-standards/reference.md)。涉及列表加读 [t-list](../skills/t-list/SKILL.md)。
 
 **全局红线**：测绘报告必须标出业务闭环、权限/字段/日志链路、责任事实源、共享影响和范围外风险。
 
@@ -18,7 +18,17 @@ description: Tsb ERP（ts*/th*）标准页测绘。新需求/照抄模板时，�
 
 ## 输入
 
-主 Agent 提供：标准页路径（profiles 探测出的 `${标准页路径}`，如 ts `tsMaterialOrdering`、th `thCustomerInfo`）。
+主 Agent 提供：任务模式、目标文件与变更范围、标准页路径（profiles 探测出的 `${标准页路径}`，如 ts `tsMaterialOrdering`、th `thCustomerInfo`）。只测绘本次所需结构，不把整套模板功能自动纳入需求。
+
+## 实现前的三项必检证据
+
+按 [orchestration.md](../skills/t-page/orchestration.md#实现前必检证据) 输出三个槽位，不能只写“参考标准页”：
+
+- **import**：读取标准页实际 import、规范规定的顺序及当前 lint 配置，列出来源路径和位置；legacy 旧页不能作为新页面规范依据。
+- **公共表格 Hook**：追踪 `useGridPreferences`、`useColWidthSave` 的真实导出和标准调用，列出偏好读取/保存 API、恢复与提交函数、列状态和 `resizable-change` 接线。只看到 import 不算完成测绘。
+- **现成能力**：核查本次需要的 utils/hooks/directives/字段映射是否已有可用导出，给出调用位置和适配理由。没有或不适配时列出搜索范围，不为复用而新造抽象。
+
+每项返回来源证据、实现要点或有依据的不适用结论。来源缺失记为缺口，不能编造；开发模式下主 Agent 必须在写入前把测绘结果交实现者，只读模式下交审查者对照。
 
 ## 输出：测绘清单
 
@@ -61,8 +71,8 @@ description: Tsb ERP（ts*/th*）标准页测绘。新需求/照抄模板时，�
 ## 执行步骤
 
 1. 列出标准页目录全部文件
-2. 逐文件读关键结构（defineOptions、导出名、核心栈、Tab 模式、列数、auth 键、API 函数名、OP_HEADERS key、i18n 命名空间）
-3. 输出测绘清单（实现 agent 照此施工）
+2. 逐文件读本次所需结构和三项必检证据（defineOptions、导出名、核心栈、Tab 模式、列、auth、API、OP_HEADERS、i18n），未知项标明来源缺口
+3. 输出带实际路径/位置的测绘清单（实现 agent 按已确认需求使用，不照抄无关功能）
 
 ## 禁止
 

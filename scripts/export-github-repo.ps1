@@ -43,6 +43,7 @@ $include = @(
     "commands",
     "rules",
     "skills",
+    "tests",
     "mcp",
     "scripts",
     "LICENSE",

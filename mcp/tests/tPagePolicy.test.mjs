@@ -7,16 +7,28 @@ import { fileURLToPath } from "node:url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, "../..");
 const skill = fs.readFileSync(path.join(repoRoot, "skills/t-page/SKILL.md"), "utf8");
+const outputContract = skill.split(/^## 输出契约\r?$/m)[1]?.split(/^## /m)[0];
+const overviewTemplate = outputContract?.match(/```markdown\r?\n([\s\S]*?)\r?\n```/)?.[1];
 
-test("t-page requires a fixed page task overview before routing", () => {
-  assert.match(skill, /输出下方.*页面任务概览.*概览完成后再.*路由/s);
-  assert.match(skill, /页面任务概览/);
-  assert.match(skill, /【理解用户需求】/);
-  assert.match(skill, /归属系统.*贸易系统.*展厅系统/s);
-  assert.match(skill, /归属模块/);
-  assert.match(skill, /参与当前模块 Git 修改人/);
-  assert.match(skill, /预计改动文件.*行数/s);
-  assert.match(skill, /utils.*hook.*fieldMapping/s);
+test("t-page overview template contains the required Markdown list fields", () => {
+  assert.ok(overviewTemplate, "Markdown overview template must exist");
+  const fields = overviewTemplate
+    .split(/\r?\n/)
+    .filter(line => line.startsWith("- "))
+    .map(line => line.slice(2).split("：")[0]);
+
+  assert.deepEqual(fields, [
+    "【理解用户需求】",
+    "归属系统",
+    "归属模块",
+    "参与当前模块 Git 修改人",
+    "预计改动文件/行数",
+    "现成可复用能力"
+  ]);
+  assert.match(overviewTemplate, /归属系统.*贸易系统.*展厅系统/);
+  assert.match(overviewTemplate, /^  - utils：/m);
+  assert.match(overviewTemplate, /^  - hook：/m);
+  assert.match(overviewTemplate, /^  - fieldMapping(?:（[^）]*）)?：/m);
 });
 
 test("t-page overview is evidence-based and scoped to the current module", () => {
@@ -25,6 +37,6 @@ test("t-page overview is evidence-based and scoped to the current module", () =>
   assert.match(skill, /无法确认.*待确认|待确认.*无法确认/s);
   assert.match(skill, /不得猜测|不能猜测/);
   assert.match(skill, /只.*当前模块|仅.*当前模块/s);
-  const template = skill.match(/```text\r?\n([\s\S]*?)\r?\n```/)?.[1] || "";
-  assert.doesNotMatch(template, /HEAD|工作区状态/);
+  assert.ok(overviewTemplate, "overview template must exist before checking its fields");
+  assert.doesNotMatch(overviewTemplate, /HEAD|工作区状态/);
 });
