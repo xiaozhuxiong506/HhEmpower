@@ -51,7 +51,7 @@ Bug 常见漏改：列表忘了详情 · columns 忘了 type · 只改 zh 忘了
 新需求必做：API 三件套 · OP_HEADERS（列表 + 详情，见 t-oplog）· 路由 · auth · i18n · virtualYConfig · useColWidthSave
 
 i18n：非必须不改 locales；**新增 key 前必问**；**参考他模块必查 locales 文案**，禁止错模块提示
-pageId：**新增/迁移页面或调整 OP_HEADERS 前必问系统**；贸易/展厅按 [t-oplog](../t-oplog/SKILL.md) 核对后台日志词库，只有用户明确要求 Console 时才生成脚本；用户返回真实结果前禁止写 pageId
+pageId：新增/迁移页面或调整 OP_HEADERS 前确认系统，已有明确结论直接沿用；按 [t-oplog](../t-oplog/SKILL.md) 核对后台应用、PC 平台与真实 pageId 来源。只有用户明确要求 Console 时才生成脚本；后台读取结果或用户返回结果均须完成同系统来源核验后才能回填
 主单/详情：说主单只改主单 · 说详情只改详情 · **删改功能名未指明页面必问** · 范围模糊必问单选
 
 全模块路由/Tab 见 t-registry · 文件命名见 [../t-page/naming.md](../t-page/naming.md)
@@ -313,8 +313,9 @@ rg "^  m\.m123:" ${locales目录}/zh-CN.yaml ${locales目录}/en.yaml
 
 **禁止**：只抄 `t('m.mxxx')` 不查 yaml；改已有 key 翻译（会波及原模块）。
 
-**pageId — 新增/迁移页面或调整 OP_HEADERS 时（必问）**
+**pageId — 系统未确认时必问**
 
+- 已确认系统且有一致的源码证据时直接沿用；系统未知或证据冲突时再询问，不省略后台目标与 pageId 来源核验。
 - A. 贸易系统 · B. 展厅系统 · C. 其他系统（停止本流程）
 - 系统门禁、`roleId` 取值与 Console 边界唯一见 [../t-oplog/SKILL.md](../t-oplog/SKILL.md#触发与系统门禁)；确认系统后转交 t-oplog 核对后台词库与 pageId，不在此重复取值。
 
