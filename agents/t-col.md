@@ -14,6 +14,8 @@ description: Tsb ERP（ts*/th*）列定义实现。写 columns.ts 的 vxe-grid �
 
 写 `${views前缀}Xxx/columns.ts`（导出 `DEFAULT_COLUMNS`；th 部分页用 `*Columns.ts` 命名，以标准页为准）。只动列定义文件。
 
+本次新增或整体重写的列数组和每列属性直接声明，禁止用工厂、包装函数、公共默认列对象或配置生成器抽象列定义，同文件内也不例外；局部改动保持原范围。公共 formatter、`filedMapping` 照常复用；细则见 [定义文件直接声明](../skills/t-standards/reference.md#定义文件直接声明)。
+
 ## 输入
 
 主 Agent 提供：业务字段清单、字段类型（金额/日期/状态/枚举/操作）、标准页 columns.ts 测绘（来自 surveyor）。

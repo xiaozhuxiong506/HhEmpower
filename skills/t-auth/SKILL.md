@@ -11,7 +11,7 @@ description: Use when adding or changing TSB ERP 权限码、AUTH_CODES、auth.t
 
 ## 权限来源（Permission Source）
 
-- `auth.ts` 只写 `AUTH_CODES` 和后端权限码。
+- `auth.ts` 本次新增或整体重写的权限码必须在 `AUTH_CODES` 中逐项直接声明，禁止抽象；局部改动保持原范围。已提供的后端码完整写入，后续配置沿用下方必问门禁。细则见 [定义文件直接声明](../t-standards/reference.md#定义文件直接声明)。
 - 权限码值来自后端或用户明确提供；不是 AI 自由命名。
 - 用法优先 `hasAuth(AUTH_CODES.Xxx)`；已有页面使用 `v-auth` 时按同页模式。
 - 工具栏按钮、行操作、详情按钮都必须接入同一套权限来源。

@@ -84,7 +84,7 @@ const search = async () => {
 
 ## 交接证据
 
-按 [全员调度的必检槽位](../skills/t-page/orchestration.md#实现前必检证据) 给出实际源码位置：import 对照结果、公共表格 Hook 完整接线、现成能力调用。核查 `activeColumnState`、`restoreUserPreferences`、`commitCurrentLayout`、偏好 API 与 `@resizable-change`，不能仅导入 Hook 却继续手写偏好保存。上方示例说明结构，具体签名和时序以当前项目实际导出及标准页为准。
+按 [共用必检槽位](../skills/t-page/orchestration.md#实现前必检证据) 给出实际源码位置：import 对照结果、公共表格 Hook 完整接线、现成能力调用。核查 `activeColumnState`、`restoreUserPreferences`、`commitCurrentLayout`、偏好 API 与 `@resizable-change`，不能仅导入 Hook 却继续手写偏好保存。上方示例说明结构，具体签名和时序以当前项目实际导出及标准页为准。
 
 交还 `index.vue` 后由主 Agent 安排 `t-style`，不并发修改同一文件。没有相关页面改动时只返回核查依据，不为凑齐核心栈而扩大需求。
 

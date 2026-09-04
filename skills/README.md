@@ -1,13 +1,14 @@
 # TSB ERP 技能索引
 
-18 个 Skills。页面任务使用 `/t-page + 任务描述`，由主 Agent 按 [全员调度](t-page/orchestration.md) 派发全部 22 个角色并读取所需专业规范；不需要手动组合多个 Skill。单独查询规范、接口、禅道或钉钉时可直达对应 Skill。
+19 个 Skills。日常页面任务使用 `/t-page + 任务描述`，主 Agent 按需分工；需要全部 22 个角色时使用 `/t-page-max + 任务描述`。两种入口共用专业规范，不需要手动组合多个 Skill。单独查询规范、接口、禅道或钉钉时可直达对应 Skill。
 
 ## 技能总览
 
 | 任务 | Skill |
 | --- | --- |
 | 产品需求分析 · 前后端责任拆分 | [t-requirement](t-requirement/SKILL.md) |
-| 页面全员调度入口 | [t-page](t-page/SKILL.md) |
+| 页面按需入口 | [t-page](t-page/SKILL.md) |
+| 页面全量入口 | [t-page-max](t-page-max/SKILL.md) |
 | 需求澄清 | [t-clarify](t-clarify/SKILL.md) |
 | 改动决策 · 必问单选 | [t-workflow](t-workflow/SKILL.md) |
 | 新建模块 | [t-module](t-module/SKILL.md) |
@@ -33,7 +34,7 @@
 
 | 分组 | Skills |
 | --- | --- |
-| 入口与调度 | `t-requirement` `t-page` `t-clarify` `t-workflow` `t-zentao` `t-dingtalk` |
+| 入口与调度 | `t-requirement` `t-page` `t-page-max` `t-clarify` `t-workflow` `t-zentao` `t-dingtalk` |
 | 页面结构 | `t-module` `t-list` `t-detail` `t-dialog` `t-registry` |
 | 能力规则 | `t-standards` `t-auth` `t-field` `t-tab` `t-oplog` `t-api-docs` `t-defense` |
 

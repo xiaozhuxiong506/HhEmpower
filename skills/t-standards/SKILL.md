@@ -12,16 +12,16 @@ description: Use when applying TSB ERP 代码规范，或评估小功能是否�
 - **命名一致**：路由、目录、组件名、API/type、i18n、auth/log/pageId 必须对齐。
 - **字段/规则契约**：接口字段、值域、长度、小数位、必填、枚举、禁止中文等规则必须与事实源精确一致。
 - **主单/详情边界**：详情可复用主单 auth/公共组件；主单不得引用详情目录。
-- **文件职责**：`columns.ts` 只写列，`auth.ts` 只写权限码，`type.ts` 只写类型/枚举。
+- **文件职责**：本次新增或整体重写的 `columns.ts` / `*Columns.ts` 列定义及 `auth.ts` 权限码必须直接声明，禁止抽象；局部改动保持原范围。`type.ts` 只写类型/枚举。
 - **import 顺序**：新页照当前项目标准页，不以 legacy 旧页为准。
-- **现成能力优先**：防抖、节流、日期、金额格式化、表格 formatter、输入限制先查项目 `utils` / hooks / directives。
-- **复杂度预算**：需求、Bug、方案优先最小充分实现；新文件、新依赖、新抽象、新调用层级分别通过必要性门禁，禁止为局部问题造轮子或预建通用层。
+- **现成能力优先**：先查项目公共工具、已安装工具库和 UI 组件接口；能等价满足需求就直接复用，不手写同类逻辑或再加包装层。通用组件优先只改当前调用处，保持公共本体和其他调用方不变。
+- **复杂度预算**：只精简本次新增或明确获准整理的代码，新增功能不授权重构、删除旧实现。保持行为和可读性，默认直接实现，不以新增抽象换取表面行数减少。新文件、新依赖、新抽象、新调用层级分别通过必要性门禁。
 - **常量适度**：只提取确有业务含义、真实复用或消除魔法值的常量；名称采用当前上下文中最短且无歧义的表达，不堆叠文件名、模块名和重复语义。
 - **语法清晰**：简单单行的提前退出允许适度简写；条件或语句过长、格式化后换行、带副作用、属于关键业务判断或带 `else` 时使用花括号。
 - **业务规则直接**：多状态规则按业务优先级早返回；存在真实差异的相似函数允许保留独立实现，不为消除重复强行引入状态机、策略表或跨文件抽象。
 - **边界统一**：外部数据在 API mapper、适配层或页面入口归一化一次；业务函数使用稳定的领域类型，不散落 `Number`、`String`、`Boolean` 或 `as` 转换。
 - **矩阵验收**：工作流、角色、业务类型、状态等维度共同决定行为时，用行为矩阵和重叠条件用例固定规则顺序与默认行为。
-- **业务注释**：业务函数、复杂函数、难懂条件必须注释稳定的业务目的、关键规则和功能作用；不记录本轮对话、已撤销尝试或被否决方案。
+- **业务注释**：用最短必要说明补足业务目的、关键规则和功能作用；说明文字不用中英文括号，单位、精度和条件直接写清。删除重复解释和纠错备注，保留有效业务事实。
 - **grid 基线**：`useGridPreferences`、列宽、`virtualYConfig`、height、columns 属性顺序保持项目标准。
 - **select null**：值可能为 `null` 的 `el-select` 必须处理空值。
 - **源码对照**：新增或改动前先找同项目标准页和同模块兄弟页。
@@ -30,10 +30,12 @@ description: Use when applying TSB ERP 代码规范，或评估小功能是否�
 
 - 改列宽、`minWidth`、`columns` 属性顺序、formatter、金额/日期列时读 [reference.md#列宽与-minwidth](reference.md#列宽与-minwidth) 和 [reference.md#columns-属性顺序](reference.md#columns-属性顺序columns-property-order)。
 - 改接口字段、表单 `prop`、`columns.field`、请求/保存 payload、字段长度、值域或校验规则时读 [reference.md#接口字段与输入规则契约](reference.md#接口字段与输入规则契约) 和 [../t-field/SKILL.md](../t-field/SKILL.md)。
-- 改防抖、节流、日期、金额、表格 formatter 或通用转换时读 [reference.md#现成能力优先](reference.md#现成能力优先)。
+- 改防抖、节流、日期范围、金额、表格 formatter、UI 默认值或通用转换时读 [reference.md#现成能力优先](reference.md#现成能力优先)。
+- 复用或扩展公共组件时读 [reference.md#通用组件复用](reference.md#通用组件复用)，优先最小接入。
 - 改输入框数字范围、小数位、禁止中文、字符限制时读 [reference.md#输入限制与自定义指令](reference.md#输入限制与自定义指令)。
 - 改 `virtualYConfig`、表格 height、弹窗 grid 时读 [reference.md#virtualyconfig](reference.md#virtualyconfig)。
 - 改 import、文件职责、模块耦合、API 命名时读 [reference.md](reference.md) 对应章节。
+- 新增或整体重写 columns / auth 定义时，必须读 [定义文件直接声明](reference.md#定义文件直接声明)；复用点数量和其他模块先例不能豁免此规则。
 - 方案准备新增文件、依赖、hook/service/manager、公共组件、包装层或调用中间层时，必须读 [reference.md#最小充分实现与四道结构成本门禁](reference.md#最小充分实现与四道结构成本门禁)。
 - 准备提取常量、常量名明显过长，或选择单行 `if` 简写时，必须读 [reference.md#常量提取与命名](reference.md#常量提取与命名) 和 [reference.md#语法规范与适度简写](reference.md#语法规范与适度简写)。
 - 修改多状态按钮、权限显隐、审核流、状态映射，或准备合并相似业务函数时，必须读 [reference.md#业务规则函数与状态矩阵](reference.md#业务规则函数与状态矩阵)。

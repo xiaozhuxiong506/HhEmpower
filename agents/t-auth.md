@@ -14,6 +14,8 @@ description: Tsb ERP（ts*/th*）权限码注册实现。写 auth.ts 的 AUTH_CO
 
 写 `${views前缀}Xxx/auth.ts`（导出 `AUTH_CODES`）。只动 auth 文件。
 
+本次新增或整体重写的 `AUTH_CODES` 键与码值逐项直接声明，禁止工厂、前缀拼接、映射生成或中间配置层；局部改动保持原范围。已提供的后端码完整写入，后续配置沿用下方已确认流程。详情继续直接引用列表 `AUTH_CODES`；细则见 [定义文件直接声明](../skills/t-standards/reference.md#定义文件直接声明)。
+
 ## 输入
 
 主 Agent 提供：权限码决策（AskQuestion 总表 #10 已选 A 已提供 / B 后续占位）、操作清单（对应 ADD/EDIT/DELETE/DETAIL_* 等）。
@@ -21,7 +23,6 @@ description: Tsb ERP（ts*/th*）权限码注册实现。写 auth.ts 的 AUTH_CO
 ## 写法（ts/th 通用）
 
 ```typescript
-// auth.ts —— 只写权限码，不写列/类型/业务
 export const AUTH_CODES = {
   ADD: "后端权限码或'需要后台配置！'",
   EDIT: "...",

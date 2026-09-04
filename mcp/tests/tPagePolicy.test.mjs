@@ -10,6 +10,27 @@ const skill = fs.readFileSync(path.join(repoRoot, "skills/t-page/SKILL.md"), "ut
 const outputContract = skill.split(/^## 输出契约\r?$/m)[1]?.split(/^## /m)[0];
 const overviewTemplate = outputContract?.match(/```markdown\r?\n([\s\S]*?)\r?\n```/)?.[1];
 
+test("plugin discovery exposes both page modes once and matches the documented skill count", () => {
+  const manifest = JSON.parse(fs.readFileSync(path.join(repoRoot, ".cursor-plugin/plugin.json"), "utf8"));
+  const skillsRoot = path.resolve(repoRoot, manifest.skills);
+  const skillNames = fs.readdirSync(skillsRoot).filter(name =>
+    fs.existsSync(path.join(skillsRoot, name, "SKILL.md"))
+  );
+  const commandsRoot = path.resolve(repoRoot, manifest.commands);
+
+  for (const name of ["t-page", "t-page-max"]) {
+    assert.equal(skillNames.filter(item => item === name).length, 1, `${name} must be discoverable`);
+    const entry = fs.readFileSync(path.join(skillsRoot, name, "SKILL.md"), "utf8");
+    assert.equal(entry.match(/^name: ([^\r\n]+)$/m)?.[1], name);
+    assert.equal(fs.existsSync(path.join(commandsRoot, `${name}.md`)), false, `${name} must not also be a command`);
+  }
+
+  const readme = fs.readFileSync(path.join(repoRoot, "README.md"), "utf8");
+  const documentedCount = readme.match(/^\| Skills \| (\d+) \|/m)?.[1];
+  assert.ok(documentedCount, "README must publish the skill count");
+  assert.equal(Number(documentedCount), skillNames.length);
+});
+
 test("t-page overview template contains the required Markdown list fields", () => {
   assert.ok(overviewTemplate, "Markdown overview template must exist");
   const fields = overviewTemplate
