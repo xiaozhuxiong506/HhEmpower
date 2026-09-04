@@ -58,5 +58,6 @@ description: Use when creating 新建或组装 TSB ERP 页面/模块/菜单/脚�
 - `pageId`、i18n namespace、权限码、字段设置维度和详情形态都已确认后才写对应代码。
 - 新字段已路由到 [t-field](../t-field/SKILL.md)，保存/确认/可编辑性已路由到 [t-tab](../t-tab/SKILL.md)，日志已路由到 [t-oplog](../t-oplog/SKILL.md)。
 - 路由、菜单、静态页和检测范围已由 [t-registry](../t-registry/SKILL.md) 复核。
+- 列宽已强制核对：新页全部 columns（主单与明细）每列 `width` 已按 [t-standards/reference.md](../t-standards/reference.md) 速查表逐列归类核对——编号/日期 160、金额 120（采购主金额 130）、状态/数量 120、图片 80、操作 150；按字段语义智能归类（如 `field` 含 `code`/`no` 即编号类），未凭印象、未照抄其他页面、未取速查表以外的相近值。
 
 细化自检见 [reference.md](reference.md)。

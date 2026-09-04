@@ -35,6 +35,7 @@ ${views前缀}Xxx/
 - 项目模式要求虚拟滚动时，必须同时有 `virtualYConfig` 和稳定的 grid `height`，避免只配其一。
 - 列偏好必须走 `useGridPreferences` 和项目 API，不手写本地列偏好、不绕过 `restoreUserPreferences` 和 `commitCurrentLayout`。
 - 列宽、import 顺序、columns 顺序和虚拟滚动细节统一看 [t-standards/reference.md](../t-standards/reference.md)；其中列宽规则、`minWidth` 禁用、业务列顺序和虚拟滚动阈值以该文件为准。
+- 业务列达到通用 width 阈值时，`width` 只允许按列宽速查表取值：编号/日期 160、金额 120（采购主金额 130）、状态/数量 120、图片 80、`seq` 50、`checkBox` 50（跟踪 60）、操作 150。列类型按字段语义归类（`field` 含 `code`/`no`/`num` 或中文为编号/编码/单号即编号类），归类细则见 [t-standards/reference.md#列宽与-minwidth](../t-standards/reference.md#列宽与-minwidth)。
 - 新增主单业务列时，先确认字段设置维度并交给 [t-field](../t-field/SKILL.md)，再写 columns、`setField` 或可见性。
 
 ## 必问门禁
@@ -61,5 +62,6 @@ ${views前缀}Xxx/
 - 禁止 `columns.ts`、`auth.ts`、`type.ts` 职责串味。
 - 禁止新增主单列时跳过字段设置维度确认。
 - 禁止新需求主单业务列少于 9 列却主动写 `width`，或使用 `minWidth`；列宽规则以 [t-standards/reference.md](../t-standards/reference.md) 为准。
+- 禁止 `width` 凭印象取值、照抄其他页面或写速查表以外的相近值（例如编号列写 150）；写列前逐列归类取值，交付自检时逐列对照速查表核对。
 - 禁止复制其他模块 `t('key')` 而不查 locales。
 - 禁止把主单写操作当成孤立按钮，跳过闭环、权限和日志判断。
