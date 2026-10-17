@@ -5,6 +5,8 @@ description: 经 t-page 新建 Tsb ERP 页面模块，取证标准页并确认�
 
 # 新建 Tsb ERP 页面模块
 
+先执行 [t-page 的项目分流](../skills/t-page/SKILL.md#项目分流)。命中新贸易时按项目 `docs/` 完成当前任务；其他项目继续执行下文流程。
+
 读取 [t-page](../skills/t-page/SKILL.md)、[调度约定](../skills/t-page/orchestration.md) 和 [t-module](../skills/t-module/SKILL.md)，按开发权限执行。默认按需选择角色；同一任务已选 [t-page-max](../skills/t-page-max/SKILL.md) 时保留全量模式，不另起链路。
 
 1. 按入口分析前端需求、探测 ts/th 画像，确认模块归属、主单/详情范围、业务闭环和权限边界。新增文件、依赖、抽象与调用层级写入复杂度预算。

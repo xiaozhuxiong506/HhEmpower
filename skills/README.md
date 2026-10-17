@@ -1,6 +1,6 @@
 # TSB ERP 技能索引
 
-19 个 Skills。日常页面任务使用 `/t-page + 任务描述`，主 Agent 按需分工；需要全部 22 个角色时使用 `/t-page-max + 任务描述`。两种入口共用专业规范，不需要手动组合多个 Skill。单独查询规范、接口、禅道或钉钉时可直达对应 Skill。
+35 个 Skills，包含 19 个 ERP 工作流技能和 16 个钉钉专用技能。日常页面任务使用 `/t-page + 任务描述`，主 Agent 按需分工；需要全部 22 个角色时使用 `/t-page-max + 任务描述`。新贸易项目由入口读取项目根目录 `docs/` 规范。单独查询规范、接口、禅道或钉钉时可直达对应 Skill。
 
 ## 技能总览
 
@@ -25,6 +25,27 @@
 | 防御性编程 · 边界校验 · 吞异常 | [t-defense](t-defense/SKILL.md) |
 | 禅道任务收集与分析 | [t-zentao](t-zentao/SKILL.md) |
 | 钉钉聊天只读查询 | [t-dingtalk](t-dingtalk/SKILL.md) |
+
+## 钉钉专用技能
+
+| 任务 | Skill |
+| --- | --- |
+| 跨产品入口与共享约定 | [dingtalk-shared](dingtalk-shared/SKILL.md) |
+| AI 卡片 | [dingtalk-aicard](dingtalk-aicard/SKILL.md) |
+| AI 搜问 | [dingtalk-aisearch](dingtalk-aisearch/SKILL.md) |
+| AI 表格 | [dingtalk-aitable](dingtalk-aitable/SKILL.md) |
+| 日历与会议室 | [dingtalk-calendar](dingtalk-calendar/SKILL.md) |
+| 群聊与消息 | [dingtalk-chat](dingtalk-chat/SKILL.md) |
+| 通讯录 | [dingtalk-contact](dingtalk-contact/SKILL.md) |
+| 在线文档 | [dingtalk-doc](dingtalk-doc/SKILL.md) |
+| 文件与钉盘 | [dingtalk-drive](dingtalk-drive/SKILL.md) |
+| 事件监听 | [dingtalk-event](dingtalk-event/SKILL.md) |
+| 邮箱 | [dingtalk-mail](dingtalk-mail/SKILL.md) |
+| AI 听记 | [dingtalk-minutes](dingtalk-minutes/SKILL.md) |
+| 审批、考勤等其他产品 | [dingtalk-misc](dingtalk-misc/SKILL.md) |
+| 数字员工 | [dingtalk-tag](dingtalk-tag/SKILL.md) |
+| 待办 | [dingtalk-todo](dingtalk-todo/SKILL.md) |
+| 知识库 | [dingtalk-wiki](dingtalk-wiki/SKILL.md) |
 
 ## 全局红线
 

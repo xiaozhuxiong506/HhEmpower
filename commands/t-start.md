@@ -5,6 +5,8 @@ description: 经 t-page 启动 Tsb ERP 页面开发，按当前调度模式完�
 
 # t-page 开发启动
 
+先执行 [t-page 的项目分流](../skills/t-page/SKILL.md#项目分流)。命中新贸易时按项目 `docs/` 完成开发任务；其他项目继续执行下文流程。
+
 读取 [t-page](../skills/t-page/SKILL.md) 和 [调度约定](../skills/t-page/orchestration.md)，按开发/修复权限执行。默认按需；同一任务已选择 [t-page-max](../skills/t-page-max/SKILL.md) 时保留全量模式。本命令不自行升级或重置模式。
 
 1. 按入口完成前端需求分析、剩余澄清、系统画像和页面任务概览。产品文档先读 [t-requirement](../skills/t-requirement/SKILL.md)，仍有影响方案的歧义再读 [t-clarify](../skills/t-clarify/SKILL.md)。继承 [anchors.md](../skills/t-page/anchors.md) 的范围、业务闭环、责任、权限、共享影响和事实源边界。

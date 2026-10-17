@@ -5,6 +5,8 @@ description: 经 t-page 按当前调度模式只读审查页面改动，核查�
 
 # Tsb ERP 页面改动审查
 
+本命令只读。先执行 [t-page 的项目分流](../skills/t-page/SKILL.md#项目分流)。命中新贸易时按项目 `docs/` 审查并交付报告；其他项目继续执行下文流程。
+
 读取 [t-page](../skills/t-page/SKILL.md) 和 [调度约定](../skills/t-page/orchestration.md)，使用只读分析/审查权限。默认按需；同一任务已选择 [t-page-max](../skills/t-page-max/SKILL.md) 时保留全量模式。实际参与的实现角色转为核查，不改代码、不创建骨架或登记内容。
 
 1. 获取用户原始需求及已确认范围、后续纠正、本次 git diff 或指定文件，以及已有的提交和 PR 文案。仅澄清影响审查范围的剩余歧义。

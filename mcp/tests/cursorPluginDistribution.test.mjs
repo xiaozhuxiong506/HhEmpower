@@ -22,7 +22,7 @@ function findLegacyTechnicalIdentifiers() {
   const legacyLower = String.fromCharCode(116, 115, 98);
   const legacyUpper = legacyLower.toUpperCase();
   const legacyTitle = `${legacyUpper[0]}${legacyLower.slice(1)}`;
-  const allowedDashedNames = new Set(["tsb-erp", "tsb-hall-user"]);
+  const allowedDashedNames = new Set(["tsb-erp", "tsb-hall-user", "tsb-new-trade-erp-pc"]);
   const allowedLowercaseFragments = [
     `${legacyLower}soft.com`,
     `internal.${legacyLower}.com`,
@@ -45,6 +45,7 @@ function findLegacyTechnicalIdentifiers() {
 
   for (const file of trackedFiles) {
     if (file.startsWith("mcp/dist/")) continue;
+    if (!fs.existsSync(path.join(repoRoot, file))) continue;
 
     const content = fs.readFileSync(path.join(repoRoot, file));
     if (content.includes(0)) continue;
@@ -206,6 +207,50 @@ test("exported and Git-tracked MCP starts outside the repository", async () => {
     assert.match(authText, /OAuth/);
   } finally {
     await client.close().catch(() => {});
+    fs.rmSync(tempRoot, { recursive: true, force: true });
+  }
+});
+
+test("re-export preserves Git history and local files while refreshing distribution files", () => {
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "t-plugin-reexport-"));
+  const pluginRoot = path.join(tempRoot, "source");
+  const exportDir = path.join(tempRoot, "published");
+
+  try {
+    fs.mkdirSync(path.join(pluginRoot, "mcp"), { recursive: true });
+    fs.mkdirSync(path.join(pluginRoot, "commands"));
+    fs.writeFileSync(path.join(pluginRoot, "mcp/package.json"), JSON.stringify({
+      scripts: { build: "node -e \"process.exit(0)\"" }
+    }));
+    fs.writeFileSync(path.join(pluginRoot, "README.md"), "First release\n");
+    fs.writeFileSync(path.join(pluginRoot, "commands/current.md"), "Current command\n");
+
+    const firstExport = runExport(exportDir, pluginRoot);
+    assert.equal(firstExport.status, 0, firstExport.stderr || firstExport.stdout);
+
+    const git = args => execFileSync("git", args, { cwd: exportDir, encoding: "utf8" }).trim();
+    git(["init", "--quiet"]);
+    git(["add", "README.md"]);
+    git([
+      "-c", "user.name=Plugin Test", "-c", "user.email=plugin-test@example.invalid",
+      "-c", "commit.gpgsign=false", "commit", "--quiet", "-m", "Initial distribution"
+    ]);
+    git(["remote", "add", "origin", "https://example.invalid/plugin.git"]);
+    const initialHead = git(["rev-parse", "HEAD"]);
+    fs.writeFileSync(path.join(exportDir, "local-notes.txt"), "Keep local notes\n");
+    fs.writeFileSync(path.join(exportDir, "commands/obsolete.md"), "Old command\n");
+    fs.writeFileSync(path.join(pluginRoot, "README.md"), "Second release\n");
+
+    const secondExport = runExport(exportDir, pluginRoot);
+    assert.equal(secondExport.status, 0, secondExport.stderr || secondExport.stdout);
+    assert.equal(fs.existsSync(path.join(exportDir, ".git")), true, "export must keep the Git repository");
+    assert.equal(git(["rev-parse", "HEAD"]), initialHead);
+    assert.equal(git(["remote", "get-url", "origin"]), "https://example.invalid/plugin.git");
+    assert.equal(fs.readFileSync(path.join(exportDir, "local-notes.txt"), "utf8"), "Keep local notes\n");
+    assert.equal(fs.readFileSync(path.join(exportDir, "README.md"), "utf8"), "Second release\n");
+    assert.equal(fs.existsSync(path.join(exportDir, "commands/obsolete.md")), false);
+    assert.equal(fs.readFileSync(path.join(exportDir, "commands/current.md"), "utf8"), "Current command\n");
+  } finally {
     fs.rmSync(tempRoot, { recursive: true, force: true });
   }
 });

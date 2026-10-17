@@ -6,6 +6,8 @@ globs: "src/views/{ts,th}*/**/*"
 
 # Tsb ERP — Agent 指引
 
+先执行 [t-page 的项目分流](../skills/t-page/SKILL.md#项目分流)。命中新贸易时按项目 `docs/` 规范完成任务；其他项目继续执行下文原规则。
+
 改 **`src/views/${views前缀}*/**`**（ts* 或 th*）下业务页时，**必须先 Read Skills**，再写代码。
 
 ## 强制顺序

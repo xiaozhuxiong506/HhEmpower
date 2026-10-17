@@ -18,7 +18,7 @@
 
 | 能力 | 数量 | 说明 |
 | --- | ---: | --- |
-| Skills | 19 | 需求分析、按需/全量页面入口、接口核验、权限、字段、弹窗、列表、详情、防御性编程 |
+| Skills | 35 | 19 个 ERP 工作流技能，16 个钉钉专用技能 |
 | Subagents | 22 | `/t-page` 按需选择，`/t-page-max` 全员分阶段参与 |
 | Rules | 2 | 页面开发通用指引与钉钉聊天隐私边界 |
 | Commands | 5 | `/t-start` `/t-new-module` `/t-review` `/t-zentao-collect` `/t-dingtalk-read` |
@@ -113,7 +113,7 @@ HhEmpower/
 ├── mcp/                             内置只读 MCP 与构建产物
 ├── rules/                           页面指引与隐私边界
 ├── scripts/                         安装、同步、导出脚本
-├── skills/                          19 个专业 skill（见 skills/README.md）
+├── skills/                          35 个专业 skill（见 skills/README.md）
 ├── tests/                           调度行为回归场景
 ├── assets/logo.png                  插件图标
 ├── CHANGELOG.md                     版本记录

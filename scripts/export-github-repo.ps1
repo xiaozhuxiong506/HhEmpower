@@ -61,13 +61,27 @@ try {
     Pop-Location
 }
 
-if (Test-Path $ExportDir) { Remove-Item $ExportDir -Recurse -Force }
-New-Item -ItemType Directory -Path $ExportDir | Out-Null
+if (Test-Path -LiteralPath $ExportDir) {
+    if ((Get-Item -LiteralPath $ExportDir -Force).Attributes -band [IO.FileAttributes]::ReparsePoint) {
+        throw "Export directory must not be a link: $ExportDir"
+    }
+}
+New-Item -ItemType Directory -Path $ExportDir -Force | Out-Null
 
 foreach ($item in $include) {
     $src = Join-Path $PluginRoot $item
-    if (Test-Path $src) {
-        Copy-Item $src (Join-Path $ExportDir $item) -Recurse -Force
+    $dest = Get-NormalizedFullPath (Join-Path $ExportDir $item)
+    if (!$dest.StartsWith($ExportDir + $PathSeparator, $PathComparison)) {
+        throw "Unsafe exported path: $dest"
+    }
+    if (Test-Path -LiteralPath $dest) {
+        if ((Get-Item -LiteralPath $dest -Force).Attributes -band [IO.FileAttributes]::ReparsePoint) {
+            throw "Exported path must not be a link: $dest"
+        }
+        Remove-Item -LiteralPath $dest -Recurse -Force
+    }
+    if (Test-Path -LiteralPath $src) {
+        Copy-Item -LiteralPath $src -Destination $dest -Recurse -Force
         Write-Host "Exported: $item"
     }
 }
@@ -81,4 +95,4 @@ if (Test-Path $ExportMcpNodeModules) {
 }
 
 Write-Host "Export complete: $ExportDir"
-Write-Host "Next: cd $ExportDir && git init && git add . && git commit"
+Write-Host "Next: review, commit, and push from $ExportDir"

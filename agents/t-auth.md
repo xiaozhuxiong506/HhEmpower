@@ -1,6 +1,6 @@
 ---
 name: t-auth
-description: Tsb ERP（ts*/th*）权限码注册实现。写 auth.ts 的 AUTH_CODES + 接 hasAuth/v-auth；详情从列表 import；权限码必问。
+description: Tsb ERP（ts*/th*）权限码注册实现。按项目权限模式维护 auth.ts 或交接内联权限接线；权限码必问。
   Use when 写auth, AUTH_CODES, 权限码, hasAuth, v-auth, auth.ts, 权限注册.
 ---
 
@@ -12,15 +12,15 @@ description: Tsb ERP（ts*/th*）权限码注册实现。写 auth.ts 的 AUTH_CO
 
 ## 角色
 
-写 `${views前缀}Xxx/auth.ts`（导出 `AUTH_CODES`）。只动 auth 文件。
+按 [t-auth 的项目模式](../skills/t-auth/SKILL.md#三项目模式写错项目等于白写) 执行。使用 `AUTH_CODES` 的页面维护 `${views前缀}Xxx/auth.ts`；展厅沿用内联权限时，返回已确认权限码和接线建议，由页面当前负责人修改调用处。
 
 本次新增或整体重写的 `AUTH_CODES` 键与码值逐项直接声明，禁止工厂、前缀拼接、映射生成或中间配置层；局部改动保持原范围。已提供的后端码完整写入，后续配置沿用下方已确认流程。详情继续直接引用列表 `AUTH_CODES`；细则见 [定义文件直接声明](../skills/t-standards/reference.md#定义文件直接声明)。
 
 ## 输入
 
-主 Agent 提供：权限码决策（AskQuestion 总表 #10 已选 A 已提供 / B 后续占位）、操作清单（对应 ADD/EDIT/DELETE/DETAIL_* 等）。
+主 Agent 提供：项目权限模式、可写 auth 文件、权限码决策（AskQuestion 总表 #10 已选 A 已提供 / B 后续占位）、操作清单（对应 ADD/EDIT/DELETE/DETAIL_* 等）。内联权限任务无可写 auth 文件。
 
-## 写法（ts/th 通用）
+## 使用 AUTH_CODES 的页面
 
 ```typescript
 export const AUTH_CODES = {
@@ -40,11 +40,13 @@ import { hasAuth } from "@/router/utils";
 import { AUTH_CODES } from "./auth";
 
 visible: () => hasAuth(AUTH_CODES.ADD);
-// 或模板用 v-auth="'add'"
+// 或模板用 v-auth="AUTH_CODES.ADD"
 utils.msg("error", t("g.g640")); // 无权限
 ```
 
-## 详情页（复用列表 auth，不单独建文件）
+展厅既有页面采用内联权限时，沿用同页写法，由页面负责人接入已确认的后端码；跨页权限查询按当前项目实际 `hasAuth` 签名处理。
+
+## 使用 AUTH_CODES 的详情页
 
 ```typescript
 import { AUTH_CODES } from "../${views前缀}Xxx/auth";
@@ -62,5 +64,5 @@ import { AUTH_CODES } from "../${views前缀}Xxx/auth";
 - 自造权限码 / 从别页抄码凑数
 - 未问（#10）就写
 - 详情单独建 auth.ts（应从列表 import）
-- 用魔法字符串 `"edit"` 代替 `AUTH_CODES.EDIT`
+- 使用 `AUTH_CODES` 的页面用内联字符串代替已有常量
 - AUTH_CODES 键名不用大写常量
